@@ -1,0 +1,63 @@
+// SettingsLayout.jsx
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { settingsLinks } from "../utils/settinglinks";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const SettingsLayout = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  return (
+    <section className="flex flex-col md:flex-row max-w-6xl mx-auto p-4 gap-8">
+      <div className="w-full md:w-64 min-h-[590px] flex flex-col justify-between bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-lg p-6">
+        <div>
+          <h1 className="text-3xl font-bold mb-6">Settings</h1>
+
+          <nav className="mb-8">
+            <ul className="space-y-2">
+              {settingsLinks.map((link) => (
+                <li key={link.path}>
+                  <button
+                    onClick={() => navigate(link.path)}
+                    className={`w-full text-left py-2 px-2 font-medium text-sm rounded-md transition-colors ${
+                      location.pathname === link.path
+                        ? "bg-gray-100 font-medium text-gray-900"
+                        : "text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    {link.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+
+        <div className="flex items-center pt-4">
+          <div className="h-16 w-16 rounded-full overflow-hidden">
+            <img
+              src="https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg?t=st=1742702207~exp=1742705807~hmac=9207348a8ce72f0d47502818d2b23bdefdd48bd855093018937ef3fde93a3013&w=740"
+              alt="User profile"
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="ml-3">
+            <p className="font-medium text-gray-900">John Doe</p>
+          </div>
+        </div>
+      </div>
+
+      <Suspense
+        key={location.pathname}
+        fallback={<Skeleton className="flex-1 bg-[#f3f3f3] rounded-lg p-6" />}
+      >
+        <div className="flex-1 shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-white rounded-lg p-6">
+          <Outlet />
+        </div>
+      </Suspense>
+    </section>
+  );
+};
+
+export default SettingsLayout;
