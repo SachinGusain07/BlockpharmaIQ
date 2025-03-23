@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
+@import "tailwindcss";
+/* btn-hover color-7 */
+/* Button Base Style */
+* , html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.btn-hover {
+    width: 150px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    cursor: pointer;
+    height:40px;
+    margin: 20px;
+    text-align: center;
+    border: none;
+    border-radius: 10px;
+    background-size: 300% 100%;  /* Ensure the background covers the whole button */
+    transition: all 0.4s ease-in-out; /* Apply smooth transition */
+}
+
+/* Hover Effect */
+.btn-hover:hover {
+    background-position: 100% 0;  /* Apply gradient shift on hover */
+    transition: all 0.4s ease-in-out; /* Smooth transition */
+}
+
+/* Button Color 7 Hover Gradient */
+.btn-hover.color-7 {
+    background-image: linear-gradient(to right, #000000, #373737, #626262, #272626);
+    box-shadow: 0 4px 15px 0 rgba(76, 76, 76, 0.75); /* Optional shadow */
+}
+
+/* Hover on color-7 */
+.btn-hover.color-7:hover {
+    background-position: 100% 0;
+}
