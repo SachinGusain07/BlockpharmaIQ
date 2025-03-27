@@ -1,11 +1,11 @@
-import ProfileInformationSetting from "@/components/ProfileInformation";
+import ProfileInformationSetting from '@/components/ProfileInformation'
 
 const ProfileInformation = () => {
   return (
     <>
       <ProfileInformationSetting />
     </>
-  );
-};
+  )
+}
 
-export default ProfileInformation;
+export default ProfileInformation

@@ -1,11 +1,11 @@
-import UpdateProfileSetting from "@/components/UpdateProfile";
+import UpdateProfileSetting from '@/components/UpdateProfile'
 
 function UpdateProfile() {
   return (
     <>
       <UpdateProfileSetting />
     </>
-  );
+  )
 }
 
-export default UpdateProfile;
+export default UpdateProfile

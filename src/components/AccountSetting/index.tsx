@@ -1,24 +1,24 @@
 // AccountManagement.jsx
-import { useState } from "react";
-import ActionCard from "../ActionCard";
-import ConfirmationModal from "../ConfirmationModal";
+import { useState } from 'react'
+import ActionCard from '../ActionCard'
+import ConfirmationModal from '../ConfirmationModal'
 
 const AccountSettings = () => {
-  const [showDeactivateModal, setShowDeactivateModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   const handleDeactivateAccount = () => {
-    console.log("Account deactivated");
-    setShowDeactivateModal(false);
-  };
+    console.log('Account deactivated')
+    setShowDeactivateModal(false)
+  }
 
   const handleDeleteAccount = () => {
-    console.log("Account deleted");
-    setShowDeleteModal(false);
-  };
+    console.log('Account deleted')
+    setShowDeleteModal(false)
+  }
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="mx-auto max-w-6xl">
       <ActionCard
         title="Deactivate Account"
         description="You can deactivate your account at any time. If you change your mind, you are able to re-activate it anytime."
@@ -53,7 +53,7 @@ const AccountSettings = () => {
         onCancel={() => setShowDeleteModal(false)}
       />
     </div>
-  );
-};
+  )
+}
 
-export default AccountSettings;
+export default AccountSettings

@@ -1,11 +1,11 @@
-import AccountSettings from "@/components/AccountSetting";
+import AccountSettings from '@/components/AccountSetting'
 
 const AccountSetting = () => {
   return (
     <>
       <AccountSettings />
     </>
-  );
-};
+  )
+}
 
-export default AccountSetting;
+export default AccountSetting

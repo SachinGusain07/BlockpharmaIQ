@@ -1,10 +1,16 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  font-family: Plus Jakarta Sans, Inter, system-ui, Avenir, Helvetica, Arial,
+  font-family:
+    Plus Jakarta Sans,
+    Inter,
+    system-ui,
+    Avenir,
+    Helvetica,
+    Arial,
     sans-serif;
   line-height: 1.5;
   font-weight: 400;

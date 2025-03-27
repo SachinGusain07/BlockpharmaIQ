@@ -1,35 +1,35 @@
 // BasicLayout.jsx
-import { useEffect, useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
-import { navLinks } from "../utils/navlinks";
+import { useEffect, useState } from 'react'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { navLinks } from '../utils/navlinks'
 
 const BasicLayout = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
-    setIsAuthenticated(true);
+    setIsAuthenticated(true)
     if (isAuthenticated) {
-      navigate("/setting");
+      navigate('/setting')
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate])
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
 
   return (
     <>
-      <nav className="fixed top-4 left-0 right-0 z-50">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="bg-[#E6E6E6] border-[#D1D1D1] rounded-full flex items-center justify-between box-shadow: rgba(17, 17, 26, 0.1) 0px 0px 16px; px-4 py-2">
-            <div className="w-10 h-10 bg-[#353535] rounded-full"></div>
+      <nav className="fixed top-4 right-0 left-0 z-50">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="box-shadow: rgba(17, 17, 26, 0.1) 0px 0px 16px; flex items-center justify-between rounded-full border-[#D1D1D1] bg-[#E6E6E6] px-4 py-2">
+            <div className="h-10 w-10 rounded-full bg-[#353535]"></div>
 
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden items-center space-x-8 md:flex">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className="text-[#353535] font-medium text-sm leading-5 hover:text-gray-900"
+                  className="text-sm leading-5 font-medium text-[#353535] hover:text-gray-900"
                 >
                   {link.name}
                 </Link>
@@ -38,14 +38,11 @@ const BasicLayout = () => {
             <div>
               <div className="flex items-center space-x-3">
                 <div className="relative flex gap-3">
-                  <button className="px-6 py-2 rounded-full text-white font-medium text-sm leading-5 bg-[#353535]">
+                  <button className="rounded-full bg-[#353535] px-6 py-2 text-sm leading-5 font-medium text-white">
                     Sign up
                   </button>
 
-                  <button
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    className="md:hidden"
-                  >
+                  <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-6 w-6 text-gray-700"
@@ -57,17 +54,13 @@ const BasicLayout = () => {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d={
-                          isMenuOpen
-                            ? "M6 18L18 6M6 6l12 12"
-                            : "M4 6h16M4 12h16M4 18h16"
-                        }
+                        d={isMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
                       />
                     </svg>
                   </button>
                   {showProfileMenu && (
                     <div
-                      className="absolute -right-16 mt-3 w-40 bg-[#f4f4f4] rounded-md shadow-lg py-1 z-50"
+                      className="absolute -right-16 z-50 mt-3 w-40 rounded-md bg-[#f4f4f4] py-1 shadow-lg"
                       onMouseLeave={() => setShowProfileMenu(false)}
                     ></div>
                   )}
@@ -78,7 +71,7 @@ const BasicLayout = () => {
         </div>
 
         {isMenuOpen && (
-          <div className="md:hidden bg-white mt-2 mx-4 font-medium text-sm rounded-lg shadow-lg p-4">
+          <div className="mx-4 mt-2 rounded-lg bg-white p-4 text-sm font-medium shadow-lg md:hidden">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -97,7 +90,7 @@ const BasicLayout = () => {
         <Outlet />
       </div>
     </>
-  );
-};
+  )
+}
 
-export default BasicLayout;
+export default BasicLayout

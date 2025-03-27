@@ -1,17 +1,17 @@
 interface InfoCardProps {
-  title?: string;
-  fields: { label: string; value: string }[];
-  onEdit: () => void;
+  title?: string
+  fields: { label: string; value: string }[]
+  onEdit: () => void
 }
 
 const InfoCard: React.FC<InfoCardProps> = ({ title, fields, onEdit }) => {
   return (
-    <div className="h-full rounded-lg p-6 mb-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="mb-6 h-full rounded-lg p-6">
+      <div className="mb-6 flex items-center justify-between">
         {title && <h2 className="text-2xl font-bold">{title}</h2>}
         <button
           onClick={onEdit}
-          className="flex items-center px-4 py-2 rounded-full text-xs border border-gray-300 text-gray-500 hover:bg-gray-50 transition-colors"
+          className="flex items-center rounded-full border border-gray-300 px-4 py-2 text-xs text-gray-500 transition-colors hover:bg-gray-50"
         >
           Edit
           <span className="ml-2">
@@ -32,20 +32,16 @@ const InfoCard: React.FC<InfoCardProps> = ({ title, fields, onEdit }) => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
+      <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2 lg:grid-cols-3">
         {fields.map((field, index) => (
           <div key={index} className="flex flex-col">
-            <label className="text-gray-900 text-sm font-medium mb-1">
-              {field.label}
-            </label>
-            <span className="text-gray-400 text-sm font-medium">
-              {field.value}
-            </span>
+            <label className="mb-1 text-sm font-medium text-gray-900">{field.label}</label>
+            <span className="text-sm font-medium text-gray-400">{field.value}</span>
           </div>
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default InfoCard;
+export default InfoCard

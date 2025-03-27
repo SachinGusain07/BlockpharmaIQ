@@ -1,17 +1,17 @@
 // ChangePassword.jsx
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 interface ChangePasswordForm {
-  oldPassword: string;
-  newPassword: string;
-  confirmPassword: string;
+  oldPassword: string
+  newPassword: string
+  confirmPassword: string
 }
 
 const ChangePassword = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [serverError, setServerError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
+  const [serverError, setServerError] = useState('')
 
   const {
     register,
@@ -21,46 +21,42 @@ const ChangePassword = () => {
     watch,
   } = useForm({
     defaultValues: {
-      oldPassword: "",
-      newPassword: "",
-      confirmPassword: "",
+      oldPassword: '',
+      newPassword: '',
+      confirmPassword: '',
     },
-  });
+  })
 
   // Watch the newPassword field for validation
-  const newPassword = watch("newPassword");
+  const newPassword = watch('newPassword')
 
   const onSubmit = async (data: ChangePasswordForm) => {
-    setSuccessMessage("");
-    setServerError("");
-    setIsSubmitting(true);
+    setSuccessMessage('')
+    setServerError('')
+    setIsSubmitting(true)
 
     try {
-      console.log(data);
-      setSuccessMessage("Password changed successfully");
-      reset();
+      console.log(data)
+      setSuccessMessage('Password changed successfully')
+      reset()
     } catch (error: unknown) {
-      console.error(error);
-      setServerError("Failed to change password. Please try again.");
+      console.error(error)
+      setServerError('Failed to change password. Please try again.')
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
-    <div className="bg-white rounded-lg p-6 mb-6">
-      <h2 className="text-2xl font-bold mb-6">Change Password</h2>
+    <div className="mb-6 rounded-lg bg-white p-6">
+      <h2 className="mb-6 text-2xl font-bold">Change Password</h2>
 
       {successMessage && (
-        <div className="mb-6 p-3 bg-green-100 text-green-700 rounded-md">
-          {successMessage}
-        </div>
+        <div className="mb-6 rounded-md bg-green-100 p-3 text-green-700">{successMessage}</div>
       )}
 
       {serverError && (
-        <div className="mb-6 p-3 bg-red-100 text-red-700 rounded-md">
-          {serverError}
-        </div>
+        <div className="mb-6 rounded-md bg-red-100 p-3 text-red-700">{serverError}</div>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -73,16 +69,14 @@ const ChangePassword = () => {
             type="password"
             placeholder="Old Password"
             className={`w-full border-b placeholder:text-sm placeholder:font-medium ${
-              errors.oldPassword ? "border-red-500" : "border-gray-300"
+              errors.oldPassword ? 'border-red-500' : 'border-gray-300'
             } py-2 outline-none focus:border-gray-500`}
-            {...register("oldPassword", {
-              required: "Current password is required",
+            {...register('oldPassword', {
+              required: 'Current password is required',
             })}
           />
           {errors.oldPassword && (
-            <p className="mt-1 text-sm text-red-500">
-              {errors.oldPassword.message}
-            </p>
+            <p className="mt-1 text-sm text-red-500">{errors.oldPassword.message}</p>
           )}
         </div>
 
@@ -95,20 +89,18 @@ const ChangePassword = () => {
             type="password"
             placeholder="New Password"
             className={`w-full border-b placeholder:text-sm placeholder:font-medium ${
-              errors.newPassword ? "border-red-500" : "border-gray-300"
+              errors.newPassword ? 'border-red-500' : 'border-gray-300'
             } py-2 outline-none focus:border-gray-500`}
-            {...register("newPassword", {
-              required: "New password is required",
+            {...register('newPassword', {
+              required: 'New password is required',
               minLength: {
                 value: 8,
-                message: "Password must be at least 8 characters",
+                message: 'Password must be at least 8 characters',
               },
             })}
           />
           {errors.newPassword && (
-            <p className="mt-1 text-sm text-red-500">
-              {errors.newPassword.message}
-            </p>
+            <p className="mt-1 text-sm text-red-500">{errors.newPassword.message}</p>
           )}
         </div>
 
@@ -121,18 +113,15 @@ const ChangePassword = () => {
             type="password"
             placeholder="Confirm New Password"
             className={`w-full border-b placeholder:text-sm placeholder:font-medium ${
-              errors.confirmPassword ? "border-red-500" : "border-gray-300"
+              errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
             } py-2 outline-none focus:border-gray-500`}
-            {...register("confirmPassword", {
-              required: "Please confirm your password",
-              validate: (value) =>
-                value === newPassword || "Passwords do not match",
+            {...register('confirmPassword', {
+              required: 'Please confirm your password',
+              validate: (value) => value === newPassword || 'Passwords do not match',
             })}
           />
           {errors.confirmPassword && (
-            <p className="mt-1 text-sm text-red-500">
-              {errors.confirmPassword.message}
-            </p>
+            <p className="mt-1 text-sm text-red-500">{errors.confirmPassword.message}</p>
           )}
         </div>
 
@@ -140,14 +129,14 @@ const ChangePassword = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-6 py-3 text-xs font-medium rounded-full bg-gray-900 text-white hover:bg-gray-800 transition-colors disabled:opacity-70"
+            className="rounded-full bg-gray-900 px-6 py-3 text-xs font-medium text-white transition-colors hover:bg-gray-800 disabled:opacity-70"
           >
-            {isSubmitting ? "Submitting..." : "Submit"}
+            {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>
         </div>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default ChangePassword;
+export default ChangePassword
