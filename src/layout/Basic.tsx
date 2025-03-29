@@ -1,21 +1,22 @@
-// BasicLayout.jsx
 import { useEffect, useState } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { navLinks } from '../utils/navlinks'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store/store'
 
 const BasicLayout = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const navigate = useNavigate()
-
-  useEffect(() => {
-    setIsAuthenticated(true)
-    if (isAuthenticated) {
-      navigate('/setting')
-    }
-  }, [isAuthenticated, navigate])
-
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
+
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/setting')
+      return
+    }
+  }, [isAuthenticated, navigate])
 
   return (
     <>

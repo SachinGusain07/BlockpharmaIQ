@@ -5,7 +5,7 @@ import { AuthState } from '@/types/types'
 
 const initialState: AuthState = {
   accessToken: localStorage.getItem('accessToken') || '',
-  isAuthenticate: Boolean(localStorage.getItem('accessToken')),
+  isAuthenticated: Boolean(localStorage.getItem('accessToken')),
   isLoading: true,
 }
 
@@ -18,11 +18,11 @@ export const authSlice = createSlice({
     },
     setTokens: (state, action: PayloadAction<{ accessToken: string; refreshToken: string }>) => {
       state.accessToken = action.payload.accessToken
-      state.isAuthenticate = true
+      state.isAuthenticated = true
     },
     resetTokens: (state) => {
       state.accessToken = ''
-      state.isAuthenticate = false
+      state.isAuthenticated = false
     },
   },
   extraReducers: (builder) => {
@@ -37,14 +37,14 @@ export const authSlice = createSlice({
         localStorage.setItem('refreshToken', data.refreshToken)
         state.accessToken = localStorage.getItem('accessToken') || ''
         state.isLoading = false
-        state.isAuthenticate = true
+        state.isAuthenticated = true
 
         return state
       })
       .addMatcher(api.endpoints.login.matchRejected, (state) => {
         state.accessToken = ''
         state.isLoading = false
-        state.isAuthenticate = false
+        state.isAuthenticated = false
         return state
       })
     builder.addMatcher(api.endpoints.logout.matchFulfilled, (state) => {
@@ -53,7 +53,7 @@ export const authSlice = createSlice({
 
       state.accessToken = ''
       state.isLoading = false
-      state.isAuthenticate = false
+      state.isAuthenticated = false
       return state
     })
   },

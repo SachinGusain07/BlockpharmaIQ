@@ -60,6 +60,6 @@ const loginSchema = yup.object().shape({
 
 interface AuthState {
   accessToken: string
-  isAuthenticate: boolean
+  isAuthenticated: boolean
   isLoading: boolean
 }
