@@ -1,4 +1,4 @@
-import PasswordSetting from '@/components/ChangePassword'
+import PasswordSetting from '@/components/UserSettings/ChangePassword'
 
 const ChangePassword = () => {
   return (

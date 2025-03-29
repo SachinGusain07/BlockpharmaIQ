@@ -1,4 +1,4 @@
-import UpdateProfileSetting from '@/components/UpdateProfile'
+import UpdateProfileSetting from '@/components/UserSettings/UpdateProfile'
 
 function UpdateProfile() {
   return (

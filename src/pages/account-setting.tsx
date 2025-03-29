@@ -1,4 +1,4 @@
-import AccountSettings from '@/components/AccountSetting'
+import AccountSettings from '@/components/UserSettings/AccountSetting'
 
 const AccountSetting = () => {
   return (

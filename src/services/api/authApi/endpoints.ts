@@ -19,7 +19,7 @@ export const authApiEndpoints = api.injectEndpoints({
       Omit<IUser, 'id' | 'active' | 'role' | 'refreshToken'>
     >({
       query: (userData) => ({
-        url: '/auth/register',
+        url: '/user/register',
         method: 'POST',
         body: userData,
       }),

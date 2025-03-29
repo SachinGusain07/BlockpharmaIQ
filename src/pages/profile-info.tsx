@@ -1,4 +1,4 @@
-import ProfileInformationSetting from '@/components/ProfileInformation'
+import ProfileInformationSetting from '@/components/UserSettings/ProfileInformation'
 
 const ProfileInformation = () => {
   return (

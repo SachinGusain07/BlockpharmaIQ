@@ -17,17 +17,15 @@ const Authenticated = () => {
       window.location.href = '/login'
       return
     }
-  }, [])
+  }, [isAuthenticated])
 
   return (
     <>
       <nav className="fixed top-4 right-0 left-0 z-50">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex items-center justify-between rounded-full border border-[#D1D1D1] bg-[#E6E6E6] px-4 py-2 shadow-[rgba(17,17,26,0.1)_0px_0px_16px]">
-            {/* Left side - Logo */}
             <div className="h-10 w-10 rounded-full bg-[#5F5F5F]"></div>
 
-            {/* Center - Navigation Links */}
             <div className="absolute left-1/2 hidden -translate-x-1/2 transform items-center space-x-8 md:flex">
               {navLinks.map((link) => (
                 <Link
@@ -40,7 +38,6 @@ const Authenticated = () => {
               ))}
             </div>
 
-            {/* Right side - Wallet and Profile */}
             <div className="flex items-center gap-3">
               <WalletConnector />
 
@@ -94,7 +91,6 @@ const Authenticated = () => {
                 )}
               </div>
 
-              {/* Mobile menu button */}
               <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -114,7 +110,6 @@ const Authenticated = () => {
             </div>
           </div>
 
-          {/* Mobile menu */}
           {isMenuOpen && (
             <div className="mx-4 mt-2 rounded-lg bg-white p-4 shadow-lg md:hidden">
               {navLinks.map((link) => (
