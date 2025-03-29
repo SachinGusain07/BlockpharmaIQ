@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link, Outlet } from 'react-router-dom'
 import { navLinks } from '../utils/navlinks'
 import { LayoutDashboard, LogOutIcon, Settings, User } from 'lucide-react'
+import WalletConnector from '@/components/ConnectWallet'
 
 const Authenticated = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -28,6 +29,8 @@ const Authenticated = () => {
             </div>
             <div>
               <div className="flex items-center gap-3">
+                <WalletConnector />
+
                 <div className="relative">
                   <div
                     className="h-10 w-10 cursor-pointer overflow-hidden rounded-full"
