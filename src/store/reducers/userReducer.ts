@@ -1,4 +1,4 @@
-import { api } from '@/services/api'
+import { meFulfilled } from '@/services/api'
 import { IUser, userRoles } from '@/types/types'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
@@ -28,18 +28,15 @@ export const userSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addMatcher(
-      api.endpoints.me.matchFulfilled,
-      (state, action: PayloadAction<{ data: IUser }>) => {
-        const data = action.payload.data
-        state.id = data.id
-        state.name = data.name
-        state.email = data.email
-        state.username = data.username
-        state.active = data.active
-        state.refreshToken = data.refreshToken
-      }
-    )
+    builder.addMatcher(meFulfilled, (state, action: PayloadAction<{ data: IUser }>) => {
+      const data = action.payload.data
+      state.id = data.id
+      state.name = data.name
+      state.email = data.email
+      state.username = data.username
+      state.active = data.active
+      state.refreshToken = data.refreshToken
+    })
   },
 })
 

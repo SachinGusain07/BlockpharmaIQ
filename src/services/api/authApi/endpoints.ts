@@ -1,4 +1,4 @@
-import { api } from '../../api'
+import { api } from '@/services/apiSlice'
 import { ApiResponse, IUser } from '@/types/types'
 
 export const authApiEndpoints = api.injectEndpoints({

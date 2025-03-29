@@ -1,7 +1,7 @@
-import type { PayloadAction } from '@reduxjs/toolkit'
-import { api } from '@/services/api'
-import { createSlice } from '@reduxjs/toolkit'
+import { loginFulfilled, loginPending, loginRejected, logoutFulfilled } from '@/services/api'
 import { AuthState } from '@/types/types'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 
 const initialState: AuthState = {
   accessToken: localStorage.getItem('accessToken') || '',
@@ -27,27 +27,30 @@ export const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addMatcher(api.endpoints.login.matchPending, (state) => {
+      .addMatcher(loginPending, (state) => {
         state.isLoading = true
         return state
       })
-      .addMatcher(api.endpoints.login.matchFulfilled, (state, action) => {
-        const data = action.payload.data
-        localStorage.setItem('accessToken', data.accessToken)
-        localStorage.setItem('refreshToken', data.refreshToken)
-        state.accessToken = localStorage.getItem('accessToken') || ''
-        state.isLoading = false
-        state.isAuthenticated = true
+      .addMatcher(
+        loginFulfilled,
+        (state, action: PayloadAction<{ data: { accessToken: string; refreshToken: string } }>) => {
+          const data = action.payload.data
+          localStorage.setItem('accessToken', data.accessToken)
+          localStorage.setItem('refreshToken', data.refreshToken)
+          state.accessToken = localStorage.getItem('accessToken') || ''
+          state.isLoading = false
+          state.isAuthenticated = true
 
-        return state
-      })
-      .addMatcher(api.endpoints.login.matchRejected, (state) => {
+          return state
+        }
+      )
+      .addMatcher(loginRejected, (state) => {
         state.accessToken = ''
         state.isLoading = false
         state.isAuthenticated = false
         return state
       })
-    builder.addMatcher(api.endpoints.logout.matchFulfilled, (state) => {
+    builder.addMatcher(logoutFulfilled, (state) => {
       localStorage.removeItem('accessToken')
       localStorage.removeItem('refreshToken')
 
