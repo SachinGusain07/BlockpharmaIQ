@@ -1,4 +1,3 @@
-// SettingsLayout.jsx
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { settingsLinks } from '../utils/settinglinks'
 import { Suspense } from 'react'

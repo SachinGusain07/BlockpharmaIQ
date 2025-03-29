@@ -1,13 +1,23 @@
-// Authenticated.jsx
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, Outlet } from 'react-router-dom'
 import { navLinks } from '../utils/navlinks'
 import { LayoutDashboard, LogOutIcon, Settings, User } from 'lucide-react'
 import WalletConnector from '@/components/ConnectWallet'
+import { useSelector } from 'react-redux'
+import { RootState } from '../store/store'
 
 const Authenticated = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
+
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      window.location.href = '/login'
+      return
+    }
+  }, [])
 
   return (
     <>
