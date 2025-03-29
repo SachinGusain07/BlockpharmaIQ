@@ -1,4 +1,4 @@
-import { api } from '@/services/api'
+import { api } from '@/services/apiSlice'
 import { configureStore } from '@reduxjs/toolkit'
 import { useDispatch, useSelector } from 'react-redux'
 import authReducer from './reducers/authReducer'
