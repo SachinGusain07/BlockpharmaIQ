@@ -2,8 +2,13 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { settingsLinks } from '../utils/settinglinks'
 import { Suspense } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store/store'
 
 const SettingsLayout = () => {
+  const firstName = useSelector((state: RootState) => state.user.firstName)
+  const lastName = useSelector((state: RootState) => state.user.lastName)
+
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -42,7 +47,7 @@ const SettingsLayout = () => {
             />
           </div>
           <div className="ml-3">
-            <p className="font-medium text-gray-900">John Doe</p>
+            <p className="font-medium text-gray-900">{firstName + ' ' + lastName}</p>
           </div>
         </div>
       </div>

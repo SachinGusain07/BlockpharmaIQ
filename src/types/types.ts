@@ -1,17 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as yup from 'yup'
 
-interface ApiResponseBody<T> {
+export interface ApiResponseBody<T> {
   status: boolean
   message: string
   data: T
 }
 
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
   status: number
   body: ApiResponseBody<T>
 }
 
-interface registerInput {
+export interface registerInput {
   name: string
   username: string
   email: string
@@ -19,12 +20,12 @@ interface registerInput {
   confirmPassword: string
 }
 
-interface INavLink {
+export interface INavLink {
   name: string
   path: string
 }
 
-interface IUser {
+export interface IUser {
   id: string
   firstName: string
   lastName: string
@@ -36,11 +37,11 @@ interface IUser {
   phoneNumber: string
   profilePic?: string
   Address?: IAddress
-  VendorOwner?: VendorOwner
-  VendorOrganization?: VendorOrganization[]
-  Pharmacist?: Pharmacist
-  PharmacyOutlet?: PharmacyOutlet[]
-  Orders?: Orders[]
+  VendorOwner?: any
+  VendorOrganization?: any
+  Pharmacist?: any
+  PharmacyOutlet?: any
+  Orders?: any
   createdAt: string
 }
 
@@ -63,13 +64,26 @@ export enum userRoles {
   PHARMACY,
 }
 
-const loginSchema = yup.object().shape({
+export const loginSchema = yup.object().shape({
   email: yup.string().email('Invalid email format').required('Email is required'),
   password: yup.string().required('Password is required'),
 })
 
-interface AuthState {
+export interface AuthState {
   accessToken: string
   isAuthenticated: boolean
   isLoading: boolean
+}
+
+export interface InventoryItem {
+  id: number
+  name: string
+  brand: string
+  category: string
+  image: string
+  stock: number
+  threshold: number
+  unit: string
+  price: number
+  expiry: string
 }

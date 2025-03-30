@@ -1,16 +1,34 @@
 import { meFulfilled } from '@/services/api'
-import { IUser, userRoles } from '@/types/types'
+import { ApiResponse, IUser, userRoles } from '@/types/types'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState: Omit<IUser, 'password' | 'confirmPassword'> = {
   id: '',
-  name: '',
+  firstName: '',
+  phoneNumber: '',
+  Address: {
+    id: 0,
+    userId: '',
+    street: '',
+    city: '',
+    state: '',
+    country: '',
+    zipCode: '',
+    createdAt: '',
+    updatedAt: '',
+  },
+  lastName: '',
   email: '',
-  username: '',
+  profilePic: '',
   role: userRoles.USER,
   active: false,
-  refreshToken: '',
+  createdAt: '',
+  VendorOwner: undefined,
+  VendorOrganization: undefined,
+  Pharmacist: undefined,
+  PharmacyOutlet: undefined,
+  Orders: undefined,
 }
 
 export const userSlice = createSlice({
@@ -20,22 +38,42 @@ export const userSlice = createSlice({
     setUser: (state, action: PayloadAction<{ data: IUser }>) => {
       const data = action.payload.data
       state.id = data.id
-      state.name = data.name
+      state.firstName = data.firstName
+      state.lastName = data.lastName
       state.email = data.email
-      state.username = data.username
+      state.phoneNumber = data.phoneNumber
+      state.profilePic = data.profilePic
+      state.role = data.role
       state.active = data.active
-      state.refreshToken = data.refreshToken
+      state.createdAt = data.createdAt
+      state.Address = data.Address
+      state.VendorOwner = data.VendorOwner
+      state.VendorOrganization = data.VendorOrganization
+      state.Pharmacist = data.Pharmacist
+      state.PharmacyOutlet = data.PharmacyOutlet
+      state.Orders = data.Orders
     },
   },
   extraReducers: (builder) => {
-    builder.addMatcher(meFulfilled, (state, action: PayloadAction<{ data: IUser }>) => {
-      const data = action.payload.data
-      state.id = data.id
-      state.name = data.name
-      state.email = data.email
-      state.username = data.username
-      state.active = data.active
-      state.refreshToken = data.refreshToken
+    builder.addMatcher(meFulfilled, (state, action: PayloadAction<ApiResponse<IUser>>) => {
+      const data = action.payload.body.data
+      if (data) {
+        state.id = data.id
+        state.firstName = data.firstName
+        state.lastName = data.lastName
+        state.email = data.email
+        state.phoneNumber = data.phoneNumber
+        state.profilePic = data.profilePic
+        state.role = data.role
+        state.active = data.active
+        state.createdAt = data.createdAt
+        state.Address = data.Address
+        state.VendorOwner = data.VendorOwner
+        state.VendorOrganization = data.VendorOrganization
+        state.Pharmacist = data.Pharmacist
+        state.PharmacyOutlet = data.PharmacyOutlet
+        state.Orders = data.Orders
+      }
     })
   },
 })

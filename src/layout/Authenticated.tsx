@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
-import { Link, Outlet } from 'react-router-dom'
-import { navLinks } from '../utils/navlinks'
-import { LayoutDashboard, LogOutIcon, Settings, User } from 'lucide-react'
 import WalletConnector from '@/components/ConnectWallet'
+import { LayoutDashboard, LogOutIcon, Settings, User } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { Link, Outlet } from 'react-router-dom'
 import { RootState } from '../store/store'
+import { navLinks } from '../utils/navlinks'
 
 const Authenticated = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -67,7 +67,7 @@ const Authenticated = () => {
                       Profile
                     </Link>
                     <Link
-                      to="/dashboard"
+                      to="/inventory"
                       className="flex items-center gap-3 px-4 py-2 text-[#353535] hover:bg-gray-200"
                     >
                       <LayoutDashboard size={16} />
@@ -80,13 +80,16 @@ const Authenticated = () => {
                       <Settings size={16} />
                       Setting
                     </Link>
-                    <Link
-                      to="/logout"
+                    <button
+                      onClick={() => {
+                        localStorage.removeItem('accessToken')
+                        window.location.href = '/login'
+                      }}
                       className="flex items-center gap-3 px-4 py-2 text-[#c13232] hover:bg-gray-200"
                     >
                       <LogOutIcon size={16} />
                       Logout
-                    </Link>
+                    </button>
                   </div>
                 )}
               </div>
