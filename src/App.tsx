@@ -12,6 +12,7 @@ const ChangePassword = lazy(() => import('./pages/change-password'))
 const UpdateProfile = lazy(() => import('./pages/update-profile'))
 const NotFound = lazy(() => import('./pages/not-found'))
 const Signup = lazy(() => import('./pages/signup'))
+const Login = lazy(() => import('./pages/login'))
 
 export const App = () => {
   return (
@@ -22,6 +23,7 @@ export const App = () => {
           <Route path="/" element={<Home />} />
         </Route>
         <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
 
         {/* Protected Routes using Authenticated Layout */}
         <Route element={<Authenticated />}>

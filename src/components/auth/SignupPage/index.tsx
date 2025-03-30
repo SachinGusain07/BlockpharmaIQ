@@ -2,10 +2,13 @@ import { PasswordInput } from '@/components/ui/PasswordInput'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
 import { RiDoubleQuotesL } from 'react-icons/ri'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import * as yup from 'yup'
 import { useRegisterMutation } from '@/services/api'
 import { toast } from 'sonner'
+import { useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store/store'
 
 // Updated Yup validation schema
 const signupSchema = yup.object({
@@ -42,14 +45,25 @@ const Signup = () => {
     },
   })
 
-  const [registerUser, { data: userData, isLoading }] = useRegisterMutation()
+  const [registerUser, { data, isLoading }] = useRegisterMutation()
+  const navigate = useNavigate()
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
 
-  const onSubmit = (data: FormData) => {
-    registerUser(data).unwrap()
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/setting')
+      return
+    }
+  }, [isAuthenticated, navigate])
+
+  const onSubmit = (formData: FormData) => {
+    registerUser(formData).unwrap()
     try {
-      if (userData) {
+      if (data) {
         toast.success('Registration successful')
         reset()
+
+        navigate('/login')
       }
     } catch (error) {
       toast.error('Registration failed')
@@ -148,11 +162,11 @@ const Signup = () => {
             <div className="mb-6 flex items-start">
               <input type="checkbox" id="agree" className="mt-1 mr-2" {...register('agree')} />
               <label htmlFor="agree" className="text-sm text-[#b9b7b7]">
-                I agree to the
+                I agree to the{' '}
                 <Link to="#" className="text-blue-500 hover:underline">
-                  Terms of Service
+                  Terms of Service{' '}
                 </Link>
-                and
+                and{' '}
                 <Link to="#" className="text-blue-500 hover:underline">
                   Privacy Policy
                 </Link>

@@ -16,8 +16,11 @@ export const authSlice = createSlice({
     setLoading: (state, action: PayloadAction<{ loading: boolean }>) => {
       state.isLoading = action.payload.loading
     },
-    setTokens: (state, action: PayloadAction<{ accessToken: string; refreshToken: string }>) => {
-      state.accessToken = action.payload.accessToken
+    setTokens: (
+      state,
+      action: PayloadAction<{ body: { status: true; data: { token: string } } }>
+    ) => {
+      state.accessToken = action.payload.body.data.token
       state.isAuthenticated = true
     },
     resetTokens: (state) => {
@@ -31,19 +34,15 @@ export const authSlice = createSlice({
         state.isLoading = true
         return state
       })
-      .addMatcher(
-        loginFulfilled,
-        (state, action: PayloadAction<{ data: { accessToken: string; refreshToken: string } }>) => {
-          const data = action.payload.data
-          localStorage.setItem('accessToken', data.accessToken)
-          localStorage.setItem('refreshToken', data.refreshToken)
-          state.accessToken = localStorage.getItem('accessToken') || ''
-          state.isLoading = false
-          state.isAuthenticated = true
+      .addMatcher(loginFulfilled, (state, action) => {
+        const data = action.payload.body
+        localStorage.setItem('accessToken', data.data.token)
+        state.accessToken = localStorage.getItem('accessToken') || ''
+        state.isLoading = false
+        state.isAuthenticated = true
 
-          return state
-        }
-      )
+        return state
+      })
       .addMatcher(loginRejected, (state) => {
         state.accessToken = ''
         state.isLoading = false
@@ -52,7 +51,6 @@ export const authSlice = createSlice({
       })
     builder.addMatcher(logoutFulfilled, (state) => {
       localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
 
       state.accessToken = ''
       state.isLoading = false

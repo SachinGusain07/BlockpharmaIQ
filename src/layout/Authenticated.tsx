@@ -13,7 +13,7 @@ const Authenticated = () => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!isAuthenticated) {
       window.location.href = '/login'
       return
     }

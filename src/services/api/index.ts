@@ -1,7 +1,12 @@
 import { authApiEndpoints } from './authApi/endpoints'
 import { userApiEndpoints } from './userApi/endpoints'
 
-export const { useMeQuery, useUpdateUserMutation } = userApiEndpoints
+export const {
+  useMeQuery,
+  useUpdateUserMutation,
+  useAddAddressMutation,
+  useUpdateUserAddressMutation,
+} = userApiEndpoints
 export const { useLoginMutation, useRegisterMutation, useLogoutMutation } = authApiEndpoints
 
 export const {

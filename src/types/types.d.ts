@@ -1,9 +1,14 @@
 import * as yup from 'yup'
 
-interface ApiResponse<T> {
-  data: T
-  success: boolean
+interface ApiResponseBody<T> {
+  status: boolean
   message: string
+  data: T
+}
+
+interface ApiResponse<T> {
+  status: number
+  body: ApiResponseBody<T>
 }
 
 interface registerInput {
@@ -28,7 +33,26 @@ interface IUser {
   confirmPassword: string
   role: userRoles
   active: boolean
-  refreshToken: string
+  phoneNumber: string
+  profilePic?: string
+  Address?: IAddress
+  VendorOwner?: VendorOwner
+  VendorOrganization?: VendorOrganization[]
+  Pharmacist?: Pharmacist
+  PharmacyOutlet?: PharmacyOutlet[]
+  Orders?: Orders[]
+}
+
+interface IAddress {
+  id: number
+  userId: string
+  street: string
+  city: string
+  state: string
+  country: string
+  zipCode: string
+  createdAt: string
+  updatedAt: string
 }
 
 export enum userRoles {

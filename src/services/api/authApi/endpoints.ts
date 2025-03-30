@@ -1,14 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from '@/services/apiSlice'
 import { ApiResponse, IUser } from '@/types/types'
 
 export const authApiEndpoints = api.injectEndpoints({
   endpoints: (builder) => ({
-    login: builder.mutation<
-      ApiResponse<IUser & { accessToken: string; refreshToken: string }>,
-      { email: string; password: string }
-    >({
+    login: builder.mutation<ApiResponse<any>, { email: string; password: string }>({
       query: (credentials) => ({
-        url: '/auth/login',
+        url: '/user/login',
         method: 'POST',
         body: credentials,
       }),

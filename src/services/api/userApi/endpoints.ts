@@ -1,17 +1,34 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from '@/services/apiSlice'
-import { ApiResponse, IUser } from '@/types/types'
+import { ApiResponse, IAddress, IUser } from '@/types/types'
 
 export const userApiEndpoints = api.injectEndpoints({
   endpoints: (builder) => ({
     me: builder.query<ApiResponse<IUser>, void>({
-      query: () => '/auth/me',
+      query: () => '/user/me',
       providesTags: ['User'],
     }),
-    updateUser: builder.mutation<ApiResponse<IUser>, IUser>({
+    updateUser: builder.mutation<ApiResponse<IUser>, any>({
       query: (userData) => ({
-        url: `/auth/${userData.id}`,
+        url: `/user/update`,
         method: 'PUT',
         body: userData,
+      }),
+      invalidatesTags: ['User'],
+    }),
+    addAddress: builder.mutation<ApiResponse<IUser>, any>({
+      query: (address) => ({
+        url: `/user/add-address`,
+        method: 'POST',
+        body: address,
+      }),
+      invalidatesTags: ['User'],
+    }),
+    updateUserAddress: builder.mutation<ApiResponse<IUser>, Partial<IAddress>>({
+      query: (address) => ({
+        url: `/user/update-address`,
+        method: 'PUT',
+        body: address,
       }),
       invalidatesTags: ['User'],
     }),
