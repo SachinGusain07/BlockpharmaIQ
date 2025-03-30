@@ -41,6 +41,7 @@ interface IUser {
   Pharmacist?: Pharmacist
   PharmacyOutlet?: PharmacyOutlet[]
   Orders?: Orders[]
+  createdAt: string
 }
 
 interface IAddress {

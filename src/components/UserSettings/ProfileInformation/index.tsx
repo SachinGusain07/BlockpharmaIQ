@@ -1,19 +1,28 @@
+import { useMeQuery } from '@/services/api'
 import InfoCard from '../InfoCard'
+import { formatDate } from '@/utils/formatDate'
 
 const ProfileInformation = () => {
+  const { data } = useMeQuery()
+
   const personalInfo = [
-    { label: 'Full Name', value: 'John Doe' },
-    { label: 'Email Address', value: 'johndoe@gmail.com' },
+    {
+      label: 'Full Name',
+      value: `${data?.body.data?.firstName || ''} ${data?.body.data?.lastName || ''}`,
+    },
+    { label: 'Email Address', value: data?.body.data?.email || '' },
     { label: 'Gender', value: 'Male' },
-    { label: 'Phone Number', value: '+91 - 7895633735' },
-    { label: 'Role', value: 'Manufacturer' },
+    { label: 'Phone Number', value: `+91 - ${data?.body.data?.phoneNumber || ''}` },
+    { label: 'Role', value: String(data?.body.data?.role) || '' },
   ]
 
   const addressInfo = [
-    { label: 'Village', value: 'Shivaji nagar' },
-    { label: 'Town/City', value: 'Rishikesh' },
-    { label: 'Country', value: 'India' },
-    { label: 'Postal Code', value: '249203' },
+    { label: 'Village', value: data?.body.data?.Address?.street || '' },
+    { label: 'Town/City', value: data?.body.data?.Address?.city || '' },
+    { label: 'State', value: data?.body.data?.Address?.state || '' },
+    { label: 'Country', value: data?.body.data?.Address?.country || '' },
+    { label: 'Postal Code', value: data?.body.data?.Address?.zipCode || '' },
+    { label: 'User since', value: formatDate(data?.body.data?.createdAt) || '' },
   ]
 
   const handleEditPersonal = () => {

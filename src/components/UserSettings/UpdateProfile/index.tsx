@@ -1,4 +1,3 @@
-// pages/UpdateProfile.tsx
 import { useMeQuery, useUpdateUserAddressMutation, useUpdateUserMutation } from '@/services/api'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useEffect } from 'react'
