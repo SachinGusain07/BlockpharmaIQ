@@ -13,11 +13,10 @@ const SettingsLayout = () => {
   const location = useLocation()
 
   const fullImageUrl = useMemo(() => {
-    return profilePicture
-      ? `${import.meta.env.VITE_API_URL}${profilePicture.startsWith('/') ? profilePicture : '/' + profilePicture}`
-      : ''
+    return `${import.meta.env.VITE_API_URL}${profilePicture?.startsWith('/') ? profilePicture : '/' + profilePicture}`
   }, [profilePicture])
 
+  console.log(fullImageUrl)
   return (
     <section className="mx-auto flex max-w-6xl flex-col gap-8 p-4 md:flex-row">
       <div className="flex min-h-[590px] w-full flex-col justify-between rounded-lg bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] md:w-64">
@@ -52,7 +51,7 @@ const SettingsLayout = () => {
                   ? fullImageUrl
                   : 'https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg?t=st=1742702207~exp=1742705807~hmac=9207348a8ce72f0d47502818d2b23bdefdd48bd855093018937ef3fde93a3013&w=740'
               }
-              alt="User profile"
+              alt="profile"
               className="h-full w-full object-cover"
             />
           </div>
