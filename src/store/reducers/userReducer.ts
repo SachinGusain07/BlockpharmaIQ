@@ -22,6 +22,7 @@ const initialState: Omit<IUser, 'password' | 'confirmPassword'> = {
   email: '',
   profilePic: '',
   role: userRoles.USER,
+  isProfileCompleted: false,
   active: false,
   createdAt: '',
   VendorOwner: undefined,
@@ -40,6 +41,7 @@ export const userSlice = createSlice({
       state.id = data.id
       state.firstName = data.firstName
       state.lastName = data.lastName
+      state.isProfileCompleted = data.isProfileCompleted
       state.email = data.email
       state.phoneNumber = data.phoneNumber
       state.profilePic = data.profilePic
@@ -57,6 +59,7 @@ export const userSlice = createSlice({
   extraReducers: (builder) => {
     builder.addMatcher(meFulfilled, (state, action: PayloadAction<ApiResponse<IUser>>) => {
       const data = action.payload.body.data
+      console.log('reducer', data)
       if (data) {
         state.id = data.id
         state.firstName = data.firstName
@@ -65,6 +68,7 @@ export const userSlice = createSlice({
         state.phoneNumber = data.phoneNumber
         state.profilePic = data.profilePic
         state.role = data.role
+        state.isProfileCompleted = data.isProfileCompleted
         state.active = data.active
         state.createdAt = data.createdAt
         state.Address = data.Address

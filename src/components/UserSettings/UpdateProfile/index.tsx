@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { PersonalInfoSection } from '../UserForm/PersonalInfoForm'
 import { AddressSection } from '../UserForm/AddressInforForm'
+import { toast } from 'sonner'
 
 const UpdateProfile = () => {
   const { data: userData } = useMeQuery()
@@ -80,7 +81,7 @@ const UpdateProfile = () => {
 
       await Promise.all([updateUser(profileData).unwrap(), updateUserAddress(addressData).unwrap()])
 
-      console.log('Profile updated successfully!')
+      toast.success('Profile updated successfully!')
     } catch (error) {
       console.error('Failed to update profile', error)
     }

@@ -32,5 +32,13 @@ export const userApiEndpoints = api.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
+    completeProfile: builder.mutation<ApiResponse<IUser>, FormData>({
+      query: (formData) => ({
+        url: `/user/complete-profile`,
+        method: 'PUT',
+        body: formData,
+      }),
+      invalidatesTags: ['User'],
+    }),
   }),
 })

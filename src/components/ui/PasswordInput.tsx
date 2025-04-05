@@ -1,6 +1,7 @@
 import { IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5'
 import { useState } from 'react'
 import { UseFormRegister, FieldError } from 'react-hook-form'
+import { cn } from '@/lib/utils'
 
 interface PasswordInputProps {
   name: string
@@ -9,6 +10,7 @@ interface PasswordInputProps {
   error?: FieldError
   placeholder?: string
   showToggle?: boolean
+  className?: string
 }
 
 export const PasswordInput = ({
@@ -17,6 +19,7 @@ export const PasswordInput = ({
   error,
   placeholder,
   showToggle,
+  className,
 }: PasswordInputProps) => {
   const [showPassword, setShowPassword] = useState(false)
 
@@ -25,9 +28,13 @@ export const PasswordInput = ({
       <input
         type={showPassword ? 'text' : 'password'}
         placeholder={placeholder || 'Password'}
-        className={`w-full border-b p-2 text-sm font-medium text-neutral-900 outline-none placeholder:font-medium ${
-          error ? 'border-red-500' : 'border-[#C8C8C8]'
-        }`}
+        className={
+          cn(
+            `w-full border-b p-2 text-sm font-medium text-neutral-900 outline-none placeholder:font-medium ${
+              error ? 'border-red-500' : 'border-[#C8C8C8]'
+            }`
+          ) + className
+        }
         {...register(name)}
       />
       {showToggle && (

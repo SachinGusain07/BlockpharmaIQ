@@ -45,7 +45,7 @@ const Signup = () => {
     },
   })
 
-  const [registerUser, { data, isLoading }] = useRegisterMutation()
+  const [registerUser, isLoading] = useRegisterMutation()
   const navigate = useNavigate()
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
 
@@ -56,13 +56,12 @@ const Signup = () => {
     }
   }, [isAuthenticated, navigate])
 
-  const onSubmit = (formData: FormData) => {
-    registerUser(formData).unwrap()
+  const onSubmit = async (formData: FormData) => {
     try {
+      const data = await registerUser(formData).unwrap()
       if (data) {
         toast.success('Registration successful')
         reset()
-
         navigate('/login')
       }
     } catch (error) {
