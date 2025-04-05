@@ -45,6 +45,7 @@ export const userSlice = createSlice({
       state.email = data.email
       state.phoneNumber = data.phoneNumber
       state.profilePic = data.profilePic
+      console.log("profilePic", data.profilePic)
       state.role = data.role
       state.active = data.active
       state.createdAt = data.createdAt
