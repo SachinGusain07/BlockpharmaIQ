@@ -1,9 +1,11 @@
 import { useMeQuery } from '@/services/api'
-import InfoCard from '../InfoCard'
 import { formatDate } from '@/utils/formatDate'
+import { useNavigate } from 'react-router-dom'
+import InfoCard from '../InfoCard'
 
 const ProfileInformation = () => {
   const { data } = useMeQuery()
+  const navigate = useNavigate()
 
   const personalInfo = [
     {
@@ -25,19 +27,15 @@ const ProfileInformation = () => {
     { label: 'User since', value: formatDate(data?.body.data?.createdAt) || '' },
   ]
 
-  const handleEditPersonal = () => {
-    console.log('Edit personal information')
-  }
-
-  const handleEditAddress = () => {
-    console.log('Edit address information')
+  const handleEdit = () => {
+    navigate('/setting/update')
   }
 
   return (
     <div className="mx-auto max-w-6xl">
-      <InfoCard title="Personal Information" fields={personalInfo} onEdit={handleEditPersonal} />
+      <InfoCard title="Personal Information" fields={personalInfo} onEdit={handleEdit} />
 
-      <InfoCard title="Address" fields={addressInfo} onEdit={handleEditAddress} />
+      <InfoCard title="Address" fields={addressInfo} onEdit={handleEdit} />
     </div>
   )
 }

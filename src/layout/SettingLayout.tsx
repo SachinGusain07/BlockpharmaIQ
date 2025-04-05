@@ -1,6 +1,6 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { settingsLinks } from '../utils/settinglinks'
-import { Suspense } from 'react'
+import { Suspense, useMemo } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
@@ -8,9 +8,15 @@ import { RootState } from '@/store/store'
 const SettingsLayout = () => {
   const firstName = useSelector((state: RootState) => state.user.firstName)
   const lastName = useSelector((state: RootState) => state.user.lastName)
-
+  const profilePicture = useSelector((state: RootState) => state.user.profilePic)
   const navigate = useNavigate()
   const location = useLocation()
+
+  const fullImageUrl = useMemo(() => {
+    return profilePicture
+      ? `${import.meta.env.VITE_API_URL}${profilePicture.startsWith('/') ? profilePicture : '/' + profilePicture}`
+      : ''
+  }, [profilePicture])
 
   return (
     <section className="mx-auto flex max-w-6xl flex-col gap-8 p-4 md:flex-row">
@@ -41,7 +47,11 @@ const SettingsLayout = () => {
         <div className="flex items-center pt-4">
           <div className="h-16 w-16 overflow-hidden rounded-full">
             <img
-              src="https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg?t=st=1742702207~exp=1742705807~hmac=9207348a8ce72f0d47502818d2b23bdefdd48bd855093018937ef3fde93a3013&w=740"
+              src={
+                profilePicture
+                  ? fullImageUrl
+                  : 'https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg?t=st=1742702207~exp=1742705807~hmac=9207348a8ce72f0d47502818d2b23bdefdd48bd855093018937ef3fde93a3013&w=740'
+              }
               alt="User profile"
               className="h-full w-full object-cover"
             />

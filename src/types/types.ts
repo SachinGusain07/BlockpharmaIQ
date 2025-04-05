@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as yup from 'yup'
 
 export interface ApiResponseBody<T> {
   status: boolean
@@ -32,6 +31,7 @@ export interface IUser {
   email: string
   password: string
   confirmPassword: string
+  isProfileCompleted: boolean
   role: userRoles
   active: boolean
   phoneNumber: string
@@ -45,7 +45,7 @@ export interface IUser {
   createdAt: string
 }
 
-interface IAddress {
+export interface IAddress {
   id: number
   userId: string
   street: string
@@ -64,11 +64,6 @@ export enum userRoles {
   PHARMACY,
 }
 
-export const loginSchema = yup.object().shape({
-  email: yup.string().email('Invalid email format').required('Email is required'),
-  password: yup.string().required('Password is required'),
-})
-
 export interface AuthState {
   accessToken: string
   isAuthenticated: boolean
@@ -86,4 +81,27 @@ export interface InventoryItem {
   unit: string
   price: number
   expiry: string
+}
+
+export interface ILoginInput {
+  email: string
+  password: string
+}
+
+export interface IResponseUser {
+  user: {
+    id: string
+    firstName: string
+    lastName: string
+    email: string
+    isProfileCompleted: boolean
+    isDeleted: boolean
+    createdAt: string
+    updatedAt: string
+    role: userRoles
+    active: boolean
+    phoneNumber: string
+    profilePic?: string
+  }
+  token: string
 }
