@@ -33,7 +33,7 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/setting')
+      navigate('/complete-profile')
       return
     }
   }, [isAuthenticated, navigate])
@@ -41,13 +41,17 @@ const Login = () => {
   const onSubmit = async (formData: LoginFormData) => {
     try {
       const data = await loginUser(formData).unwrap()
-
       if (!data) {
         toast.error('Login failed. Please check your credentials.')
         return
       }
 
       toast.success('Login successful')
+
+      if (!data.body.data.user.isProfileCompleted) {
+        return navigate('/complete-profile')
+      }
+
       navigate('/')
     } catch (error) {
       toast.error('Login failed. Please check your credentials.')

@@ -19,5 +19,34 @@ export const addressSchema = yup.object({
   zipCode: yup.string().required('Zip code is required').trim(),
 })
 
+export const loginSchema = yup.object().shape({
+  email: yup.string().email('Invalid email format').required('Email is required'),
+  password: yup.string().required('Password is required'),
+})
+
+const phoneRegex = /^[0-9]{10}$/
+
+export const completeProfileSchema = yup.object({
+  phoneNumber: yup
+    .string()
+    .matches(phoneRegex, 'Phone number must be 10 digits')
+    .required('Phone number is required'),
+  street: yup.string().required('Street is required'),
+  city: yup.string().required('City is required'),
+  state: yup.string().required('State is required'),
+  country: yup.string().required('Country is required'),
+  zipCode: yup
+    .string()
+    .min(1, 'Zip code is required')
+    .max(6, 'Zip code cannot exceed 6 characters')
+    .required('Zip code is required'),
+  role: yup
+    .string()
+    .oneOf(['ADMIN', 'SUPPLIER', 'PHARMACY'], 'Please select a valid role')
+    .required('Role is required'),
+  profilePic: yup.mixed().required('Profile picture is required'),
+})
+
+export type CompleteProfileFormData = yup.InferType<typeof completeProfileSchema>
 export const updateSchema = profileSchema.concat(addressSchema)
 export type UpdateFormData = yup.InferType<typeof updateSchema>

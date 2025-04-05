@@ -6,6 +6,7 @@ export const {
   useUpdateUserMutation,
   useAddAddressMutation,
   useUpdateUserAddressMutation,
+  useCompleteProfileMutation,
 } = userApiEndpoints
 export const { useLoginMutation, useRegisterMutation, useLogoutMutation } = authApiEndpoints
 
@@ -23,5 +24,9 @@ export const {
 export const {
   endpoints: {
     me: { matchFulfilled: meFulfilled },
+    updateUser: { matchFulfilled: updateUserFulfilled },
+    addAddress: { matchFulfilled: addAddressFulfilled },
+    updateUserAddress: { matchFulfilled: updateUserAddressFulfilled },
+    completeProfile: { matchFulfilled: completeProfileFulfilled },
   },
 } = userApiEndpoints
