@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export interface ApiResponseBody<T> {
+interface ApiResponseBody<T> {
   status: boolean
   message: string
   data: T
 }
 
-export interface ApiResponse<T> {
+interface ApiResponse<T> {
   status: number
   body: ApiResponseBody<T>
 }
 
-export interface registerInput {
+interface registerInput {
   name: string
   username: string
   email: string
@@ -19,12 +19,12 @@ export interface registerInput {
   confirmPassword: string
 }
 
-export interface INavLink {
+interface INavLink {
   name: string
   path: string
 }
 
-export interface IUser {
+interface IUser {
   id: string
   firstName: string
   lastName: string
@@ -32,7 +32,7 @@ export interface IUser {
   password: string
   confirmPassword: string
   isProfileCompleted: boolean
-  role: userRoles
+  role: ROLES | string
   active: boolean
   phoneNumber: string
   profilePic?: string
@@ -45,8 +45,8 @@ export interface IUser {
   createdAt: string
 }
 
-export interface IAddress {
-  id: number
+interface IAddress {
+  id: string
   userId: string
   street: string
   city: string
@@ -57,20 +57,20 @@ export interface IAddress {
   updatedAt: string
 }
 
-export enum userRoles {
+enum ROLES {
   USER,
   ADMIN,
   SUPPLIER,
   PHARMACY,
 }
 
-export interface AuthState {
+interface AuthState {
   accessToken: string
   isAuthenticated: boolean
   isLoading: boolean
 }
 
-export interface InventoryItem {
+interface InventoryItem {
   id: number
   name: string
   brand: string
@@ -83,12 +83,12 @@ export interface InventoryItem {
   expiry: string
 }
 
-export interface ILoginInput {
+interface ILoginInput {
   email: string
   password: string
 }
 
-export interface IResponseUser {
+interface IResponseUser {
   user: {
     id: string
     firstName: string
@@ -104,4 +104,15 @@ export interface IResponseUser {
     profilePic?: string
   }
   token: string
+}
+
+interface Order {
+  id: string
+  pharmacyName: string
+  date: string
+  quantity: number
+  status: 'completed' | 'transit' | 'failed'
+  transactionHash: string
+  amount: number
+  medication: string
 }

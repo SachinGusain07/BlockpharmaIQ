@@ -1,4 +1,4 @@
-import Analytics from '@/components/Pharmacy/components/Analytics'
+import Analytics from '@/components/Pharmacy/Analytics'
 
 const AnalyticsPage = () => {
   return (

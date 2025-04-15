@@ -13,7 +13,6 @@ const Settings = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Profile Card */}
         <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
           <div className="mb-6 flex items-center space-x-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50">
@@ -47,7 +46,6 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* Pharmacy Info Card */}
         <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
           <div className="mb-6 flex items-center space-x-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-50">
@@ -91,7 +89,6 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* Notification Settings Card */}
         <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
           <div className="mb-6 flex items-center space-x-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50">
@@ -129,7 +126,6 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* Subscription Card */}
         <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
           <div className="mb-6 flex items-center space-x-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-50">

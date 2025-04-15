@@ -32,7 +32,7 @@ const ProfileInformation = () => {
   }
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-6xl rounded-2xl bg-white">
       <InfoCard title="Personal Information" fields={personalInfo} onEdit={handleEdit} />
 
       <InfoCard title="Address" fields={addressInfo} onEdit={handleEdit} />

@@ -1,4 +1,4 @@
-import Inventory from '@/components/Pharmacy/components/Inventory'
+import Inventory from '@/components/Pharmacy/Inventory'
 
 const InventoryPage = () => {
   return (

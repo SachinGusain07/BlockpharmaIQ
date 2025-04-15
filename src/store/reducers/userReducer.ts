@@ -1,5 +1,4 @@
 import { meFulfilled } from '@/services/api'
-import { ApiResponse, IUser, userRoles } from '@/types/types'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
@@ -21,7 +20,7 @@ const initialState: Omit<IUser, 'password' | 'confirmPassword'> = {
   lastName: '',
   email: '',
   profilePic: '',
-  role: userRoles.USER,
+  role: '',
   isProfileCompleted: false,
   active: false,
   createdAt: '',

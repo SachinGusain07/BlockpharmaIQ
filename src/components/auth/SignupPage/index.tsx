@@ -45,7 +45,7 @@ const Signup = () => {
     },
   })
 
-  const [registerUser, isLoading] = useRegisterMutation()
+  const [registerUser, { isLoading }] = useRegisterMutation()
   const navigate = useNavigate()
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
 

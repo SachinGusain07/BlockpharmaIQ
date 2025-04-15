@@ -8,7 +8,6 @@ import {
 } from '@heroicons/react/24/outline'
 
 const Blockchain = () => {
-  // Sample blockchain verification data
   const verificationData = [
     {
       id: '0x4a3b...8c2d',
@@ -52,11 +51,9 @@ const Blockchain = () => {
   ]
 
   const verifyBatch = (id: string) => {
-    // In a real app, this would interact with the blockchain
     alert(`Verifying batch ${id} on blockchain...`)
   }
 
-  // Animation variants
   const rowVariants = {
     hidden: { opacity: 0, y: 10 },
     visible: {
@@ -86,13 +83,7 @@ const Blockchain = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="flex items-center justify-between"
-      >
+      <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-800">Blockchain Verification</h2>
         <motion.button
           whileHover={{ scale: 1.03 }}
@@ -102,15 +93,9 @@ const Blockchain = () => {
           <ArrowPathIcon className="mr-2 h-5 w-5" />
           Sync with Blockchain
         </motion.button>
-      </motion.div>
+      </div>
 
-      {/* Verification Table */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
-      >
+      <motion.div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">

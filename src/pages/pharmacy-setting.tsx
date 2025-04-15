@@ -1,4 +1,4 @@
-import Settings from '@/components/Pharmacy/components/Setting'
+import Settings from '@/components/Pharmacy/Setting'
 
 const PharmacySetting = () => {
   return (

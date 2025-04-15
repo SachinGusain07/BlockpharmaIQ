@@ -1,5 +1,3 @@
-import { InventoryItem } from '@/types/types'
-
 const inventoryData: InventoryItem[] = [
   {
     id: 1,
