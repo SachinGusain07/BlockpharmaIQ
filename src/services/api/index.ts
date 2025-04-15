@@ -7,6 +7,8 @@ export const {
   useAddAddressMutation,
   useUpdateUserAddressMutation,
   useCompleteProfileMutation,
+  useGetAllUsersQuery,
+  useDeleteUserMutation,
 } = userApiEndpoints
 export const { useLoginMutation, useRegisterMutation, useLogoutMutation } = authApiEndpoints
 

@@ -1,5 +1,4 @@
 import { loginFulfilled, loginPending, loginRejected, logoutFulfilled } from '@/services/api'
-import { AuthState } from '@/types/types'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 

@@ -30,13 +30,14 @@ const Login = () => {
   const [loginUser, { isLoading }] = useLoginMutation()
   const navigate = useNavigate()
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
+  const isProfileCompleted = useSelector((state: RootState) => state.user.isProfileCompleted)
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/complete-profile')
+    if (isAuthenticated && isProfileCompleted) {
+      navigate('/')
       return
     }
-  }, [isAuthenticated, navigate])
+  }, [isAuthenticated, navigate, isProfileCompleted])
 
   const onSubmit = async (formData: LoginFormData) => {
     try {
@@ -47,11 +48,6 @@ const Login = () => {
       }
 
       toast.success('Login successful')
-
-      if (!data.body.data.user.isProfileCompleted) {
-        return navigate('/complete-profile')
-      }
-
       navigate('/')
     } catch (error) {
       toast.error('Login failed. Please check your credentials.')

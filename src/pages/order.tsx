@@ -1,4 +1,4 @@
-import Orders from '@/components/Pharmacy/components/Order'
+import Orders from '@/components/Pharmacy/Order'
 
 const OrderPage = () => {
   return (

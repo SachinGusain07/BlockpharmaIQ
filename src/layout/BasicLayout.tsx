@@ -1,6 +1,6 @@
 import { RootState } from '@/store/store'
 import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { navLinks } from '../utils/navlinks'
 
@@ -9,13 +9,27 @@ const BasicLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
+  const userRole = useSelector((state: RootState) => state.user.role)
+  const dispatch = useDispatch()
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/setting')
-      return
+    if (isAuthenticated && userRole) {
+      switch (userRole) {
+        case 'ADMIN':
+          navigate('/admin-dashboard', { replace: true })
+          break
+        case 'SUPPLIER':
+          navigate('/supplier-dashboard', { replace: true })
+          break
+        case 'PHARMACY':
+          navigate('/pharmacy-dashboard', { replace: true })
+          break
+        default:
+          console.log('Unknown role detected:', userRole)
+          navigate('/access-denied', { replace: true })
+      }
     }
-  }, [isAuthenticated, navigate])
+  }, [userRole, isAuthenticated, navigate, dispatch])
 
   return (
     <>

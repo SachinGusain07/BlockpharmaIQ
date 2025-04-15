@@ -1,4 +1,4 @@
-import Blockchain from '@/components/Pharmacy/components/Blockchain'
+import Blockchain from '@/components/Pharmacy/Blockchain'
 
 const BlockchainPage = () => {
   return (

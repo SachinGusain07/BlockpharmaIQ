@@ -9,7 +9,6 @@ import {
 } from '@heroicons/react/24/outline'
 
 const Orders = () => {
-  // Sample order data
   const orders = [
     {
       id: 'ORD-2023-001',
@@ -117,12 +116,7 @@ const Orders = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="flex items-center justify-between"
-      >
+      <motion.div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">Orders & Replenishment</h2>
           <p className="text-sm text-gray-500">Manage your pharmacy orders</p>

@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from '@/services/apiSlice'
-import { ApiResponse, IAddress, IUser } from '@/types/types'
 
 export const userApiEndpoints = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -37,6 +36,20 @@ export const userApiEndpoints = api.injectEndpoints({
         url: `/user/complete-profile`,
         method: 'PUT',
         body: formData,
+      }),
+      invalidatesTags: ['User'],
+    }),
+    getAllUsers: builder.query<ApiResponse<IUser[]>, void>({
+      query: () => ({
+        url: '/user/getAll',
+        method: 'GET',
+      }),
+    }),
+    deleteUser: builder.mutation<ApiResponse<IUser>, string>({
+      query: (id) => ({
+        url: `/user/delete`,
+        method: 'DELETE',
+        body: { id },
       }),
       invalidatesTags: ['User'],
     }),

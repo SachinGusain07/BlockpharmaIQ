@@ -91,7 +91,7 @@ const UpdateProfile = () => {
   const isLoading = isUpdatingUser || isUpdatingAddress
 
   return (
-    <div className="mx-auto w-full max-w-4xl rounded-lg bg-white p-6">
+    <div className="mx-auto w-full rounded-lg bg-white p-6">
       <h1 className="mb-10 text-3xl font-bold">Update Profile</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">

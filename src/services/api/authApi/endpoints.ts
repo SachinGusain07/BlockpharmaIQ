@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from '@/services/apiSlice'
-import { ApiResponse, IResponseUser, IUser } from '@/types/types'
 
 export const authApiEndpoints = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -14,17 +12,7 @@ export const authApiEndpoints = api.injectEndpoints({
     }),
     register: builder.mutation<
       ApiResponse<IUser>,
-      Omit<
-        IUser,
-        | 'id'
-        | 'active'
-        | 'role'
-        | 'refreshToken'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'isProfileCompleted'
-        | 'phoneNumber'
-      >
+      Omit<IUser, 'id' | 'refreshToken' | 'createdAt' | 'updatedAt' | 'isProfileCompleted'>
     >({
       query: (userData) => ({
         url: '/user/register',

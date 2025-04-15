@@ -39,7 +39,6 @@ const Inventory = () => {
     setSelectedItems([])
   }
 
-  // Animation variants
   const rowVariants = {
     hidden: { opacity: 0, x: -50 },
     visible: {
@@ -70,12 +69,7 @@ const Inventory = () => {
   return (
     <div className="space-y-4">
       {/* Header Section */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
-      >
+      <motion.div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <h2 className="text-2xl font-bold text-gray-800">Inventory Management</h2>
         <div className="flex items-center space-x-2">
           <motion.button
