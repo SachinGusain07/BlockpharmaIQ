@@ -52,8 +52,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
             onClick={() => onEdit(user)}
             className="flex items-center"
           >
-            <Edit size={16} className="mr-1" />
-            Edit
+            <Edit size={16} />
           </Button>
           <Button
             variant="destructive"
@@ -61,8 +60,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
             onClick={() => onDelete(user.id)}
             className="flex items-center"
           >
-            <Trash2 size={16} className="mr-1" />
-            Delete
+            <Trash2 size={16} />
           </Button>
         </div>
       ),

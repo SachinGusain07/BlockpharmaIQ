@@ -131,8 +131,7 @@ const Pharmacies: React.FC = () => {
             onClick={() => handleEditPharmacy(pharmacy)}
             className="flex items-center"
           >
-            <Edit size={16} className="mr-1" />
-            Edit
+            <Edit size={16} />
           </Button>
           <Button
             variant="destructive"
@@ -140,8 +139,7 @@ const Pharmacies: React.FC = () => {
             onClick={() => handleDeletePharmacy(pharmacy.pharmacyOutletId)}
             className="flex items-center"
           >
-            <Trash2 size={16} className="mr-1" />
-            Delete
+            <Trash2 size={16} />
           </Button>
         </div>
       ),
@@ -153,7 +151,7 @@ const Pharmacies: React.FC = () => {
       <Card>
         <div className="mb-6 flex items-center justify-between px-6">
           <h2 className="text-lg font-semibold">All Pharmacies</h2>
-          <Button variant="secondary" onClick={handleAddPharmacy} className="flex items-center">
+          <Button variant="default" onClick={handleAddPharmacy} className="flex items-center">
             <Plus size={16} className="mr-1" />
             Add Pharmacy
           </Button>

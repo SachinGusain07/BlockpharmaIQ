@@ -72,15 +72,6 @@ export const completeProfileSchema = yup.object({
   }),
 })
 
-export const updateSchema = profileSchema.concat(addressSchema)
-
-export type ProfileFormData = yup.InferType<typeof profileSchema>
-export type AddressFormData = yup.InferType<typeof addressSchema>
-export type LoginFormData = yup.InferType<typeof loginSchema>
-export type RegisterFormData = yup.InferType<typeof registerSchema>
-export type CompleteProfileFormData = yup.InferType<typeof completeProfileSchema>
-export type UpdateFormData = yup.InferType<typeof updateSchema>
-
 export const userFormContextSchema = yup.object({
   firstName: yup.string().required('First name is required').trim(),
   lastName: yup.string().required('Last name is required').trim(),
@@ -141,4 +132,48 @@ export const userFormContextSchema = yup.object({
   }),
 })
 
+export const supplierSchema = yup.object({
+  businessName: yup.string().required('Business name is required'),
+  email: yup.string().required('Email is required').email('Invalid email format'),
+  phoneNumber: yup
+    .string()
+    .required('Phone number is required')
+    .matches(/^[0-9]{10}$/, 'Phone number must be 10 digits'),
+  city: yup.string().required('City is required'),
+  state: yup.string().required('State is required'),
+  isActive: yup.boolean().default(true),
+})
+
+export const pharmacySchema = yup.object({
+  businessName: yup.string().required('Business name is required'),
+  gstin: yup
+    .string()
+    .required('GSTIN is required')
+    .matches(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, 'Invalid GSTIN format'),
+  email: yup.string().required('Email is required').email('Invalid email format'),
+  phoneNumber: yup
+    .string()
+    .required('Phone number is required')
+    .matches(/^[0-9]{10}$/, 'Phone number must be 10 digits'),
+  street: yup.string().required('Street address is required'),
+  city: yup.string().required('City is required'),
+  state: yup.string().required('State is required'),
+  pincode: yup
+    .string()
+    .required('Pincode is required')
+    .matches(/^[0-9]{6}$/, 'Pincode must be 6 digits'),
+  website: yup.string().url('Must be a valid URL').nullable(),
+  pharmacyOwner: yup.string().required('Please select a pharmacy owner'),
+  isActive: yup.boolean().default(true),
+})
+
+export type PharmacyFormData = yup.InferType<typeof pharmacySchema>
+export type SupplierFormData = yup.InferType<typeof supplierSchema>
 export type UserFormContextData = yup.InferType<typeof userFormContextSchema>
+export const updateSchema = profileSchema.concat(addressSchema)
+export type ProfileFormData = yup.InferType<typeof profileSchema>
+export type AddressFormData = yup.InferType<typeof addressSchema>
+export type LoginFormData = yup.InferType<typeof loginSchema>
+export type RegisterFormData = yup.InferType<typeof registerSchema>
+export type CompleteProfileFormData = yup.InferType<typeof completeProfileSchema>
+export type UpdateFormData = yup.InferType<typeof updateSchema>

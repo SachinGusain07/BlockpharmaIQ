@@ -1,119 +1,108 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { Button } from '../ui/button'
+import { SupplierFormData, supplierSchema } from '@/types/validations'
+import { ISupplier } from '@/types/types'
 
-interface SupplierFormProps {
-  initialData?: Partial<Supplier>
-  onSubmit: (data: Partial<Supplier>) => void
+export interface SupplierFormProps {
+  initialData?: Partial<ISupplier>
+  onSubmit: (data: ISupplier) => void
   onCancel: () => void
 }
 
-interface Supplier {
-  orgId: number
-  businessName: string
-  email: string
-  phoneNumber: string
-  city: string
-  state: string
-  isActive: boolean
-}
 const SupplierForm: React.FC<SupplierFormProps> = ({ initialData = {}, onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState<Partial<Supplier>>({
-    businessName: '',
-    email: '',
-    phoneNumber: '',
-    city: '',
-    state: '',
-    isActive: true,
-    ...initialData,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SupplierFormData>({
+    resolver: yupResolver(supplierSchema),
+    defaultValues: {
+      businessName: '',
+      email: '',
+      phoneNumber: '',
+      city: '',
+      state: '',
+      isActive: true,
+      ...initialData,
+    },
   })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
-    }))
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
+  const onFormSubmit = (data: SupplierFormData) => {
+    onSubmit(data)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700">Business Name</label>
         <input
+          {...register('businessName')}
           type="text"
-          name="businessName"
-          value={formData.businessName}
-          onChange={handleChange}
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:outline-none sm:text-sm"
-          required
         />
+        {errors.businessName && (
+          <p className="mt-1 text-sm text-red-600">{errors.businessName.message}</p>
+        )}
       </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">Email</label>
           <input
+            {...register('email')}
             type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:outline-none sm:text-sm"
-            required
           />
+          {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Phone Number</label>
           <input
+            {...register('phoneNumber')}
             type="text"
-            name="phoneNumber"
-            value={formData.phoneNumber || ''}
-            onChange={handleChange}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:outline-none sm:text-sm"
-            required
           />
+          {errors.phoneNumber && (
+            <p className="mt-1 text-sm text-red-600">{errors.phoneNumber.message}</p>
+          )}
         </div>
       </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">City</label>
           <input
+            {...register('city')}
             type="text"
-            name="city"
-            value={formData.city}
-            onChange={handleChange}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:outline-none sm:text-sm"
-            required
           />
+          {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">State</label>
           <input
+            {...register('state')}
             type="text"
-            name="state"
-            value={formData.state}
-            onChange={handleChange}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:outline-none sm:text-sm"
-            required
           />
+          {errors.state && <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>}
         </div>
       </div>
+
       <div className="flex items-center">
         <input
+          {...register('isActive')}
           type="checkbox"
-          name="isActive"
           id="isActive"
-          checked={formData.isActive}
-          onChange={handleChange}
           className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
         />
         <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
           Active
         </label>
       </div>
+
       <div className="flex justify-end space-x-3 pt-4">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel

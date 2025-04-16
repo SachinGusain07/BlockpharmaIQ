@@ -116,3 +116,28 @@ interface Order {
   amount: number
   medication: string
 }
+
+interface IPharmacy {
+  pharmacyOutletId?: number
+  businessName: string
+  gstin: string
+  email: string
+  phoneNumber: string
+  street: string
+  city: string
+  state: string
+  pincode: string
+  website: string
+  pharmacyOwner: string
+  isActive: boolean
+}
+
+export interface ISupplier {
+  orgId?: number
+  businessName: string
+  email: string
+  phoneNumber: string
+  city: string
+  state: string
+  isActive: boolean
+}
