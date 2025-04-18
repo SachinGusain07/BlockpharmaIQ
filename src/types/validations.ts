@@ -162,8 +162,8 @@ export const pharmacySchema = yup.object({
     .string()
     .required('Pincode is required')
     .matches(/^[0-9]{6}$/, 'Pincode must be 6 digits'),
-  website: yup.string().url('Must be a valid URL').nullable(),
-  pharmacyOwner: yup.string().required('Please select a pharmacy owner'),
+  website: yup.string().url('Must be a valid URL').required('Website is required'),
+  pharmacyOwnerId: yup.string().required('Please select a pharmacy owner'),
   isActive: yup.boolean().default(true),
 })
 

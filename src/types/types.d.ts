@@ -118,7 +118,7 @@ interface Order {
 }
 
 interface IPharmacy {
-  pharmacyOutletId?: number
+  pharmacyOutletId: number
   businessName: string
   gstin: string
   email: string

@@ -1,18 +1,22 @@
-import React from 'react'
-import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { Button } from '../ui/button'
+import { useGetAllUsersQuery } from '@/services/api'
 import { IPharmacy, IUser } from '@/types/types'
 import { PharmacyFormData, pharmacySchema } from '@/types/validations'
-import { useGetAllUsersQuery } from '@/services/api'
+import { yupResolver } from '@hookform/resolvers/yup'
+import React from 'react'
+import { useForm } from 'react-hook-form'
+import { Button } from '../ui/button'
 
 interface PharmacyFormProps {
   initialData?: Partial<IPharmacy>
-  onSubmit: (data: IPharmacy) => void
+  onSubmit?: (data: PharmacyFormData) => void
   onCancel: () => void
 }
 
-const PharmacyForm: React.FC<PharmacyFormProps> = ({ initialData = {}, onSubmit, onCancel }) => {
+const PharmacyForm: React.FC<PharmacyFormProps> = ({
+  initialData = {},
+  onSubmit = () => {},
+  onCancel,
+}) => {
   const { data: users, isLoading } = useGetAllUsersQuery()
   const pharmacyOwners = users?.body.data.filter((user: IUser) => user.role === 'PHARMACY') || []
 
@@ -31,19 +35,15 @@ const PharmacyForm: React.FC<PharmacyFormProps> = ({ initialData = {}, onSubmit,
       city: '',
       state: '',
       pincode: '',
-      website: '',
-      pharmacyOwner: initialData.pharmacyOwner || '',
+      website: initialData.website ?? '',
+      pharmacyOwnerId: initialData.pharmacyOwner || '',
       isActive: true,
       ...initialData,
     },
   })
 
-  const onFormSubmit = (data: PharmacyFormData) => {
-    onSubmit(data as IPharmacy)
-  }
-
   return (
-    <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700">Business Name</label>
         <input
@@ -142,7 +142,7 @@ const PharmacyForm: React.FC<PharmacyFormProps> = ({ initialData = {}, onSubmit,
       <div>
         <label className="block text-sm font-medium text-gray-700">Pharmacy Owner</label>
         <select
-          {...register('pharmacyOwner')}
+          {...register('pharmacyOwnerId')}
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm hover:bg-gray-50 focus:border-gray-300 focus:ring-gray-300 focus:outline-none sm:text-sm"
         >
           <option className="hover:bg-gray-100" value="">
@@ -168,8 +168,8 @@ const PharmacyForm: React.FC<PharmacyFormProps> = ({ initialData = {}, onSubmit,
             </option>
           )}
         </select>
-        {errors.pharmacyOwner && (
-          <p className="mt-1 text-sm text-red-600">{errors.pharmacyOwner.message}</p>
+        {errors.pharmacyOwnerId && (
+          <p className="mt-1 text-sm text-red-600">{errors.pharmacyOwnerId.message}</p>
         )}
       </div>
 

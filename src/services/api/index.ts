@@ -1,4 +1,5 @@
 import { authApiEndpoints } from './authApi/endpoints'
+import { pharmacyEndpoints } from './pharmacyApi'
 import { userApiEndpoints } from './userApi/endpoints'
 
 export const {
@@ -32,3 +33,6 @@ export const {
     completeProfile: { matchFulfilled: completeProfileFulfilled },
   },
 } = userApiEndpoints
+
+export const { useCreatePharmacyMutation, useGetAllPharmaciesQuery, useUpdatePharmacyMutation } =
+  pharmacyEndpoints
