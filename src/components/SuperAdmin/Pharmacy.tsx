@@ -1,8 +1,10 @@
 import {
   useCreatePharmacyMutation,
+  useDeletePharmacyMutation,
   useGetAllPharmaciesQuery,
   useUpdatePharmacyMutation,
 } from '@/services/api'
+import { IPharmacy } from '@/types'
 import { PharmacyFormData } from '@/types/validations'
 import { Edit, Plus, Trash2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
@@ -13,17 +15,17 @@ import Modal from '../ui/Modal'
 import Badge from './Badge'
 import PharmacyForm from './PharmacyForm'
 import Table from './Table'
-import { IPharmacy } from '@/types/types'
 
 const Pharmacies: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentPharmacy, setCurrentPharmacy] = useState<Partial<IPharmacy> | null>(null)
   const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false)
-  const [pharmacyToDelete, setPharmacyToDelete] = useState<number | null>(null)
+  const [pharmacyToDelete, setPharmacyToDelete] = useState<string | null>(null)
   const [pharmacies, setPharmacies] = useState<IPharmacy[]>([])
   const [createPharmacy] = useCreatePharmacyMutation()
   const { data, isLoading } = useGetAllPharmaciesQuery()
   const [updatePharmacy] = useUpdatePharmacyMutation()
+  const [deletePharmacy] = useDeletePharmacyMutation()
 
   const handleAddPharmacy = () => {
     setCurrentPharmacy(null)
@@ -35,22 +37,23 @@ const Pharmacies: React.FC = () => {
     setIsModalOpen(true)
   }
 
-  const handleDeletePharmacy = (pharmacyOutletId: number) => {
+  const handleDeletePharmacy = (pharmacyOutletId: string) => {
     setPharmacyToDelete(pharmacyOutletId)
     setIsConfirmDeleteModalOpen(true)
   }
 
-  const confirmDeletePharmacy = () => {
+  const confirmDeletePharmacy = async () => {
     if (pharmacyToDelete) {
-      setPharmacies(
-        pharmacies.map((pharmacy) =>
-          pharmacy.pharmacyOutletId === pharmacyToDelete
-            ? { ...pharmacy, isActive: false }
-            : pharmacy
-        )
-      )
-      setIsConfirmDeleteModalOpen(false)
-      setPharmacyToDelete(null)
+      try {
+        await deletePharmacy({ pharmacyOutletId: pharmacyToDelete }).unwrap()
+        toast.success('Pharmacy deactivated successfully!')
+      } catch (error) {
+        console.error('Error deleting pharmacy:', error)
+        toast.error('Failed to deactivate pharmacy. Please try again.')
+      } finally {
+        setIsConfirmDeleteModalOpen(false)
+        setPharmacyToDelete(null)
+      }
     }
   }
 
@@ -61,15 +64,16 @@ const Pharmacies: React.FC = () => {
   }, [data, isLoading])
 
   const onSubmit = async (data: PharmacyFormData): Promise<void> => {
+    console.log(data)
     try {
       if (currentPharmacy) {
         await updatePharmacy(data).unwrap()
         toast.success('Pharmacy updated successfully!')
         return
       }
-
       await createPharmacy(data).unwrap()
       toast.success('Pharmacy created successfully!')
+      setIsModalOpen(false)
     } catch (error) {
       console.error('Error creating pharmacy:', error)
       toast.error('Failed to create pharmacy. Please try again.')
@@ -106,7 +110,7 @@ const Pharmacies: React.FC = () => {
           <Button
             variant="destructive"
             size="sm"
-            onClick={() => handleDeletePharmacy(pharmacy.pharmacyOutletId)}
+            onClick={() => handleDeletePharmacy(pharmacy.id)}
             className="flex items-center"
           >
             <Trash2 size={16} />
@@ -127,11 +131,7 @@ const Pharmacies: React.FC = () => {
           </Button>
         </div>
 
-        <Table
-          columns={columns}
-          data={pharmacies}
-          keyExtractor={(pharmacy) => pharmacy.pharmacyOutletId.toString()}
-        />
+        <Table columns={columns} data={pharmacies} keyExtractor={(pharmacy) => pharmacy.id} />
       </Card>
 
       <Modal
@@ -160,7 +160,7 @@ const Pharmacies: React.FC = () => {
             Cancel
           </Button>
           <Button variant="destructive" onClick={confirmDeletePharmacy}>
-            Deactivate
+            Delete
           </Button>
         </div>
       </Modal>

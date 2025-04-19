@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from '@/services/apiSlice'
-import { ApiResponse, IAddress, IUser } from '@/types/types'
+import { ApiResponse, IAddress, IUser } from '@/types'
 
 export const userApiEndpoints = api.injectEndpoints({
   endpoints: (builder) => ({

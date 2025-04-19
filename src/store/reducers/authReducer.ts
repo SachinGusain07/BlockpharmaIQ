@@ -1,4 +1,5 @@
 import { loginFulfilled, loginPending, loginRejected, logoutFulfilled } from '@/services/api'
+import { AuthState } from '@/types'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
@@ -54,6 +55,10 @@ export const authSlice = createSlice({
       state.accessToken = ''
       state.isLoading = false
       state.isAuthenticated = false
+      return state
+    })
+    builder.addDefaultCase((state) => {
+      state.isLoading = false
       return state
     })
   },

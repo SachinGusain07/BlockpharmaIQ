@@ -5,11 +5,12 @@ import { useSelector } from 'react-redux'
 import { Link, Outlet } from 'react-router-dom'
 import { RootState } from '../store/store'
 import { navLinks } from '../utils/navlinks'
+import { useLogoutMutation } from '@/services/api'
 
 const Authenticated = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
-
+  const [logout] = useLogoutMutation()
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
 
   useEffect(() => {
@@ -82,6 +83,7 @@ const Authenticated = () => {
                     </Link>
                     <button
                       onClick={() => {
+                        logout()
                         localStorage.removeItem('accessToken')
                         window.location.href = '/login'
                       }}

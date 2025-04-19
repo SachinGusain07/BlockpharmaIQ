@@ -341,7 +341,7 @@ const UserForm: React.FC<UserFormProps> = ({
                         <span className="font-medium">Admin</span>
                       </div>
                       <p className="text-xs text-gray-500">
-                        Production and creation of pharmaceutical products
+                        Admins have full access to the dashboard.
                       </p>
                     </label>
 

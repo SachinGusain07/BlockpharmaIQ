@@ -1,5 +1,5 @@
 import { useGetAllUsersQuery } from '@/services/api'
-import { IPharmacy, IUser } from '@/types/types'
+import { IPharmacy, IUser } from '@/types'
 import { PharmacyFormData, pharmacySchema } from '@/types/validations'
 import { yupResolver } from '@hookform/resolvers/yup'
 import React from 'react'
@@ -36,7 +36,7 @@ const PharmacyForm: React.FC<PharmacyFormProps> = ({
       state: '',
       pincode: '',
       website: initialData.website ?? '',
-      pharmacyOwnerId: initialData.pharmacyOwner || '',
+      pharmacyOwnerId: initialData.ownerId || '',
       isActive: true,
       ...initialData,
     },
@@ -190,7 +190,7 @@ const PharmacyForm: React.FC<PharmacyFormProps> = ({
           Cancel
         </Button>
         <Button type="submit" variant="default">
-          {initialData.pharmacyOutletId ? 'Update Pharmacy' : 'Create Pharmacy'}
+          {initialData.ownerId ? 'Update Pharmacy' : 'Create Pharmacy'}
         </Button>
       </div>
     </form>

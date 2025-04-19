@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button } from '../ui/button'
 import { SupplierFormData, supplierSchema } from '@/types/validations'
-import { ISupplier } from '@/types/types'
+import { ISupplier } from '@/types'
 
 export interface SupplierFormProps {
   initialData?: Partial<ISupplier>

@@ -1,4 +1,5 @@
 import { api } from '@/services/apiSlice'
+import { ApiResponse, IResponseUser, IUser } from '@/types'
 
 export const authApiEndpoints = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -25,6 +26,7 @@ export const authApiEndpoints = api.injectEndpoints({
         url: '/auth/logout',
         method: 'POST',
       }),
+      invalidatesTags: ['User'],
     }),
   }),
 })

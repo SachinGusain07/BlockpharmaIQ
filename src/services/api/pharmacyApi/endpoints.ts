@@ -1,5 +1,5 @@
 import { api } from '@/services/apiSlice'
-import { ApiResponse, IPharmacy } from '@/types/types'
+import { ApiResponse, IPharmacy } from '@/types'
 
 export const pharmacyEndpoints = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -12,7 +12,7 @@ export const pharmacyEndpoints = api.injectEndpoints({
     }),
     createPharmacy: builder.mutation<
       ApiResponse<IPharmacy>,
-      Omit<IPharmacy, 'pharmacyOutletId' | 'pharmacyOwner'>
+      Omit<IPharmacy | null, 'pharmacyOutletId'>
     >({
       query: (data) => ({
         url: 'pharmacy/outlet/add',
@@ -23,12 +23,19 @@ export const pharmacyEndpoints = api.injectEndpoints({
     }),
     updatePharmacy: builder.mutation<
       ApiResponse<IPharmacy>,
-      Omit<IPharmacy, 'pharmacyOutletId' | 'pharmacyOwner'>
+      Omit<IPharmacy | null, 'pharmacyOutletId'>
     >({
       query: (data) => ({
         url: 'pharmacy/outlet/update',
         method: 'PUT',
         body: data,
+      }),
+      invalidatesTags: ['Pharmacy'],
+    }),
+    deletePharmacy: builder.mutation<ApiResponse<IPharmacy>, { pharmacyOutletId: string }>({
+      query: ({ pharmacyOutletId }) => ({
+        url: `pharmacy/outlet/delete/${pharmacyOutletId}`,
+        method: 'DELETE',
       }),
       invalidatesTags: ['Pharmacy'],
     }),

@@ -34,5 +34,9 @@ export const {
   },
 } = userApiEndpoints
 
-export const { useCreatePharmacyMutation, useGetAllPharmaciesQuery, useUpdatePharmacyMutation } =
-  pharmacyEndpoints
+export const {
+  useCreatePharmacyMutation,
+  useGetAllPharmaciesQuery,
+  useUpdatePharmacyMutation,
+  useDeletePharmacyMutation,
+} = pharmacyEndpoints

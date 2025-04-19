@@ -1,16 +1,14 @@
 import { PasswordInput } from '@/components/ui/PasswordInput'
+import { useLoginMutation } from '@/services/api'
+import { setUser } from '@/store/reducers/userReducer'
+import { useAppDispatch } from '@/store/store'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
 import { RiDoubleQuotesL } from 'react-icons/ri'
 import { Link, useNavigate } from 'react-router-dom'
-import * as yup from 'yup'
-import { useLoginMutation } from '@/services/api'
 import { toast } from 'sonner'
-import { RootState } from '@/store/store'
-import { useSelector } from 'react-redux'
-import { useEffect } from 'react'
+import * as yup from 'yup'
 
-// Simplified Yup validation schema for login
 const loginSchema = yup.object({
   email: yup.string().email('Invalid email').required('Email is required'),
   password: yup.string().required('Password is required'),
@@ -28,16 +26,8 @@ const Login = () => {
   })
 
   const [loginUser, { isLoading }] = useLoginMutation()
+  const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
-  const isProfileCompleted = useSelector((state: RootState) => state.user.isProfileCompleted)
-
-  useEffect(() => {
-    if (isAuthenticated && isProfileCompleted) {
-      navigate('/')
-      return
-    }
-  }, [isAuthenticated, navigate, isProfileCompleted])
 
   const onSubmit = async (formData: LoginFormData) => {
     try {
@@ -48,7 +38,17 @@ const Login = () => {
       }
 
       toast.success('Login successful')
-      navigate('/')
+      dispatch(setUser({ data: data.body.data.user }))
+      if (data.body.data.user.role === 'ADMIN') {
+        toast.success('Welcome Admin!')
+        navigate('/admin-dashboard')
+      } else if (data.body.data.user.role === 'SUPPLIER') {
+        toast.success('Welcome Supplier!')
+        navigate('/supplier-dashboard')
+      } else if (data.body.data.user.role === 'PHARMACY') {
+        toast.success('Welcome Pharmacy!')
+        navigate('/pharmacy-dashboard')
+      }
     } catch (error) {
       toast.error('Login failed. Please check your credentials.')
       console.error('Login error:', error)
