@@ -17,7 +17,7 @@ interface SidebarProps {
 const Sidebar = ({ sidebarOpen, onLogout }: SidebarProps) => {
   const location = useLocation()
   const userRole = useSelector((state: RootState) => state.user.role)
-
+  console.log('userRole', userRole);
   const getNavItemsByRole = () => {
     switch (userRole) {
       case 'ADMIN':

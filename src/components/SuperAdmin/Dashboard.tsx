@@ -14,6 +14,7 @@ import { Card } from '../ui/card'
 import Badge from './Badge'
 import StatCard from './StatCard'
 import Table from './Table'
+import { useGetDashboardDataQuery } from '@/services/api'
 interface OrderType {
   orderId: string
   orderDate: string
@@ -23,6 +24,8 @@ interface OrderType {
 }
 
 const SuperAdminDashboard: React.FC = () => {
+  const { data: counts, isLoading } = useGetDashboardDataQuery()
+  console.log(counts?.data)
   const salesData = [
     { name: 'Jan', value: 4000 },
     { name: 'Feb', value: 3000 },
@@ -102,25 +105,25 @@ const SuperAdminDashboard: React.FC = () => {
       <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Users"
-          value="1,254"
+          value={counts?.data?.usersCount || '0'}
           icon={<Users size={24} className="text-blue-600" />}
           trend={{ value: 12, isPositive: true }}
         />
         <StatCard
           title="Pharmacies"
-          value="45"
+          value={counts?.data?.pharmaciesCount || '0'}
           icon={<Store size={24} className="text-purple-600" />}
           trend={{ value: 5, isPositive: true }}
         />
         <StatCard
           title="Suppliers"
-          value="32"
+          value={counts?.data?.suppliersCount || '0'}
           icon={<Truck size={24} className="text-green-600" />}
           trend={{ value: 2, isPositive: false }}
         />
         <StatCard
           title="Orders"
-          value="867"
+          value={counts?.data?.ordersCount || '0'}
           icon={<ShoppingCart size={24} className="text-orange-600" />}
           trend={{ value: 8, isPositive: true }}
         />

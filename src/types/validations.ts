@@ -132,15 +132,41 @@ export const userFormContextSchema = yup.object({
   }),
 })
 
-export const supplierSchema = yup.object({
-  businessName: yup.string().required('Business name is required'),
-  email: yup.string().required('Email is required').email('Invalid email format'),
+export const supplierSchema = yup.object().shape({
+  businessName: yup
+    .string()
+    .required('Business name is required')
+    .min(3, 'Business name must be at least 3 characters')
+    .max(100, 'Business name must not exceed 100 characters'),
+  gstin: yup
+    .string()
+    .required('GSTIN is required')
+    .matches(
+      /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
+      'Please enter a valid GSTIN'
+    ),
+  email: yup.string().required('Email is required').email('Please enter a valid email address'),
   phoneNumber: yup
     .string()
     .required('Phone number is required')
-    .matches(/^[0-9]{10}$/, 'Phone number must be 10 digits'),
-  city: yup.string().required('City is required'),
-  state: yup.string().required('State is required'),
+    .matches(/^(\+\d{1,3}[- ]?)?\d{10}$/, 'Please enter a valid phone number'),
+  street: yup
+    .string()
+    .required('Street address is required')
+    .min(3, 'Street address must be at least 3 characters'),
+  city: yup.string().required('City is required').min(2, 'City must be at least 2 characters'),
+  state: yup.string().required('State is required').min(2, 'State must be at least 2 characters'),
+  pincode: yup
+    .string()
+    .required('Pincode is required')
+    .matches(/^[0-9]{6}$/, 'Please enter a valid 6-digit pincode'),
+  website: yup
+    .string()
+    .nullable()
+    .transform((value) => (value === '' ? null : value))
+    .url('Please enter a valid URL')
+    .optional(),
+  ownerId: yup.string().required('Vendor owner is required'),
   isActive: yup.boolean().default(true),
 })
 

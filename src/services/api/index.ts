@@ -1,5 +1,7 @@
 import { authApiEndpoints } from './authApi/endpoints'
+import { dashboardApiEndpoints } from './dashboardApi'
 import { pharmacyEndpoints } from './pharmacyApi'
+import { supplierApiEndpoints } from './supplierApi'
 import { userApiEndpoints } from './userApi/endpoints'
 
 export const {
@@ -33,6 +35,15 @@ export const {
     completeProfile: { matchFulfilled: completeProfileFulfilled },
   },
 } = userApiEndpoints
+
+export const {
+  useCreateSupplierMutation,
+  useDeleteSupplierMutation,
+  useGetAllSuppliersQuery,
+  useUpdateSupplierMutation,
+} = supplierApiEndpoints
+
+export const { useGetDashboardDataQuery } = dashboardApiEndpoints
 
 export const {
   useCreatePharmacyMutation,

@@ -3,6 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom'
 import { RootState } from '@/store/store'
 import AccessDenied from '@/components/AccessDenied'
 import Loader from '@/components/ui/Loader'
+import { useMeQuery } from '@/services/api'
 
 interface ProtectedRouteProps {
   roles: string[]
@@ -10,10 +11,11 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ roles, children }: ProtectedRouteProps) => {
-  const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.auth)
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth)
   const { role } = useSelector((state: RootState) => state.user)
+  const { data, isLoading } = useMeQuery()
 
-  if (isLoading) {
+  if (isLoading || !data) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader />

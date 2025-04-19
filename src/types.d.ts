@@ -237,6 +237,15 @@ export interface ISupplier {
   state: string
   pincode: string
   website?: string
-  vendorOwnerId: string
+  ownerId: string
   isActive: boolean
+}
+
+interface ICountsResponse {
+  data: {
+    usersCount: number
+    suppliersCount: number
+    pharmaciesCount: number
+    ordersCount: number
+  }
 }
