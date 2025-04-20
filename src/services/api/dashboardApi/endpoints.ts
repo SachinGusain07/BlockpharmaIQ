@@ -1,5 +1,5 @@
 import { api } from '@/services/apiSlice'
-import { ApiResponse, ICountsResponse } from '@/types'
+import { ICountsResponse } from '@/types'
 
 export const dashboardApiEndpoints = api.injectEndpoints({
   endpoints: (builder) => ({

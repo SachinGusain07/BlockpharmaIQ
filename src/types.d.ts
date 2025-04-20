@@ -29,7 +29,7 @@ interface INavLink {
 //   PHARMACY = 'PHARMACY',
 // }
 
-type Role = 'USER' | 'ADMIN' | 'SUPPLIER' | 'PHARMACY' | null
+type Role = 'USER' | 'ADMIN' | 'SUPPLIER' | 'PHARMACY'
 type OrderStatus = 'PENDING' | 'IN_PROGRESS' | 'DELIVERED' | 'CANCELLED'
 type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED'
 type PaymentMethod = 'CASH_ON_DELIVERY' | 'UPI' | 'CARD' | 'NET_BANKING' | 'CRYPTO'
@@ -42,8 +42,8 @@ interface IUser {
   password: string
   confirmPassword: string
   isProfileCompleted: boolean
-  role: Role
-  isDeleted: boolea
+  role: string
+  isDeleted: boolean
   phoneNumber: string
   profilePic?: string
   address?: IAddress
@@ -193,7 +193,7 @@ interface IResponseUser {
     isDeleted: boolean
     createdAt: string
     updatedAt: string
-    role: Role
+    role: string
     phoneNumber: string
     profilePic?: string
   }
@@ -248,4 +248,20 @@ interface ICountsResponse {
     pharmaciesCount: number
     ordersCount: number
   }
+}
+
+interface IUserFormData {
+  firstName: string
+  lastName: string
+  email: string
+  password?: string
+  confirmPassword?: string
+  role: string
+  phoneNumber: string
+  isDeleted?: boolean
+  street?: string
+  city?: string
+  state?: string
+  country?: string
+  zipCode?: string
 }

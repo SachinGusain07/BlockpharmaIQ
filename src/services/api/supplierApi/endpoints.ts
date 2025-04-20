@@ -16,9 +16,12 @@ export const supplierApiEndpoints = api.injectEndpoints({
       }),
       invalidatesTags: ['Supplier'],
     }),
-    updateSupplier: builder.mutation<ApiResponse<ISupplier>, SupplierFormData>({
-      query: (data) => ({
-        url: '/supplier/update',
+    updateSupplier: builder.mutation<
+      ApiResponse<ISupplier>,
+      { id: string; data: SupplierFormData }
+    >({
+      query: ({ id, data }) => ({
+        url: `/supplier/update/${id}`,
         method: 'PUT',
         body: data,
       }),

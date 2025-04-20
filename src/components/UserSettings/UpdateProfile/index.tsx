@@ -59,17 +59,17 @@ const UpdateProfile = () => {
 
   useEffect(() => {
     if (userData?.body.data) {
-      const { firstName, lastName, email, phoneNumber, Address } = userData.body.data
+      const { firstName, lastName, email, phoneNumber, address } = userData.body.data
       reset({
         firstName,
         lastName,
         email,
         phoneNumber,
-        street: Address?.street || '',
-        city: Address?.city || '',
-        state: Address?.state || '',
-        country: Address?.country || '',
-        zipCode: Address?.zipCode || '',
+        street: address?.street || '',
+        city: address?.city || '',
+        state: address?.state || '',
+        country: address?.country || '',
+        zipCode: address?.zipCode || '',
       })
     }
   }, [userData, reset])

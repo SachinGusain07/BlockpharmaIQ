@@ -13,7 +13,16 @@ export const authApiEndpoints = api.injectEndpoints({
     }),
     register: builder.mutation<
       ApiResponse<IUser>,
-      Omit<IUser, 'id' | 'refreshToken' | 'createdAt' | 'updatedAt' | 'isProfileCompleted'>
+      Omit<
+        IUser,
+        | 'id'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'isProfileCompleted'
+        | 'isDeleted'
+        | 'profilePic'
+        | 'phoneNumber'
+      >
     >({
       query: (userData) => ({
         url: '/user/register',

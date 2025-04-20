@@ -24,8 +24,7 @@ interface OrderType {
 }
 
 const SuperAdminDashboard: React.FC = () => {
-  const { data: counts, isLoading } = useGetDashboardDataQuery()
-  console.log(counts?.data)
+  const { data: counts } = useGetDashboardDataQuery()
   const salesData = [
     { name: 'Jan', value: 4000 },
     { name: 'Feb', value: 3000 },

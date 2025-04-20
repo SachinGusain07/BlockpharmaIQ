@@ -19,11 +19,11 @@ const ProfileInformation = () => {
   ]
 
   const addressInfo = [
-    { label: 'Village', value: data?.body.data?.Address?.street || '' },
-    { label: 'Town/City', value: data?.body.data?.Address?.city || '' },
-    { label: 'State', value: data?.body.data?.Address?.state || '' },
-    { label: 'Country', value: data?.body.data?.Address?.country || '' },
-    { label: 'Postal Code', value: data?.body.data?.Address?.zipCode || '' },
+    { label: 'Village', value: data?.body.data?.address?.street || '' },
+    { label: 'Town/City', value: data?.body.data?.address?.city || '' },
+    { label: 'State', value: data?.body.data?.address?.state || '' },
+    { label: 'Country', value: data?.body.data?.address?.country || '' },
+    { label: 'Postal Code', value: data?.body.data?.address?.zipCode || '' },
     { label: 'User since', value: formatDate(data?.body.data?.createdAt) || '' },
   ]
 

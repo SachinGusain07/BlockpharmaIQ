@@ -41,7 +41,6 @@ const SupplierForm: React.FC<SupplierFormProps> = ({
       ...initialData,
     },
   })
-  console.log(initialData.ownerId)
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>

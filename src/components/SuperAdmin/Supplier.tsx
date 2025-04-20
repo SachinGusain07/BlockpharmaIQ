@@ -46,10 +46,10 @@ const Suppliers: React.FC = () => {
     if (supplierToDelete) {
       try {
         await deleteSupplier({ supplierId: supplierToDelete }).unwrap()
-        toast.success('Supplier deactivated successfully!')
+        toast.success('Supplier deleted successfully!')
       } catch (error) {
         console.error('Error deleting supplier:', error)
-        toast.error('Failed to deactivate supplier. Please try again.')
+        toast.error('Failed to deleting supplier. Please try again.')
       } finally {
         setIsConfirmDeleteModalOpen(false)
         setSupplierToDelete(null)
@@ -66,8 +66,9 @@ const Suppliers: React.FC = () => {
   const onSubmit = async (data: SupplierFormData): Promise<void> => {
     try {
       if (currentSupplier) {
-        await updateSupplier(data).unwrap()
+        await updateSupplier({ data, id: currentSupplier.id as string }).unwrap()
         toast.success('Supplier updated successfully!')
+        setIsModalOpen(false)
         return
       }
       await createSupplier(data).unwrap()
@@ -153,14 +154,14 @@ const Suppliers: React.FC = () => {
         size="sm"
       >
         <div className="mb-6">
-          <p>Are you sure you want to deactivate this supplier? You can reactivate it later.</p>
+          <p>Are you sure you want to delete this supplier?</p>
         </div>
         <div className="flex justify-end space-x-3">
           <Button variant="outline" onClick={() => setIsConfirmDeleteModalOpen(false)}>
             Cancel
           </Button>
           <Button variant="destructive" onClick={confirmDeleteSupplier}>
-            Deactivate
+            Delete
           </Button>
         </div>
       </Modal>

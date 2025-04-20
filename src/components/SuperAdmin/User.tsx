@@ -14,6 +14,7 @@ import {
   useDeleteUserMutation,
 } from '@/services/api'
 import { toast } from 'sonner'
+import { IUser } from '@/types'
 
 const Users: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -82,9 +83,9 @@ const Users: React.FC = () => {
           email: userData.email || '',
           password: userData.password || '',
           confirmPassword: userData.password || '',
-          role: userData.role || '',
+          role: userData.role || 'USER',
           phoneNumber: userData.phoneNumber || '',
-          active: userData.active !== undefined ? userData.active : true,
+          active: userData.isDeleted !== undefined ? userData.isDeleted : true,
         }
 
         const user = await registerUser(registerData).unwrap()

@@ -21,7 +21,7 @@ const initialState: Omit<IUser, 'password' | 'confirmPassword'> = {
   lastName: '',
   email: '',
   profilePic: '',
-  role: null,
+  role: '',
   isProfileCompleted: false,
   createdAt: '',
   isDeleted: true,
@@ -96,7 +96,7 @@ export const userSlice = createSlice({
       state.email = ''
       state.phoneNumber = ''
       state.profilePic = ''
-      state.role = null
+      state.role = 'USER'
       state.isProfileCompleted = false
       state.createdAt = ''
       state.isDeleted = true

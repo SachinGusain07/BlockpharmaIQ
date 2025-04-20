@@ -1,3 +1,5 @@
+import { InventoryItem } from '@/types'
+
 const inventoryData: InventoryItem[] = [
   {
     id: 1,

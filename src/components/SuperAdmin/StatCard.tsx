@@ -12,7 +12,7 @@ interface StatCardProps {
   className?: string
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend, className = '' }) => {
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon, className = '' }) => {
   return (
     <Card
       className={`flex flex-col items-center justify-center gap-2 p-4 text-center ${className}`}

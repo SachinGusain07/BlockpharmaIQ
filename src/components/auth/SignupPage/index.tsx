@@ -58,7 +58,10 @@ const Signup = () => {
 
   const onSubmit = async (formData: FormData) => {
     try {
-      const data = await registerUser(formData).unwrap()
+      const data = await registerUser({
+        ...formData,
+        role: 'USER',
+      }).unwrap()
       if (data) {
         toast.success('Registration successful')
         reset()
