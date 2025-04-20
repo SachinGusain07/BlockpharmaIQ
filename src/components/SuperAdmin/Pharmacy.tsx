@@ -1,5 +1,14 @@
+import {
+  useCreatePharmacyMutation,
+  useDeletePharmacyMutation,
+  useGetAllPharmaciesQuery,
+  useUpdatePharmacyMutation,
+} from '@/services/api'
+import { IPharmacy } from '@/types'
+import { PharmacyFormData } from '@/types/validations'
 import { Edit, Plus, Trash2 } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { Button } from '../ui/button'
 import { Card } from '../ui/card'
 import Modal from '../ui/Modal'
@@ -7,115 +16,80 @@ import Badge from './Badge'
 import PharmacyForm from './PharmacyForm'
 import Table from './Table'
 
-interface Pharmacy {
-  pharmacyOutletId: number
-  businessName: string
-  email: string
-  phoneNumber: string
-  city: string
-  state: string
-  isActive: boolean
-}
-
 const Pharmacies: React.FC = () => {
-  const [pharmacies, setPharmacies] = useState<Pharmacy[]>([
-    {
-      pharmacyOutletId: 1,
-      businessName: 'MediCare Pharmacy',
-      email: 'info@medicare.com',
-      phoneNumber: '+1234567890',
-      city: 'New York',
-      state: 'NY',
-      isActive: true,
-    },
-    {
-      pharmacyOutletId: 2,
-      businessName: 'HealthPlus Pharmacy',
-      email: 'contact@healthplus.com',
-      phoneNumber: '+1987654321',
-      city: 'Los Angeles',
-      state: 'CA',
-      isActive: true,
-    },
-    {
-      pharmacyOutletId: 3,
-      businessName: 'Wellness Drugs',
-      email: 'info@wellnessdrugs.com',
-      phoneNumber: '+1122334455',
-      city: 'Chicago',
-      state: 'IL',
-      isActive: false,
-    },
-  ])
-
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [currentPharmacy, setCurrentPharmacy] = useState<Partial<Pharmacy> | null>(null)
+  const [currentPharmacy, setCurrentPharmacy] = useState<Partial<IPharmacy> | null>(null)
   const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false)
-  const [pharmacyToDelete, setPharmacyToDelete] = useState<number | null>(null)
+  const [pharmacyToDelete, setPharmacyToDelete] = useState<string | null>(null)
+  const [pharmacies, setPharmacies] = useState<IPharmacy[]>([])
+  const [createPharmacy] = useCreatePharmacyMutation()
+  const { data, isLoading } = useGetAllPharmaciesQuery()
+  const [updatePharmacy] = useUpdatePharmacyMutation()
+  const [deletePharmacy] = useDeletePharmacyMutation()
 
   const handleAddPharmacy = () => {
     setCurrentPharmacy(null)
     setIsModalOpen(true)
   }
 
-  const handleEditPharmacy = (pharmacy: Pharmacy) => {
+  const handleEditPharmacy = (pharmacy: IPharmacy) => {
     setCurrentPharmacy(pharmacy)
     setIsModalOpen(true)
   }
 
-  const handleDeletePharmacy = (pharmacyOutletId: number) => {
+  const handleDeletePharmacy = (pharmacyOutletId: string) => {
     setPharmacyToDelete(pharmacyOutletId)
     setIsConfirmDeleteModalOpen(true)
   }
 
-  const confirmDeletePharmacy = () => {
+  const confirmDeletePharmacy = async () => {
     if (pharmacyToDelete) {
-      setPharmacies(
-        pharmacies.map((pharmacy) =>
-          pharmacy.pharmacyOutletId === pharmacyToDelete
-            ? { ...pharmacy, isActive: false }
-            : pharmacy
-        )
-      )
-      setIsConfirmDeleteModalOpen(false)
-      setPharmacyToDelete(null)
-    }
-  }
-
-  const handleSubmitPharmacy = (pharmacyData: Partial<Pharmacy>) => {
-    if (pharmacyData.pharmacyOutletId) {
-      // Update existing pharmacy
-      setPharmacies(
-        pharmacies.map((pharmacy) =>
-          pharmacy.pharmacyOutletId === pharmacyData.pharmacyOutletId
-            ? { ...pharmacy, ...pharmacyData }
-            : pharmacy
-        )
-      )
-    } else {
-      // Create new pharmacy
-      const newPharmacy: Pharmacy = {
-        pharmacyOutletId: Math.max(0, ...pharmacies.map((p) => p.pharmacyOutletId)) + 1,
-        businessName: pharmacyData.businessName || '',
-        email: pharmacyData.email || '',
-        phoneNumber: pharmacyData.phoneNumber || '',
-        city: pharmacyData.city || '',
-        state: pharmacyData.state || '',
-        isActive: pharmacyData.isActive || true,
+      try {
+        await deletePharmacy({ pharmacyOutletId: pharmacyToDelete }).unwrap()
+        toast.success('Pharmacy deactivated successfully!')
+      } catch (error) {
+        console.error('Error deleting pharmacy:', error)
+        toast.error('Failed to deactivate pharmacy. Please try again.')
+      } finally {
+        setIsConfirmDeleteModalOpen(false)
+        setPharmacyToDelete(null)
       }
-      setPharmacies([...pharmacies, newPharmacy])
     }
-    setIsModalOpen(false)
   }
 
+  useEffect(() => {
+    if (data?.body.data) {
+      setPharmacies(data?.body.data)
+    }
+  }, [data, isLoading])
+
+  const onSubmit = async (data: PharmacyFormData): Promise<void> => {
+    console.log(data)
+    try {
+      if (currentPharmacy) {
+        await updatePharmacy(data).unwrap()
+        toast.success('Pharmacy updated successfully!')
+        return
+      }
+      await createPharmacy(data).unwrap()
+      toast.success('Pharmacy created successfully!')
+      setIsModalOpen(false)
+    } catch (error) {
+      console.error('Error creating pharmacy:', error)
+      toast.error('Failed to create pharmacy. Please try again.')
+    }
+  }
   const columns = [
-    { header: 'Business Name', accessor: 'businessName' as keyof Pharmacy },
-    { header: 'Email', accessor: 'email' as keyof Pharmacy },
-    { header: 'Phone', accessor: 'phoneNumber' as keyof Pharmacy },
-    { header: 'Location', accessor: (pharmacy: Pharmacy) => `${pharmacy.city}, ${pharmacy.state}` },
+    { header: 'Business Name', accessor: 'businessName' as keyof IPharmacy },
+    { header: 'Email', accessor: 'email' as keyof IPharmacy },
+    { header: 'Phone', accessor: 'phoneNumber' as keyof IPharmacy },
+    {
+      header: 'Location',
+      accessor: (pharmacy: IPharmacy) => `${pharmacy.city}, ${pharmacy.state}`,
+    },
     {
       header: 'Status',
-      accessor: (pharmacy: Pharmacy) => (
+      accessor: (pharmacy: IPharmacy) => (
         <Badge variant={pharmacy.isActive ? 'success' : 'danger'}>
           {pharmacy.isActive ? 'Active' : 'Inactive'}
         </Badge>
@@ -123,7 +97,7 @@ const Pharmacies: React.FC = () => {
     },
     {
       header: 'Actions',
-      accessor: (pharmacy: Pharmacy) => (
+      accessor: (pharmacy: IPharmacy) => (
         <div className="flex space-x-2">
           <Button
             variant="outline"
@@ -131,17 +105,15 @@ const Pharmacies: React.FC = () => {
             onClick={() => handleEditPharmacy(pharmacy)}
             className="flex items-center"
           >
-            <Edit size={16} className="mr-1" />
-            Edit
+            <Edit size={16} />
           </Button>
           <Button
             variant="destructive"
             size="sm"
-            onClick={() => handleDeletePharmacy(pharmacy.pharmacyOutletId)}
+            onClick={() => handleDeletePharmacy(pharmacy.id)}
             className="flex items-center"
           >
-            <Trash2 size={16} className="mr-1" />
-            Delete
+            <Trash2 size={16} />
           </Button>
         </div>
       ),
@@ -153,17 +125,13 @@ const Pharmacies: React.FC = () => {
       <Card>
         <div className="mb-6 flex items-center justify-between px-6">
           <h2 className="text-lg font-semibold">All Pharmacies</h2>
-          <Button variant="secondary" onClick={handleAddPharmacy} className="flex items-center">
+          <Button variant="default" onClick={handleAddPharmacy} className="flex items-center">
             <Plus size={16} className="mr-1" />
             Add Pharmacy
           </Button>
         </div>
 
-        <Table
-          columns={columns}
-          data={pharmacies}
-          keyExtractor={(pharmacy) => pharmacy.pharmacyOutletId.toString()}
-        />
+        <Table columns={columns} data={pharmacies} keyExtractor={(pharmacy) => pharmacy.id} />
       </Card>
 
       <Modal
@@ -173,7 +141,7 @@ const Pharmacies: React.FC = () => {
       >
         <PharmacyForm
           initialData={currentPharmacy || {}}
-          onSubmit={handleSubmitPharmacy}
+          onSubmit={onSubmit}
           onCancel={() => setIsModalOpen(false)}
         />
       </Modal>
@@ -192,7 +160,7 @@ const Pharmacies: React.FC = () => {
             Cancel
           </Button>
           <Button variant="destructive" onClick={confirmDeletePharmacy}>
-            Deactivate
+            Delete
           </Button>
         </div>
       </Modal>

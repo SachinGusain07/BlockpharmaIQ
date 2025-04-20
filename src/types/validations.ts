@@ -72,15 +72,6 @@ export const completeProfileSchema = yup.object({
   }),
 })
 
-export const updateSchema = profileSchema.concat(addressSchema)
-
-export type ProfileFormData = yup.InferType<typeof profileSchema>
-export type AddressFormData = yup.InferType<typeof addressSchema>
-export type LoginFormData = yup.InferType<typeof loginSchema>
-export type RegisterFormData = yup.InferType<typeof registerSchema>
-export type CompleteProfileFormData = yup.InferType<typeof completeProfileSchema>
-export type UpdateFormData = yup.InferType<typeof updateSchema>
-
 export const userFormContextSchema = yup.object({
   firstName: yup.string().required('First name is required').trim(),
   lastName: yup.string().required('Last name is required').trim(),
@@ -141,4 +132,74 @@ export const userFormContextSchema = yup.object({
   }),
 })
 
+export const supplierSchema = yup.object().shape({
+  businessName: yup
+    .string()
+    .required('Business name is required')
+    .min(3, 'Business name must be at least 3 characters')
+    .max(100, 'Business name must not exceed 100 characters'),
+  gstin: yup
+    .string()
+    .required('GSTIN is required')
+    .matches(
+      /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
+      'Please enter a valid GSTIN'
+    ),
+  email: yup.string().required('Email is required').email('Please enter a valid email address'),
+  phoneNumber: yup
+    .string()
+    .required('Phone number is required')
+    .matches(/^(\+\d{1,3}[- ]?)?\d{10}$/, 'Please enter a valid phone number'),
+  street: yup
+    .string()
+    .required('Street address is required')
+    .min(3, 'Street address must be at least 3 characters'),
+  city: yup.string().required('City is required').min(2, 'City must be at least 2 characters'),
+  state: yup.string().required('State is required').min(2, 'State must be at least 2 characters'),
+  pincode: yup
+    .string()
+    .required('Pincode is required')
+    .matches(/^[0-9]{6}$/, 'Please enter a valid 6-digit pincode'),
+  website: yup
+    .string()
+    .nullable()
+    .transform((value) => (value === '' ? null : value))
+    .url('Please enter a valid URL')
+    .optional(),
+  ownerId: yup.string().required('Vendor owner is required'),
+  isActive: yup.boolean().default(true),
+})
+
+export const pharmacySchema = yup.object({
+  businessName: yup.string().required('Business name is required'),
+  gstin: yup
+    .string()
+    .required('GSTIN is required')
+    .matches(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, 'Invalid GSTIN format'),
+  email: yup.string().required('Email is required').email('Invalid email format'),
+  phoneNumber: yup
+    .string()
+    .required('Phone number is required')
+    .matches(/^[0-9]{10}$/, 'Phone number must be 10 digits'),
+  street: yup.string().required('Street address is required'),
+  city: yup.string().required('City is required'),
+  state: yup.string().required('State is required'),
+  pincode: yup
+    .string()
+    .required('Pincode is required')
+    .matches(/^[0-9]{6}$/, 'Pincode must be 6 digits'),
+  website: yup.string().url('Must be a valid URL').required('Website is required'),
+  pharmacyOwnerId: yup.string().required('Please select a pharmacy owner'),
+  isActive: yup.boolean().default(true),
+})
+
+export type PharmacyFormData = yup.InferType<typeof pharmacySchema>
+export type SupplierFormData = yup.InferType<typeof supplierSchema>
 export type UserFormContextData = yup.InferType<typeof userFormContextSchema>
+export const updateSchema = profileSchema.concat(addressSchema)
+export type ProfileFormData = yup.InferType<typeof profileSchema>
+export type AddressFormData = yup.InferType<typeof addressSchema>
+export type LoginFormData = yup.InferType<typeof loginSchema>
+export type RegisterFormData = yup.InferType<typeof registerSchema>
+export type CompleteProfileFormData = yup.InferType<typeof completeProfileSchema>
+export type UpdateFormData = yup.InferType<typeof updateSchema>

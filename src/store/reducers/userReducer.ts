@@ -1,4 +1,5 @@
-import { meFulfilled } from '@/services/api'
+import { logoutFulfilled, meFulfilled } from '@/services/api'
+import { ApiResponse, IUser } from '@/types'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
@@ -6,8 +7,8 @@ const initialState: Omit<IUser, 'password' | 'confirmPassword'> = {
   id: '',
   firstName: '',
   phoneNumber: '',
-  Address: {
-    id: 0,
+  address: {
+    id: '',
     userId: '',
     street: '',
     city: '',
@@ -22,20 +23,29 @@ const initialState: Omit<IUser, 'password' | 'confirmPassword'> = {
   profilePic: '',
   role: '',
   isProfileCompleted: false,
-  active: false,
   createdAt: '',
-  VendorOwner: undefined,
-  VendorOrganization: undefined,
-  Pharmacist: undefined,
-  PharmacyOutlet: undefined,
-  Orders: undefined,
+  isDeleted: true,
+  vendorOwner: {
+    id: '',
+    userId: '',
+    createdAt: '',
+    updatedAt: '',
+    vendorOrganizations: [],
+  },
+  vendorOrganizations: [],
+  pharmacyOutlets: [],
+  orders: [],
+  updatedAt: '',
 }
 
 export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<{ data: IUser }>) => {
+    setUser: (
+      state,
+      action: PayloadAction<{ data: Omit<IUser, 'password' | 'confirmPassword'> }>
+    ) => {
       const data = action.payload.data
       state.id = data.id
       state.firstName = data.firstName
@@ -45,14 +55,14 @@ export const userSlice = createSlice({
       state.phoneNumber = data.phoneNumber
       state.profilePic = data.profilePic
       state.role = data.role
-      state.active = data.active
       state.createdAt = data.createdAt
-      state.Address = data.Address
-      state.VendorOwner = data.VendorOwner
-      state.VendorOrganization = data.VendorOrganization
-      state.Pharmacist = data.Pharmacist
-      state.PharmacyOutlet = data.PharmacyOutlet
-      state.Orders = data.Orders
+      state.address = data.address
+      state.pharmacyOutlets = data.pharmacyOutlets
+      state.vendorOwner = data.vendorOwner
+      state.vendorOrganizations = data.vendorOrganizations
+      state.orders = data.orders
+      state.isDeleted = data.isDeleted
+      state.updatedAt = data.updatedAt
     },
   },
   extraReducers: (builder) => {
@@ -68,15 +78,51 @@ export const userSlice = createSlice({
         state.profilePic = data.profilePic
         state.role = data.role
         state.isProfileCompleted = data.isProfileCompleted
-        state.active = data.active
         state.createdAt = data.createdAt
-        state.Address = data.Address
-        state.VendorOwner = data.VendorOwner
-        state.VendorOrganization = data.VendorOrganization
-        state.Pharmacist = data.Pharmacist
-        state.PharmacyOutlet = data.PharmacyOutlet
-        state.Orders = data.Orders
+        state.isDeleted = data.isDeleted
+        state.updatedAt = data.updatedAt
+        state.address = data.address
+        state.vendorOwner = data.vendorOwner
+        state.vendorOrganizations = data.vendorOrganizations
+        state.pharmacyOutlets = data.pharmacyOutlets
+        state.orders = data.orders
+        state.updatedAt = data.updatedAt
       }
+    })
+    builder.addMatcher(logoutFulfilled, (state) => {
+      state.id = ''
+      state.firstName = ''
+      state.lastName = ''
+      state.email = ''
+      state.phoneNumber = ''
+      state.profilePic = ''
+      state.role = 'USER'
+      state.isProfileCompleted = false
+      state.createdAt = ''
+      state.isDeleted = true
+      state.updatedAt = ''
+      state.address = {
+        id: '',
+        userId: '',
+        street: '',
+        city: '',
+        state: '',
+        country: '',
+        zipCode: '',
+        createdAt: '',
+        updatedAt: '',
+      }
+      state.vendorOwner = {
+        id: '',
+        userId: '',
+        createdAt: '',
+        updatedAt: '',
+        vendorOrganizations: [],
+      }
+      state.vendorOrganizations = []
+      state.pharmacyOutlets = []
+      state.orders = []
+      state.updatedAt = ''
     })
   },
 })

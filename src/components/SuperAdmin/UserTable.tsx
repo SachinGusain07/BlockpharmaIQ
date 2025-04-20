@@ -3,6 +3,7 @@ import React from 'react'
 import { Button } from '../ui/button'
 import Badge from './Badge'
 import Table from './Table'
+import { IUser } from '@/types'
 
 type Role = 'USER' | 'ADMIN' | 'SUPPLIER' | 'PHARMACY'
 interface UserTableProps {
@@ -37,8 +38,8 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
     {
       header: 'Status',
       accessor: (user: IUser) => (
-        <Badge variant={user.active ? 'danger' : 'success'}>
-          {user.active ? 'Deleted' : 'Active'}
+        <Badge variant={user.isDeleted ? 'danger' : 'success'}>
+          {user.isDeleted ? 'Deleted' : 'Active'}
         </Badge>
       ),
     },
@@ -52,8 +53,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
             onClick={() => onEdit(user)}
             className="flex items-center"
           >
-            <Edit size={16} className="mr-1" />
-            Edit
+            <Edit size={16} />
           </Button>
           <Button
             variant="destructive"
@@ -61,8 +61,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
             onClick={() => onDelete(user.id)}
             className="flex items-center"
           >
-            <Trash2 size={16} className="mr-1" />
-            Delete
+            <Trash2 size={16} />
           </Button>
         </div>
       ),

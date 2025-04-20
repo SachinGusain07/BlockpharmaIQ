@@ -1,35 +1,34 @@
+// src/layout/BasicLayout.tsx
 import { RootState } from '@/store/store'
 import { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { navLinks } from '../utils/navlinks'
 
 const BasicLayout = () => {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
-  const userRole = useSelector((state: RootState) => state.user.role)
-  const dispatch = useDispatch()
+  const { role } = useSelector((state: RootState) => state.user)
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth)
 
   useEffect(() => {
-    if (isAuthenticated && userRole) {
-      switch (userRole) {
-        case 'ADMIN':
-          navigate('/admin-dashboard', { replace: true })
-          break
-        case 'SUPPLIER':
-          navigate('/supplier-dashboard', { replace: true })
-          break
-        case 'PHARMACY':
-          navigate('/pharmacy-dashboard', { replace: true })
-          break
-        default:
-          console.log('Unknown role detected:', userRole)
-          navigate('/access-denied', { replace: true })
+    if (isAuthenticated && role) {
+      const redirectMap = {
+        ADMIN: '/admin-dashboard',
+        SUPPLIER: '/supplier-dashboard',
+        PHARMACY: '/pharmacy-dashboard',
+      }
+
+      const redirectPath = redirectMap[role as keyof typeof redirectMap]
+
+      if (redirectPath) {
+        navigate(redirectPath, { replace: true })
+      } else {
+        console.log('Unknown role detected:', role)
+        navigate('/access-denied', { replace: true })
       }
     }
-  }, [userRole, isAuthenticated, navigate, dispatch])
+  }, [role, isAuthenticated, navigate])
 
   return (
     <>
@@ -49,6 +48,7 @@ const BasicLayout = () => {
                 </Link>
               ))}
             </div>
+
             <div className="flex items-center gap-3">
               <button
                 onClick={() => navigate('/signup')}
@@ -57,7 +57,11 @@ const BasicLayout = () => {
                 Sign up
               </button>
 
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="md:hidden"
+                aria-label="Toggle menu"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-6 w-6 text-gray-700"
