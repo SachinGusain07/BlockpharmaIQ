@@ -34,7 +34,7 @@ const BasicLayout = () => {
     <>
       <nav className="fixed top-4 right-0 left-0 z-50">
         <div className="mx-auto max-w-6xl px-4">
-          <div className="flex items-center justify-between rounded-full border border-[#D1D1D1] bg-[#E6E6E6] px-4 py-2 shadow-[rgba(17,17,26,0.1)_0px_0px_16px]">
+          <div className="flex items-center justify-between rounded-full border border-[#D1D1D1] bg-white/30 px-4 py-2 shadow-[rgba(35,35,40,0.1)] backdrop-blur-md backdrop-saturate-150">
             <div className="h-10 w-10 rounded-full bg-[#353535]"></div>
 
             <div className="absolute left-1/2 hidden -translate-x-1/2 transform items-center space-x-8 md:flex">
