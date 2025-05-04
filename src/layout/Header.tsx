@@ -1,10 +1,13 @@
-import { BellIcon } from '@heroicons/react/24/outline'
+import WalletConnector from '@/components/ConnectWallet'
+import { useMeQuery } from '@/services/api'
 
 interface HeaderProps {
   onToggleSidebar: () => void
 }
 
 const Header = ({ onToggleSidebar }: HeaderProps) => {
+  const user = useMeQuery()
+  const role = user.data?.body.data.role
   return (
     <header className="z-10 border-b border-gray-100 bg-white/80 backdrop-blur-sm">
       <div className="flex items-center justify-between p-4">
@@ -23,10 +26,7 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
         </button>
 
         <div className="md:flex-1"></div>
-        <button className="relative rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100">
-          <BellIcon className="h-5 w-5" />
-          <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500"></span>
-        </button>
+        <div className="h-10">{role !== 'ADMIN' ? <WalletConnector /> : null}</div>
       </div>
     </header>
   )

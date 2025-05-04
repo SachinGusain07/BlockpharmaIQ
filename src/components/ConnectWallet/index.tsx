@@ -25,11 +25,11 @@ const WalletConnector: React.FC = () => {
     : null
 
   return (
-    <div className="font-sans text-sm">
+    <div className="mr-5 font-sans text-sm">
       {account ? (
         <div className="relative">
           <button
-            className="flex items-center gap-2 rounded-full bg-neutral-900 px-4 py-2 text-white transition-colors hover:bg-neutral-600"
+            className="flex items-center gap-2 rounded-full bg-neutral-950 px-4 py-2 text-white transition-colors hover:bg-neutral-600"
             onClick={disconnectWallet}
             title={`Connected to chain ID: ${chainId}`}
           >
@@ -40,7 +40,9 @@ const WalletConnector: React.FC = () => {
       ) : (
         <button
           className={`flex items-center gap-2 rounded-full px-4 py-2 text-white transition-colors ${
-            isConnecting ? 'cursor-not-allowed bg-gray-400' : 'bg-neutral-500 hover:bg-neutral-600'
+            isConnecting
+              ? 'cursor-not-allowed bg-neutral-950'
+              : 'bg-neutral-950 hover:bg-neutral-600'
           }`}
           onClick={connectWallet}
           disabled={isConnecting}

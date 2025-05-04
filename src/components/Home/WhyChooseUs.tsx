@@ -4,7 +4,7 @@ import Geolocation from '../../assests/Geolocation.svg'
 import health from '../../assests/Health monitoring.svg'
 import Blockchain from '../../assests/blockchain technologies.svg'
 import CloudComputing from '../../assests/cloud computing.svg'
-
+import { motion } from 'motion/react'
 type CardProps = {
   title: string
   description: string
@@ -13,13 +13,19 @@ type CardProps = {
 
 const Card: React.FC<CardProps> = ({ title, description, icon }) => {
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border bg-white p-6 transition-transform duration-200 hover:scale-[1.02]">
+    <motion.div
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      transition={{ duration: 2, ease: 'easeInOut', staggerChildren: 0.2 }}
+      viewport={{ once: true }}
+      className="flex flex-col gap-4 rounded-2xl border bg-white p-6 transition-transform duration-200 hover:scale-[1.02]"
+    >
       <div className="flex h-48 items-center justify-center">{icon}</div>
       <div>
         <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
         <p className="text-sm text-gray-600">{description}</p>
       </div>
-    </div>
+    </motion.div>
   )
 }
 

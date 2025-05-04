@@ -43,6 +43,11 @@ export const supplierNavItems = [
     icon: HomeIcon,
   },
   {
+    name: 'Inventory',
+    path: '/inventory',
+    icon: TruckIcon,
+  },
+  {
     name: 'Pending Orders',
     path: '/pending-orders',
     icon: ClipboardDocumentListIcon,
@@ -51,16 +56,6 @@ export const supplierNavItems = [
     name: 'Order History',
     path: '/order-history',
     icon: ShoppingBagIcon,
-  },
-  {
-    name: 'Shipments',
-    path: '/shipments',
-    icon: TruckIcon,
-  },
-  {
-    name: 'Customers',
-    path: '/customers',
-    icon: BuildingStorefrontIcon,
   },
 ]
 
@@ -78,6 +73,11 @@ export const pharmacyNavItems = [
   {
     name: 'Orders',
     path: '/orders',
+    icon: ShoppingBagIcon,
+  },
+  {
+    name: 'Predictions',
+    path: '/predict',
     icon: ShoppingBagIcon,
   },
   {

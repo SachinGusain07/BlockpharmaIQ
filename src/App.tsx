@@ -7,6 +7,7 @@ import Signup from '@/pages/signup'
 import DashboardLayout from './layout/DashboardLayout'
 import AccessDenied from './components/AccessDenied'
 import ProtectedRoute from './layout/ProtectedRoute'
+import InventoryTable from './components/Supplier/Inventory'
 
 const ProfileInformation = lazy(() => import('@/pages/profile-info'))
 const AccountSettings = lazy(() => import('@/pages/account-setting'))
@@ -53,7 +54,7 @@ export const App = () => {
             <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
             <Route path="/pending-orders" element={<SupplierOrdersPage />} />
             <Route path="/order-history" element={<OrderHistoryPage />} />
-            <Route path="/shipments" element={<div>Shipments</div>} />
+            <Route path="/inventory" element={<InventoryTable />} />
             <Route path="/customers" element={<div>Customers</div>} />
           </Route>
         </Route>

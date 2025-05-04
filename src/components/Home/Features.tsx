@@ -25,22 +25,26 @@ const Features = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
+        staggerChildren: 0.15,
+        delayChildren: 0.1,
       },
     },
   }
 
   const cardVariants = {
-    hidden: { opacity: 0, y: 50 },
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 1,
-        ease: 'easeInOut',
+        type: 'spring',
+        stiffness: 100,
+        damping: 12,
+        duration: 0.6,
       },
     },
   }
+
   return (
     <div className="mt-16 h-screen w-full max-w-6xl p-5">
       <div className="flex w-full items-center">
@@ -53,17 +57,12 @@ const Features = () => {
         className="mt-16 flex w-full items-center justify-between gap-5"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true }}
+        viewport={{ once: true, amount: 0.2 }}
         variants={containerVariants}
       >
         {processSlides.map((slide, index) => (
           <motion.div key={index} variants={cardVariants}>
-            <FeatureCard
-              key={index}
-              index={index}
-              title={slide.title}
-              description={slide.description}
-            />
+            <FeatureCard index={index} title={slide.title} description={slide.description} />
           </motion.div>
         ))}
       </motion.div>
@@ -85,11 +84,7 @@ const Features = () => {
 
 const FeatureCard = (props: { title: string; description: string; index: number }) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: 'easeInOut', staggerChildren: 0.2 }}
-      viewport={{ once: true }}
+    <div
       className={`flex h-96 w-full flex-col justify-between rounded-3xl p-6 shadow transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg ${props.index === 0 ? 'bg-neutral-900 text-white' : 'bg-neutral-50 text-black'}`}
     >
       <div>
@@ -97,7 +92,8 @@ const FeatureCard = (props: { title: string; description: string; index: number 
         <h3 className="mt-2 text-xl font-bold">{props.title}</h3>
       </div>
       <p className="mt-4 text-sm font-medium">{props.description}</p>
-    </motion.div>
+    </div>
   )
 }
+
 export default Features
