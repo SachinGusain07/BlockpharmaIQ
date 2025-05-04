@@ -121,11 +121,12 @@ interface IOrder {
   paymentStatus: PaymentStatus
   paymentMethod: PaymentMethod
   amount: number
-  currency: string
   createdAt: string
   updatedAt: string
   orderItems?: IOrderItem[]
-  transactionHash?: string
+  pharmacy?: IPharmacyOutlet
+  vendorOrg?: IVendorOrganization
+  blockchainTxHash?: string
 }
 
 interface IOrderItem {

@@ -1,7 +1,5 @@
 import {
   BuildingStorefrontIcon,
-  ChartBarIcon,
-  CircleStackIcon,
   ClipboardDocumentListIcon,
   CogIcon,
   CubeIcon,
@@ -70,26 +68,26 @@ export const pharmacyNavItems = [
     path: '/pharmacy-dashboard',
     icon: CubeIcon,
   },
-  {
-    name: 'Analytics',
-    path: '/analytics',
-    icon: ChartBarIcon,
-  },
+  // {
+  //   name: 'Analytics',
+  //   path: '/analytics',
+  //   icon: ChartBarIcon,
+  // },
   {
     name: 'Orders',
     path: '/orders',
     icon: ShoppingBagIcon,
   },
-  {
-    name: 'Predictions',
-    path: '/predict',
-    icon: ShoppingBagIcon,
-  },
-  {
-    name: 'Blockchain',
-    path: '/blockchain',
-    icon: CircleStackIcon,
-  },
+  // {
+  //   name: 'Predictions',
+  //   path: '/predict',
+  //   icon: ShoppingBagIcon,
+  // },
+  // {
+  //   name: 'Blockchain',
+  //   path: '/blockchain',
+  //   icon: CircleStackIcon,
+  // },
   {
     name: 'Settings',
     path: '/settings',
