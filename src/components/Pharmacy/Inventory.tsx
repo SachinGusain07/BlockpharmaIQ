@@ -1,20 +1,12 @@
-import { motion, AnimatePresence } from 'motion/react'
 import inventoryData from '@/utils/inventoryData'
-import {
-  ArrowPathIcon,
-  EyeIcon,
-  MagnifyingGlassIcon,
-  PencilIcon,
-  PlusIcon,
-  TrashIcon,
-} from '@heroicons/react/24/outline'
+import { EyeIcon, MagnifyingGlassIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useState } from 'react'
 
 const Inventory = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [filter, setFilter] = useState('all')
-  const [selectedItems, setSelectedItems] = useState<number[]>([])
 
   const filteredItems = inventoryData.filter((item) => {
     const matchesSearch =
@@ -27,17 +19,6 @@ const Inventory = () => {
         new Date(item.expiry) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
     return matchesSearch && matchesFilter
   })
-
-  const toggleSelectItem = (id: number) => {
-    setSelectedItems((prev) =>
-      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
-    )
-  }
-
-  const handleBulkReorder = () => {
-    alert(`Reordering ${selectedItems.length} items`)
-    setSelectedItems([])
-  }
 
   const rowVariants = {
     hidden: { opacity: 0, x: -50 },
@@ -68,35 +49,6 @@ const Inventory = () => {
 
   return (
     <div className="space-y-4">
-      {/* Header Section */}
-      <motion.div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <h2 className="text-2xl font-bold text-gray-800">Inventory Management</h2>
-        <div className="flex items-center space-x-2">
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm text-white shadow-md hover:bg-indigo-700"
-          >
-            <PlusIcon className="mr-2 h-4 w-4" />
-            Add New
-          </motion.button>
-          {selectedItems.length > 0 && (
-            <motion.button
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleBulkReorder}
-              className="flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm text-white shadow-md hover:bg-green-700"
-            >
-              <ArrowPathIcon className="mr-2 h-4 w-4" />
-              Reorder Selected
-            </motion.button>
-          )}
-        </div>
-      </motion.div>
-
-      {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
           {
@@ -177,12 +129,6 @@ const Inventory = () => {
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  />
-                </th>
                 <th className="px-4 py-3 text-left font-medium text-gray-500">Medicine</th>
                 <th className="px-4 py-3 text-left font-medium text-gray-500">Category</th>
                 <th className="px-4 py-3 text-left font-medium text-gray-500">Stock</th>
@@ -202,14 +148,6 @@ const Inventory = () => {
                     exit="exit"
                     className={item.stock < item.threshold ? 'bg-red-50' : ''}
                   >
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                        checked={selectedItems.includes(item.id)}
-                        onChange={() => toggleSelectItem(item.id)}
-                      />
-                    </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-9 w-9 flex-shrink-0 overflow-hidden rounded-full bg-gray-100">
