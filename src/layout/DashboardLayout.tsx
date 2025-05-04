@@ -36,7 +36,7 @@ const DashboardLayout = () => {
     <div className="flex h-screen bg-neutral-50 shadow-xl backdrop-blur-3xl">
       <Sidebar sidebarOpen={sidebarOpen} onLogout={handleLogout} />
 
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col">
         <Header onToggleSidebar={toggleSidebar} />
 
         <main className="flex-1 overflow-y-auto bg-gray-50/50 p-6">

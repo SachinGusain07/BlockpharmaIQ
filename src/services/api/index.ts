@@ -3,7 +3,7 @@ import { dashboardApiEndpoints } from './dashboardApi'
 import { pharmacyEndpoints } from './pharmacyApi'
 import { supplierApiEndpoints } from './supplierApi'
 import { userApiEndpoints } from './userApi/endpoints'
-import { supplierInventoryApiEndpoints } from './SupplierInventoryApi/endpoints'
+import { supplierInventoryApiEndpoints } from './ProductsApi/endpoints'
 
 export const {
   useMeQuery,
@@ -54,18 +54,9 @@ export const {
 } = pharmacyEndpoints
 
 export const {
-  useGetProductsQuery,
-  useGetProductByIdQuery,
-  useAddProductMutation,
+  useCreateBulkProductsMutation,
+  useCreateProductMutation,
+  useGetProductsByVendorQuery,
   useUpdateProductMutation,
   useDeleteProductMutation,
-  useGetInventoryItemsQuery,
-  useAddInventoryItemMutation,
-  useUpdateInventoryItemMutation,
-  useDeleteInventoryItemMutation,
-  useAddBulkProductsMutation,
-  useGetVendorOrganizationsQuery,
-  useGetPharmacyOutletsQuery,
-  useGetCategoriesQuery,
-  useGetBrandsQuery,
 } = supplierInventoryApiEndpoints
