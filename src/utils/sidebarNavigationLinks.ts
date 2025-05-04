@@ -43,8 +43,8 @@ export const supplierNavItems = [
     icon: HomeIcon,
   },
   {
-    name: 'Inventory',
-    path: '/inventory',
+    name: 'Products',
+    path: '/products',
     icon: TruckIcon,
   },
   {
@@ -55,6 +55,11 @@ export const supplierNavItems = [
   {
     name: 'Order History',
     path: '/order-history',
+    icon: ShoppingBagIcon,
+  },
+  {
+    name: 'Setting',
+    path: '/supplier-settings',
     icon: ShoppingBagIcon,
   },
 ]

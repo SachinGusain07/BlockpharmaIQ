@@ -1,13 +1,14 @@
-import { lazy } from 'react'
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 import BasicLayout from '@/layout/BasicLayout'
 import Home from '@/pages/home'
 import Login from '@/pages/login'
 import Signup from '@/pages/signup'
-import DashboardLayout from './layout/DashboardLayout'
+import { lazy } from 'react'
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 import AccessDenied from './components/AccessDenied'
+import DashboardLayout from './layout/DashboardLayout'
 import ProtectedRoute from './layout/ProtectedRoute'
-import InventoryTable from './components/Supplier/Inventory'
+import SupplierSettings from './components/Supplier/Setting'
+import VendorProductsPage from './components/Supplier/ProductPage'
 
 const ProfileInformation = lazy(() => import('@/pages/profile-info'))
 const AccountSettings = lazy(() => import('@/pages/account-setting'))
@@ -54,8 +55,8 @@ export const App = () => {
             <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
             <Route path="/pending-orders" element={<SupplierOrdersPage />} />
             <Route path="/order-history" element={<OrderHistoryPage />} />
-            <Route path="/inventory" element={<InventoryTable />} />
-            <Route path="/customers" element={<div>Customers</div>} />
+            <Route path="/products" element={<VendorProductsPage />} />
+            <Route path="/supplier-settings" element={<SupplierSettings />} />
           </Route>
         </Route>
 
