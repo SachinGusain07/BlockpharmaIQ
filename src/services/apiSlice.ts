@@ -5,7 +5,19 @@ const baseUrl = import.meta.env.VITE_API_URL
 
 export const api = createApi({
   reducerPath: 'api',
-  tagTypes: ['User', 'Pharmacy', 'Product', 'Order', 'Auth', 'Supplier'],
+  tagTypes: [
+    'User',
+    'Pharmacy',
+    'Product',
+    'Order',
+    'Auth',
+    'Supplier',
+    'Products',
+    'Inventory',
+    'Outlets',
+    'VendorOrgs',
+    'PharmacyOutlets',
+  ],
   baseQuery: fetchBaseQuery({
     baseUrl,
     prepareHeaders: (headers, { getState }) => {

@@ -265,3 +265,96 @@ interface IUserFormData {
   country?: string
   zipCode?: string
 }
+
+// src/features/inventory/types/inventoryTypes.ts
+
+export interface Product {
+  id: string
+  name: string
+  description?: string
+  brand: string
+  category: string
+  image?: string
+  unit: string
+  price: number
+  createdAt: string
+  updatedAt: string
+  vendorOrgId: string
+}
+
+export interface NewProduct {
+  name: string
+  description?: string
+  brand: string
+  category: string
+  image?: string
+  unit: string
+  price: number
+  vendorOrgId: string
+}
+
+export interface InventoryItem {
+  id: string
+  productId: string
+  pharmacyOutletId: string
+  stock: number
+  threshold: number
+  expiry: string
+  batchNumber?: string
+  createdAt: string
+  updatedAt: string
+  product: Product
+}
+
+export interface NewInventoryItem {
+  productId: string
+  pharmacyOutletId: string
+  stock: number
+  threshold: number
+  expiry: string
+  batchNumber?: string
+}
+
+export interface BulkProductFormData {
+  products: Array<{
+    name: string
+    description?: string
+    brand: string
+    category: string
+    unit: string
+    price: number
+    stock: number
+    threshold: number
+    expiry: Date
+    batchNumber?: string
+  }>
+  pharmacyOutletId: string
+}
+
+export interface ProductFilter {
+  search?: string
+  category?: string
+  brand?: string
+  minPrice?: number
+  maxPrice?: number
+}
+
+export interface PaginationParams {
+  page: number
+  limit: number
+}
+
+export interface VendorOrganization {
+  id: string
+  businessName: string
+  email: string
+  phoneNumber: string
+  gstin: string
+}
+
+export interface PharmacyOutlet {
+  id: string
+  businessName: string
+  city: string
+  state: string
+}

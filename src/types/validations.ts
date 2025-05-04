@@ -192,6 +192,114 @@ export const pharmacySchema = yup.object({
   pharmacyOwnerId: yup.string().required('Please select a pharmacy owner'),
   isActive: yup.boolean().default(true),
 })
+export const productSchema = yup.object({
+  name: yup.string().required('Product name is required'),
+  description: yup.string(),
+  brand: yup.string().required('Brand is required'),
+  category: yup.string().required('Category is required'),
+  unit: yup.string().required('Unit is required'),
+  price: yup
+    .number()
+    .required('Price is required')
+    .positive('Price must be positive')
+    .typeError('Price must be a number'),
+  image: yup.string(),
+})
+
+export const inventoryItemSchema = yup.object({
+  productId: yup.string().required('Product is required'),
+  pharmacyOutletId: yup.string().required('Pharmacy outlet is required'),
+  stock: yup
+    .number()
+    .required('Stock quantity is required')
+    .integer('Stock must be a whole number')
+    .min(0, 'Stock cannot be negative')
+    .typeError('Stock must be a number'),
+  threshold: yup
+    .number()
+    .required('Threshold is required')
+    .integer('Threshold must be a whole number')
+    .min(1, 'Threshold must be at least 1')
+    .typeError('Threshold must be a number'),
+  expiry: yup
+    .date()
+    .required('Expiry date is required')
+    .min(new Date(), 'Expiry date cannot be in the past')
+    .typeError('Invalid date format'),
+  batchNumber: yup.string(),
+})
+
+export const singleProductFormSchema = yup.object({
+  name: yup.string().required('Product name is required'),
+  description: yup.string(),
+  brand: yup.string().required('Brand is required'),
+  category: yup.string().required('Category is required'),
+  unit: yup.string().required('Unit is required'),
+  price: yup
+    .number()
+    .required('Price is required')
+    .positive('Price must be positive')
+    .typeError('Price must be a number'),
+  stock: yup
+    .number()
+    .required('Stock quantity is required')
+    .integer('Stock must be a whole number')
+    .min(0, 'Stock cannot be negative')
+    .typeError('Stock must be a number'),
+  threshold: yup
+    .number()
+    .required('Threshold is required')
+    .integer('Threshold must be a whole number')
+    .min(1, 'Threshold must be at least 1')
+    .typeError('Threshold must be a number'),
+  expiry: yup
+    .date()
+    .required('Expiry date is required')
+    .min(new Date(), 'Expiry date cannot be in the past')
+    .typeError('Invalid date format'),
+  batchNumber: yup.string(),
+  pharmacyOutletId: yup.string().required('Pharmacy outlet is required'),
+})
+
+export const bulkProductsSchema = yup.object({
+  pharmacyOutletId: yup.string().required('Pharmacy outlet is required'),
+  products: yup
+    .array()
+    .of(
+      yup.object({
+        name: yup.string().required('Product name is required'),
+        description: yup.string(),
+        brand: yup.string().required('Brand is required'),
+        category: yup.string().required('Category is required'),
+        unit: yup.string().required('Unit is required'),
+        price: yup
+          .number()
+          .required('Price is required')
+          .positive('Price must be positive')
+          .typeError('Price must be a number'),
+        stock: yup
+          .number()
+          .required('Stock quantity is required')
+          .integer('Stock must be a whole number')
+          .min(0, 'Stock cannot be negative')
+          .typeError('Stock must be a number'),
+        threshold: yup
+          .number()
+          .required('Threshold is required')
+          .integer('Threshold must be a whole number')
+          .min(1, 'Threshold must be at least 1')
+          .typeError('Threshold must be a number'),
+        expiry: yup
+          .date()
+          .required('Expiry date is required')
+          .min(new Date(), 'Expiry date cannot be in the past')
+          .typeError('Invalid date format'),
+        batchNumber: yup.string(),
+      })
+    )
+    .min(1, 'Add at least one product')
+    .required('Products are required'),
+})
 
 export type PharmacyFormData = yup.InferType<typeof pharmacySchema>
 export type SupplierFormData = yup.InferType<typeof supplierSchema>
@@ -203,3 +311,5 @@ export type LoginFormData = yup.InferType<typeof loginSchema>
 export type RegisterFormData = yup.InferType<typeof registerSchema>
 export type CompleteProfileFormData = yup.InferType<typeof completeProfileSchema>
 export type UpdateFormData = yup.InferType<typeof updateSchema>
+export type SingleProductFormData = yup.InferType<typeof singleProductFormSchema>
+export type BulkProductFormData = yup.InferType<typeof bulkProductsSchema>

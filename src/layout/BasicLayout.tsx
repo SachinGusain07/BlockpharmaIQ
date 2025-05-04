@@ -4,31 +4,34 @@ import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { navLinks } from '../utils/navlinks'
+import { useLogoutMutation } from '@/services/api'
 
 const BasicLayout = () => {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { role } = useSelector((state: RootState) => state.user)
+  const userRole = useSelector((state: RootState) => state.user.role)
   const { isAuthenticated } = useSelector((state: RootState) => state.auth)
-
+  const [logout] = useLogoutMutation()
+  console.log(userRole, 'role')
   useEffect(() => {
-    if (isAuthenticated && role) {
+    console.log(userRole, isAuthenticated)
+    if (isAuthenticated && userRole) {
       const redirectMap = {
         ADMIN: '/admin-dashboard',
         SUPPLIER: '/supplier-dashboard',
         PHARMACY: '/pharmacy-dashboard',
       }
 
-      const redirectPath = redirectMap[role as keyof typeof redirectMap]
+      const redirectPath = redirectMap[userRole as keyof typeof redirectMap]
 
       if (redirectPath) {
         navigate(redirectPath, { replace: true })
       } else {
-        console.log('Unknown role detected:', role)
+        console.log('Unknown role detected:', userRole)
         navigate('/access-denied', { replace: true })
       }
     }
-  }, [role, isAuthenticated, navigate])
+  }, [userRole, isAuthenticated, navigate])
 
   return (
     <>
@@ -50,12 +53,25 @@ const BasicLayout = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => navigate('/signup')}
-                className="rounded-full bg-[#353535] px-6 py-2 text-sm leading-5 font-medium text-white"
-              >
-                Sign up
-              </button>
+              {isAuthenticated ? (
+                <button
+                  onClick={() => {
+                    logout()
+                    localStorage.removeItem('accessToken')
+                    navigate('/login')
+                  }}
+                  className="rounded-full bg-[#353535] px-6 py-2 text-sm leading-5 font-medium text-white"
+                >
+                  Logout
+                </button>
+              ) : (
+                <button
+                  onClick={() => navigate('/signup')}
+                  className="rounded-full bg-[#353535] px-6 py-2 text-sm leading-5 font-medium text-white"
+                >
+                  Sign up
+                </button>
+              )}
 
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}

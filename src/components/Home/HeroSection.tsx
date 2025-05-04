@@ -1,9 +1,18 @@
-import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
 import heroImage from '../../assests/heroImage.png'
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false)
+  const imageRef = useRef(null)
+
+  const { scrollYProgress } = useScroll({
+    target: imageRef,
+    offset: ['start end', 'end start'],
+  })
+
+  const scale = useTransform(scrollYProgress, [0, 0.5], [0.8, 1])
+  const rotateX = useTransform(scrollYProgress, [0, 0.5], [10, 0])
 
   useEffect(() => {
     setIsVisible(true)
@@ -22,7 +31,7 @@ const HeroSection = () => {
   }
   return (
     <>
-      <div className="mt-16 flex flex-col items-center justify-center gap-6 overflow-hidden px-4 md:gap-10">
+      <div className="mt-16 flex flex-col items-center justify-center overflow-hidden px-4">
         <motion.div
           className="flex w-full max-w-5xl flex-col items-center justify-center gap-4 text-center"
           initial="hidden"
@@ -49,13 +58,25 @@ const HeroSection = () => {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: 'easeInOut' }}
         viewport={{ once: true }}
-        className="relative mt-16 flex w-full max-w-6xl flex-col items-center justify-center border-gray-200 p-5"
+        className="relative mt-8 flex w-full max-w-6xl flex-col items-center justify-center border-gray-200"
       >
-        <img
-          src={heroImage}
-          alt="Hero"
-          className="relative z-10 rounded-lg border shadow-2xl shadow-gray-500/20 backdrop-blur-3xl"
-        />
+        <motion.div
+          ref={imageRef}
+          style={{
+            scale,
+            rotateX,
+            transformOrigin: 'bottom center',
+          }}
+          transition={{ duration: 1, ease: 'easeInOut' }}
+          viewport={{ once: false, margin: '-50px' }}
+          className="relative z-10 w-full p-5"
+        >
+          <img
+            src={heroImage}
+            alt="Hero"
+            className="relative z-10 rounded-lg border shadow-2xl shadow-gray-500/20 backdrop-blur-3xl"
+          />
+        </motion.div>
       </motion.div>
     </>
   )

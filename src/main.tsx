@@ -5,12 +5,15 @@ import { App } from './App.tsx'
 import { Toaster } from 'sonner'
 import { Provider } from 'react-redux'
 import { store } from './store/store.ts'
+import ReactLenis from 'lenis/react'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
       <Toaster />
-      <App />
+      <ReactLenis root>
+        <App />
+      </ReactLenis>
     </Provider>
   </StrictMode>
 )

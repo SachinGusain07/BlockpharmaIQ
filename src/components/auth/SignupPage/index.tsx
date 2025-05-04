@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { RiDoubleQuotesL } from 'react-icons/ri'
 import { Link, useNavigate } from 'react-router-dom'
 import * as yup from 'yup'
-import { useRegisterMutation } from '@/services/api'
+import { useMeQuery, useRegisterMutation } from '@/services/api'
 import { toast } from 'sonner'
 import { useEffect } from 'react'
 import { useSelector } from 'react-redux'
@@ -48,13 +48,21 @@ const Signup = () => {
   const [registerUser, { isLoading }] = useRegisterMutation()
   const navigate = useNavigate()
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
+  const user = useMeQuery()
+  const role = user.data?.body.data.role
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/setting')
+      if (role === 'ADMIN') {
+        navigate('/admin-dashboard')
+      } else if (role === 'SUPPLIER') {
+        navigate('/supplier-dashboard')
+      } else if (role === 'PHARMACY') {
+        navigate('/pharmacy-dashboard')
+      }
       return
     }
-  }, [isAuthenticated, navigate])
+  }, [isAuthenticated, navigate, role])
 
   const onSubmit = async (formData: FormData) => {
     try {
