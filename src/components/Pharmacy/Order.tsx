@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useGetOrdersQuery } from '@/services/api'
-import { IOrder } from '@/types'
+import { useGetAllSuppliersQuery, useGetOrdersQuery } from '@/services/api'
+import { IOrder, ISupplier } from '@/types'
 import {
   ArrowPathIcon,
   CheckCircleIcon,
@@ -15,6 +15,15 @@ import {
 } from '@heroicons/react/24/outline'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select'
 
 type Medicine = {
   id: string
@@ -106,22 +115,10 @@ const predictMedicines = async (): Promise<PredictedMedicine[]> => {
   ]
 }
 
-// Mock suppliers
-const suppliers = [
-  { id: 'sup-001', name: 'MedSupply Co.', address: '0x8F3e5d12A9e4F79f7e9cC314770bdC93dE89C3c1' },
-  { id: 'sup-002', name: 'PharmaDist Inc.', address: '0x7C2e90A8B8236bCf6BA8F24CA69dBb38E7825A7a' },
-  { id: 'sup-003', name: 'Global Meds', address: '0x5F4e21dB9C678d807De81D84B21952A768c3c374' },
-  {
-    id: 'sup-004',
-    name: 'HealthCare Suppliers',
-    address: '0x3A8d86BF6cB393E9A22B7464e2CcAd487e14BeCf',
-  },
-]
-
 const PharmacyOrderSystem = () => {
   const [predictedMedicines, setPredictedMedicines] = useState<PredictedMedicine[]>([])
   const [editingMedicine, setEditingMedicine] = useState<PredictedMedicine | null>(null)
-  const [selectedSupplier, setSelectedSupplier] = useState(suppliers[0])
+  const [selectedSupplier, setSelectedSupplier] = useState<ISupplier | null>(null)
   const [isLoadingPredictions, setIsLoadingPredictions] = useState(false)
   const [isProcessingOrder, setIsProcessingOrder] = useState(false)
   const [viewTab, setViewTab] = useState<'orders' | 'prediction'>('orders')
@@ -136,6 +133,9 @@ const PharmacyOrderSystem = () => {
 
   const { data: ordersData } = useGetOrdersQuery()
   const orderData = ordersData?.body.data
+
+  const { data: suppliersData } = useGetAllSuppliersQuery()
+  const supplierData = suppliersData?.body.data
 
   const handlePredictMedicines = async () => {
     setIsLoadingPredictions(true)
@@ -200,24 +200,20 @@ const PharmacyOrderSystem = () => {
       // Simulate blockchain delay
       await new Promise((resolve) => setTimeout(resolve, 2000))
 
-      // Mock transaction hash
       const mockTxHash = `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`
 
-      // Update transaction status
       setTransactionStatus({
         status: 'success',
         message: 'Transaction confirmed on blockchain',
         hash: mockTxHash,
       })
 
-      // Calculate order details
       const totalItems = medicinesForOrder.reduce((sum, med) => sum + med.quantity, 0)
       const totalAmount = medicinesForOrder.reduce((sum, med) => sum + med.price * med.quantity, 0)
 
-      // Create order data
       const orderData = {
         date: new Date().toISOString().split('T')[0],
-        supplier: selectedSupplier.name,
+        supplier: selectedSupplier?.businessName,
         items: totalItems,
         amount: totalAmount,
         status: 'processing' as const,
@@ -226,14 +222,11 @@ const PharmacyOrderSystem = () => {
         medicines: medicinesForOrder,
       }
 
-      // Call the API to create the order
       const result = await api.createOrder(orderData)
 
       if (result.success) {
-        // Reset the predicted medicines
         setPredictedMedicines([])
 
-        // Switch to orders tab
         setViewTab('orders')
       }
     } catch (error) {
@@ -370,66 +363,82 @@ const PharmacyOrderSystem = () => {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 <AnimatePresence>
-                  {orderData?.map((order: IOrder) => (
-                    <motion.tr
-                      key={order.id}
-                      variants={rowVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      className="hover:bg-gray-50"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-ellipsis text-gray-900">
-                          {order.id}
-                        </div>
-                        <div className="text-xs font-medium text-gray-400">
-                          {order.orderDate.split('T')[0]}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
-                        {order.vendorOrg?.businessName}
-                      </td>
-                      <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
-                        {order.orderItems?.length}
-                      </td>
-                      <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
-                        ${order.amount.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(order.orderStatus)}
-                        {/* {order.orderStatus !== 'CANCELLED' && (
+                  {(orderData ?? []).length > 0 ? (
+                    orderData?.map((order: IOrder) => (
+                      <motion.tr
+                        key={order.id}
+                        variants={rowVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className="hover:bg-gray-50"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-ellipsis text-gray-900">
+                            {order.id}
+                          </div>
+                          <div className="text-xs font-medium text-gray-400">
+                            {order.orderDate.split('T')[0]}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+                          {order.vendorOrg?.businessName}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
+                          {order.orderItems?.length}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
+                          ${order.amount.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {getStatusBadge(order.orderStatus)}
+                          {/* {order.orderStatus !== 'CANCELLED' && (
                           <div className="mt-1 text-xs text-gray-500">
                             Est. delivery: {order.paymentMethod}
                           </div>
                         )} */}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {order.blockchainTxHash ? (
-                          <a
-                            href={`https://polygonscan.com/tx/${order.blockchainTxHash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center text-xs text-blue-600 underline hover:text-blue-800"
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {order.blockchainTxHash ? (
+                            <a
+                              href={`https://polygonscan.com/tx/${order.blockchainTxHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center text-xs text-blue-600 underline hover:text-blue-800"
+                            >
+                              <DocumentTextIcon className="mr-1 h-3 w-3" />
+                              Verify on Polygon
+                            </a>
+                          ) : (
+                            <span className="text-xs text-gray-500">Not recorded</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex items-center rounded-md bg-gray-100 px-3 py-1 text-gray-600 hover:bg-gray-200"
                           >
-                            <DocumentTextIcon className="mr-1 h-3 w-3" />
-                            Verify on Polygon
-                          </a>
-                        ) : (
-                          <span className="text-xs text-gray-500">Not recorded</span>
-                        )}
+                            Details <ChevronRightIcon className="ml-1 h-4 w-4" />
+                          </motion.button>
+                        </td>
+                      </motion.tr>
+                    ))
+                  ) : (
+                    <motion.div
+                      variants={rowVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="w-full text-center hover:bg-gray-50"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-ellipsis text-gray-600">
+                          No orders found
+                        </div>
                       </td>
-                      <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="flex items-center rounded-md bg-gray-100 px-3 py-1 text-gray-600 hover:bg-gray-200"
-                        >
-                          Details <ChevronRightIcon className="ml-1 h-4 w-4" />
-                        </motion.button>
-                      </td>
-                    </motion.tr>
-                  ))}
+                    </motion.div>
+                  )}
                 </AnimatePresence>
               </tbody>
             </table>
@@ -456,7 +465,7 @@ const PharmacyOrderSystem = () => {
                 className={`inline-flex items-center rounded-md px-4 py-2 text-sm font-medium text-white shadow-sm ${
                   isLoadingPredictions
                     ? 'cursor-not-allowed bg-blue-400'
-                    : 'bg-blue-600 hover:bg-blue-700'
+                    : 'bg-radial from-blue-900 to-blue-600'
                 }`}
               >
                 {isLoadingPredictions ? (
@@ -644,39 +653,38 @@ const PharmacyOrderSystem = () => {
 
                     <div className="space-y-2">
                       <div>
-                        <label
-                          htmlFor="supplier"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Select Supplier
-                        </label>
-                        <select
-                          id="supplier"
-                          name="supplier"
-                          className="mt-1 block w-full rounded-md border-gray-300 py-2 pr-10 pl-3 text-base focus:border-blue-500 focus:ring-blue-500 focus:outline-none sm:text-sm"
-                          value={selectedSupplier.id}
-                          onChange={(e) => {
-                            const selected = suppliers.find((s) => s.id === e.target.value)
+                        <Select
+                          value={supplierData?.find((s) => s.id === selectedSupplier?.id)?.id}
+                          onValueChange={(value) => {
+                            const selected = supplierData?.find((s) => s.id === value)
                             if (selected) setSelectedSupplier(selected)
                           }}
                         >
-                          {suppliers.map((supplier) => (
-                            <option key={supplier.id} value={supplier.id}>
-                              {supplier.name}
-                            </option>
-                          ))}
-                        </select>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select supplier" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Select Supplier</SelectLabel>
+                              {supplierData?.map((supplier) => (
+                                <SelectItem value={supplier.id} key={supplier.id}>
+                                  {supplier.businessName}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <motion.button
-                        whileHover={{ scale: 1.02 }}
+                        whileHover={{ scale: 1.01 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleCreateOrderWithBlockchain}
                         disabled={isProcessingOrder}
                         className={`inline-flex w-full items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm ${
                           isProcessingOrder
                             ? 'cursor-not-allowed bg-blue-400'
-                            : 'bg-blue-600 hover:bg-blue-700'
+                            : 'bg-radial from-blue-900 to-blue-600'
                         }`}
                       >
                         {isProcessingOrder ? (
