@@ -1,54 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useGetOrdersQuery } from '@/services/api'
-import { IOrder } from '@/types'
-import {
-  ArrowPathIcon,
-  CheckCircleIcon,
-  ChevronRightIcon,
-  ClockIcon,
-  DocumentTextIcon,
-  PencilIcon,
-  PlusCircleIcon,
-  TrashIcon,
-  TruckIcon,
-  XCircleIcon,
-} from '@heroicons/react/24/outline'
-import { AnimatePresence, motion } from 'framer-motion'
+import { useGetAllSuppliersQuery, useGetOrdersQuery } from '@/services/api'
+import { ISupplier } from '@/types'
+import { ArrowPathIcon } from '@heroicons/react/24/outline'
+import { AnimatePresence, motion } from 'motion/react'
 import { useState } from 'react'
+import { MedicineItem, MedicinePredictionForm } from './MedicinePredictionForm'
+import { OrderList } from './OrderList'
+import { OrderSummary } from './OrderSummary'
 
-type Medicine = {
+interface IMedicine {
   id: string
   name: string
   quantity: number
   currentStock: number
   price: number
   category: string
+  isRecommended: boolean
+  confidence: number
   expiry?: string
 }
 
-type PredictedMedicine = Medicine & {
-  isRecommended: boolean
-  confidence: number
-}
-
-const api = {
-  createOrder: async (orderData: any) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    return {
-      success: true,
-      data: {
-        ...orderData,
-        id: `ORD-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000)
-          .toString()
-          .padStart(3, '0')}`,
-      },
-    }
-  },
-}
-
-// Mock ML prediction function
-const predictMedicines = async (): Promise<PredictedMedicine[]> => {
+const predictMedicines = async (): Promise<IMedicine[]> => {
   // Simulate ML prediction API call
   await new Promise((resolve) => setTimeout(resolve, 1500))
 
@@ -106,36 +78,76 @@ const predictMedicines = async (): Promise<PredictedMedicine[]> => {
   ]
 }
 
-// Mock suppliers
-const suppliers = [
-  { id: 'sup-001', name: 'MedSupply Co.', address: '0x8F3e5d12A9e4F79f7e9cC314770bdC93dE89C3c1' },
-  { id: 'sup-002', name: 'PharmaDist Inc.', address: '0x7C2e90A8B8236bCf6BA8F24CA69dBb38E7825A7a' },
-  { id: 'sup-003', name: 'Global Meds', address: '0x5F4e21dB9C678d807De81D84B21952A768c3c374' },
-  {
-    id: 'sup-004',
-    name: 'HealthCare Suppliers',
-    address: '0x3A8d86BF6cB393E9A22B7464e2CcAd487e14BeCf',
-  },
-]
-
-const PharmacyOrderSystem = () => {
-  const [predictedMedicines, setPredictedMedicines] = useState<PredictedMedicine[]>([])
-  const [editingMedicine, setEditingMedicine] = useState<PredictedMedicine | null>(null)
-  const [selectedSupplier, setSelectedSupplier] = useState(suppliers[0])
+export const PharmacyOrderSystem = () => {
+  const [predictedMedicines, setPredictedMedicines] = useState<any[]>([])
+  const [editingMedicine, setEditingMedicine] = useState<any | null>(null)
+  const [selectedSupplier, setSelectedSupplier] = useState<ISupplier | null>(null)
   const [isLoadingPredictions, setIsLoadingPredictions] = useState(false)
-  const [isProcessingOrder, setIsProcessingOrder] = useState(false)
   const [viewTab, setViewTab] = useState<'orders' | 'prediction'>('orders')
-  const [transactionStatus, setTransactionStatus] = useState<{
-    status: 'idle' | 'processing' | 'success' | 'error'
-    message: string
-    hash?: string
-  }>({
-    status: 'idle',
-    message: '',
-  })
 
   const { data: ordersData } = useGetOrdersQuery()
-  const orderData = ordersData?.body.data
+  const orderData = ordersData?.body.data || []
+
+  const { data: suppliersData } = useGetAllSuppliersQuery()
+  const supplierData = suppliersData?.body.data || []
+
+  // Blockchain interaction
+  // const { config } = usePrepareContractWrite({
+  //   address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
+  //   abi: PharmacySupplyChainABI,
+  //   functionName: 'createOrder',
+  //   args: [
+  //     selectedSupplier?.walletAddress,
+  //     predictedMedicines.filter((m) => m.isRecommended).map((m) => m.id),
+  //     predictedMedicines.filter((m) => m.isRecommended).map((m) => m.quantity),
+  //     predictedMedicines
+  //       .filter((m) => m.isRecommended)
+  //       .reduce((sum, med) => sum + med.price * med.quantity, 0),
+  //   ],
+  //   enabled:
+  //     selectedSupplier !== null && predictedMedicines.filter((m) => m.isRecommended).length > 0,
+  // })
+
+  // const { data: txData, writeAsync: createOrder } = useContractWrite(config)
+
+  // const { isLoading: isProcessingOrder } = useWaitForTransaction({
+  //   hash: txData?.hash,
+  //   onSuccess: async () => {
+  //     // Create order in database after blockchain confirmation
+  //     const totalItems = predictedMedicines
+  //       .filter((m) => m.isRecommended)
+  //       .reduce((sum, med) => sum + med.quantity, 0)
+  //     const totalAmount = predictedMedicines
+  //       .filter((m) => m.isRecommended)
+  //       .reduce((sum, med) => sum + med.price * med.quantity, 0)
+
+  //     const orderData = {
+  //       supplierId: selectedSupplier?.id,
+  //       items: totalItems,
+  //       amount: totalAmount,
+  //       medicines: predictedMedicines.filter((m) => m.isRecommended),
+  //       blockchainTxHash: txData?.hash,
+  //     }
+
+  //     try {
+  //       const response = await fetch('/api/orders', {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify(orderData),
+  //       })
+
+  //       if (response.ok) {
+  //         setPredictedMedicines([])
+  //         setSelectedSupplier(null)
+  //         setViewTab('orders')
+  //       }
+  //     } catch (error) {
+  //       console.error('Error creating order:', error)
+  //     }
+  //   },
+  // })
 
   const handlePredictMedicines = async () => {
     setIsLoadingPredictions(true)
@@ -149,18 +161,10 @@ const PharmacyOrderSystem = () => {
     }
   }
 
-  const handleEditMedicine = (medicine: PredictedMedicine) => {
-    setEditingMedicine(medicine)
-  }
-
-  const handleSaveEdit = (updatedMedicine: PredictedMedicine) => {
+  const handleSaveEdit = (updatedMedicine: any) => {
     setPredictedMedicines((medicines) =>
       medicines.map((med) => (med.id === updatedMedicine.id ? updatedMedicine : med))
     )
-    setEditingMedicine(null)
-  }
-
-  const handleCancelEdit = () => {
     setEditingMedicine(null)
   }
 
@@ -168,138 +172,29 @@ const PharmacyOrderSystem = () => {
     setPredictedMedicines((medicines) => medicines.filter((med) => med.id !== id))
   }
 
-  const handleCreateOrderWithBlockchain = async () => {
-    // Only create order from medicines that are recommended
-    const medicinesForOrder = predictedMedicines.filter((med) => med.isRecommended)
+  const handleToggleRecommendation = (id: string) => {
+    setPredictedMedicines((medicines) =>
+      medicines.map((med) => (med.id === id ? { ...med, isRecommended: !med.isRecommended } : med))
+    )
+  }
 
-    if (medicinesForOrder.length === 0) {
-      alert('Please select at least one medicine for the order')
+  const handleCreateOrderWithBlockchain = async () => {
+    if (!selectedSupplier) {
+      alert('Please select a supplier')
       return
     }
 
-    setIsProcessingOrder(true)
-    setTransactionStatus({
-      status: 'processing',
-      message: 'Initiating blockchain transaction...',
-    })
-
     try {
-      // Connect to Ethereum provider
-      // In production, you would use a proper provider
-      // const provider = new ethers.providers.Web3Provider(window.ethereum)
-      // await provider.send('eth_requestAccounts', [])
-      // const signer = provider.getSigner()
-
-      // Contract interaction would happen here
-      // For mock purposes, we'll simulate the transaction
-      setTransactionStatus({
-        status: 'processing',
-        message: 'Processing transaction on blockchain...',
-      })
-
-      // Simulate blockchain delay
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Mock transaction hash
-      const mockTxHash = `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`
-
-      // Update transaction status
-      setTransactionStatus({
-        status: 'success',
-        message: 'Transaction confirmed on blockchain',
-        hash: mockTxHash,
-      })
-
-      // Calculate order details
-      const totalItems = medicinesForOrder.reduce((sum, med) => sum + med.quantity, 0)
-      const totalAmount = medicinesForOrder.reduce((sum, med) => sum + med.price * med.quantity, 0)
-
-      // Create order data
-      const orderData = {
-        date: new Date().toISOString().split('T')[0],
-        supplier: selectedSupplier.name,
-        items: totalItems,
-        amount: totalAmount,
-        status: 'processing' as const,
-        deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        transactionHash: mockTxHash,
-        medicines: medicinesForOrder,
-      }
-
-      // Call the API to create the order
-      const result = await api.createOrder(orderData)
-
-      if (result.success) {
-        // Reset the predicted medicines
-        setPredictedMedicines([])
-
-        // Switch to orders tab
-        setViewTab('orders')
-      }
+      console.log(predictedMedicines)
+      // await createOrder?.()
     } catch (error) {
       console.error('Error creating order:', error)
-      setTransactionStatus({
-        status: 'error',
-        message: 'Transaction failed. Please try again.',
-      })
-    } finally {
-      setIsProcessingOrder(false)
     }
-  }
-
-  const getStatusBadge = (status: string) => {
-    const baseClass = 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium'
-
-    switch (status) {
-      case 'DELIVERED':
-        return (
-          <span className={`${baseClass} bg-green-100 text-green-800`}>
-            <CheckCircleIcon className="mr-1 h-3 w-3" />
-            Delivered
-          </span>
-        )
-      case 'SHIPPED':
-        return (
-          <span className={`${baseClass} bg-blue-100 text-blue-800`}>
-            <TruckIcon className="mr-1 h-3 w-3" />
-            Shipped
-          </span>
-        )
-      case 'PENDING':
-        return (
-          <span className={`${baseClass} bg-yellow-100 text-yellow-800`}>
-            <ClockIcon className="mr-1 h-3 w-3" />
-            Pending
-          </span>
-        )
-      case 'CANCELLED':
-        return (
-          <span className={`${baseClass} bg-red-100 text-red-800`}>
-            <XCircleIcon className="mr-1 h-3 w-3" />
-            Cancelled
-          </span>
-        )
-      default:
-        return null
-    }
-  }
-
-  const rowVariants = {
-    hidden: { opacity: 0, x: -10 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.3, ease: 'easeOut' },
-    },
-    exit: {
-      opacity: 0,
-      x: 10,
-      transition: { duration: 0.2, ease: 'easeIn' },
-    },
   }
 
   return (
     <div className="space-y-6">
+      {/* Header and Tabs */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">Pharmacy Supply Chain</h2>
@@ -334,108 +229,7 @@ const PharmacyOrderSystem = () => {
       </div>
 
       {/* Orders Tab */}
-      {viewTab === 'orders' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-xl border border-gray-100 bg-white shadow-sm"
-        >
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    Order ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    Supplier
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    Items
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    Amount
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    Blockchain
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                <AnimatePresence>
-                  {orderData?.map((order: IOrder) => (
-                    <motion.tr
-                      key={order.id}
-                      variants={rowVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      className="hover:bg-gray-50"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-ellipsis text-gray-900">
-                          {order.id}
-                        </div>
-                        <div className="text-xs font-medium text-gray-400">
-                          {order.orderDate.split('T')[0]}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
-                        {order.vendorOrg?.businessName}
-                      </td>
-                      <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
-                        {order.orderItems?.length}
-                      </td>
-                      <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
-                        ${order.amount.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(order.orderStatus)}
-                        {/* {order.orderStatus !== 'CANCELLED' && (
-                          <div className="mt-1 text-xs text-gray-500">
-                            Est. delivery: {order.paymentMethod}
-                          </div>
-                        )} */}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {order.blockchainTxHash ? (
-                          <a
-                            href={`https://polygonscan.com/tx/${order.blockchainTxHash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center text-xs text-blue-600 underline hover:text-blue-800"
-                          >
-                            <DocumentTextIcon className="mr-1 h-3 w-3" />
-                            Verify on Polygon
-                          </a>
-                        ) : (
-                          <span className="text-xs text-gray-500">Not recorded</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="flex items-center rounded-md bg-gray-100 px-3 py-1 text-gray-600 hover:bg-gray-200"
-                        >
-                          Details <ChevronRightIcon className="ml-1 h-4 w-4" />
-                        </motion.button>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
-              </tbody>
-            </table>
-          </div>
-        </motion.div>
-      )}
+      {viewTab === 'orders' && <OrderList orders={orderData} />}
 
       {/* Prediction Tab */}
       {viewTab === 'prediction' && (
@@ -456,7 +250,7 @@ const PharmacyOrderSystem = () => {
                 className={`inline-flex items-center rounded-md px-4 py-2 text-sm font-medium text-white shadow-sm ${
                   isLoadingPredictions
                     ? 'cursor-not-allowed bg-blue-400'
-                    : 'bg-blue-600 hover:bg-blue-700'
+                    : 'bg-radial from-blue-900 to-blue-600'
                 }`}
               >
                 {isLoadingPredictions ? (
@@ -481,142 +275,24 @@ const PharmacyOrderSystem = () => {
                   {predictedMedicines.map((medicine) => (
                     <motion.li
                       key={medicine.id}
-                      variants={rowVariants}
+                      // variants={rowVariants}
                       initial="hidden"
                       animate="visible"
                       exit="exit"
                     >
                       {editingMedicine?.id === medicine.id ? (
-                        <div className="bg-blue-50 p-4">
-                          <div className="flex flex-col space-y-3">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700">
-                                  Medicine Name
-                                </label>
-                                <input
-                                  type="text"
-                                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm"
-                                  value={editingMedicine.name}
-                                  onChange={(e) =>
-                                    setEditingMedicine({ ...editingMedicine, name: e.target.value })
-                                  }
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700">
-                                  Quantity
-                                </label>
-                                <input
-                                  type="number"
-                                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm"
-                                  value={editingMedicine.quantity}
-                                  onChange={(e) =>
-                                    setEditingMedicine({
-                                      ...editingMedicine,
-                                      quantity: parseInt(e.target.value),
-                                    })
-                                  }
-                                />
-                              </div>
-                            </div>
-                            <div className="flex justify-end space-x-2">
-                              <button
-                                onClick={handleCancelEdit}
-                                className="rounded-md border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
-                              >
-                                Cancel
-                              </button>
-                              <button
-                                onClick={() => handleSaveEdit(editingMedicine)}
-                                className="rounded-md border border-transparent bg-blue-600 px-3 py-1 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
-                              >
-                                Save Changes
-                              </button>
-                            </div>
-                          </div>
-                        </div>
+                        <MedicinePredictionForm
+                          medicine={medicine}
+                          onSave={handleSaveEdit}
+                          onCancel={() => setEditingMedicine(null)}
+                        />
                       ) : (
-                        <div className="flex items-center px-4 py-4 sm:px-6">
-                          <div className="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
-                            <div>
-                              <div className="flex text-sm">
-                                <p className="truncate font-medium text-blue-600">
-                                  {medicine.name}
-                                </p>
-                                <p className="ml-1 flex-shrink-0 font-normal text-gray-500">
-                                  in {medicine.category}
-                                </p>
-                              </div>
-                              <div className="mt-2 flex">
-                                <div className="flex items-center text-sm text-gray-500">
-                                  <p>
-                                    Current Stock:{' '}
-                                    <span className="font-medium text-gray-900">
-                                      {medicine.currentStock}
-                                    </span>
-                                  </p>
-                                  <span className="mx-2 text-gray-500">•</span>
-                                  <p>
-                                    Recommended Order:{' '}
-                                    <span className="font-medium text-gray-900">
-                                      {medicine.quantity}
-                                    </span>
-                                  </p>
-                                  <span className="mx-2 text-gray-500">•</span>
-                                  <p>
-                                    Unit Price:{' '}
-                                    <span className="font-medium text-gray-900">
-                                      ${medicine.price.toFixed(2)}
-                                    </span>
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="mt-4 flex flex-shrink-0 items-center space-x-4 sm:mt-0">
-                              <div className="flex items-center">
-                                <input
-                                  id={`recommended-${medicine.id}`}
-                                  name={`recommended-${medicine.id}`}
-                                  type="checkbox"
-                                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                  checked={medicine.isRecommended}
-                                  onChange={() => {
-                                    setPredictedMedicines((medicines) =>
-                                      medicines.map((med) =>
-                                        med.id === medicine.id
-                                          ? { ...med, isRecommended: !med.isRecommended }
-                                          : med
-                                      )
-                                    )
-                                  }}
-                                />
-                                <label
-                                  htmlFor={`recommended-${medicine.id}`}
-                                  className="ml-2 text-sm text-gray-700"
-                                >
-                                  Include in order
-                                </label>
-                              </div>
-                              <div className="flex space-x-2">
-                                <button
-                                  onClick={() => handleEditMedicine(medicine)}
-                                  className="inline-flex items-center rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
-                                >
-                                  <PencilIcon className="mr-1 h-4 w-4" />
-                                  Edit
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteMedicine(medicine.id)}
-                                  className="inline-flex items-center rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-red-700 shadow-sm hover:bg-red-50"
-                                >
-                                  <TrashIcon className="mr-1 h-4 w-4" />
-                                  Remove
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                        <MedicineItem
+                          medicine={medicine}
+                          onEdit={setEditingMedicine}
+                          onDelete={handleDeleteMedicine}
+                          onToggleRecommendation={handleToggleRecommendation}
+                        />
                       )}
                     </motion.li>
                   ))}
@@ -624,145 +300,33 @@ const PharmacyOrderSystem = () => {
               </ul>
 
               {predictedMedicines.filter((m) => m.isRecommended).length > 0 && (
-                <div className="border-t border-gray-200 bg-gray-50 px-4 py-4 sm:px-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-medium text-gray-700">
-                        Total Items:{' '}
-                        {predictedMedicines
-                          .filter((m) => m.isRecommended)
-                          .reduce((sum, med) => sum + med.quantity, 0)}
-                      </div>
-                      <div className="text-sm font-medium text-gray-700">
-                        Total Amount: $
-                        {predictedMedicines
-                          .filter((m) => m.isRecommended)
-                          .reduce((sum, med) => sum + med.price * med.quantity, 0)
-                          .toFixed(2)}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div>
-                        <label
-                          htmlFor="supplier"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Select Supplier
-                        </label>
-                        <select
-                          id="supplier"
-                          name="supplier"
-                          className="mt-1 block w-full rounded-md border-gray-300 py-2 pr-10 pl-3 text-base focus:border-blue-500 focus:ring-blue-500 focus:outline-none sm:text-sm"
-                          value={selectedSupplier.id}
-                          onChange={(e) => {
-                            const selected = suppliers.find((s) => s.id === e.target.value)
-                            if (selected) setSelectedSupplier(selected)
-                          }}
-                        >
-                          {suppliers.map((supplier) => (
-                            <option key={supplier.id} value={supplier.id}>
-                              {supplier.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={handleCreateOrderWithBlockchain}
-                        disabled={isProcessingOrder}
-                        className={`inline-flex w-full items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm ${
-                          isProcessingOrder
-                            ? 'cursor-not-allowed bg-blue-400'
-                            : 'bg-blue-600 hover:bg-blue-700'
-                        }`}
-                      >
-                        {isProcessingOrder ? (
-                          <>
-                            <ArrowPathIcon className="mr-2 -ml-1 h-4 w-4 animate-spin" />
-                            Processing Order...
-                          </>
-                        ) : (
-                          <>
-                            <PlusCircleIcon className="mr-2 -ml-1 h-4 w-4" />
-                            Create Order with Blockchain
-                          </>
-                        )}
-                      </motion.button>
-                    </div>
-                  </div>
-                </div>
+                <OrderSummary
+                  predictedMedicines={predictedMedicines}
+                  suppliers={supplierData}
+                  selectedSupplier={selectedSupplier}
+                  onSupplierChange={(value) => {
+                    const supplier = supplierData.find((s) => s.id === value)
+                    setSelectedSupplier(supplier || null)
+                  }}
+                  onCreateOrder={handleCreateOrderWithBlockchain}
+                  isProcessingOrder={false}
+                />
               )}
             </div>
           )}
 
           {/* Transaction Status */}
-          {transactionStatus.status !== 'idle' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`rounded-md p-4 ${
-                transactionStatus.status === 'processing'
-                  ? 'bg-yellow-50'
-                  : transactionStatus.status === 'success'
-                    ? 'bg-green-50'
-                    : 'bg-red-50'
-              }`}
-            >
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  {transactionStatus.status === 'processing' && (
-                    <ClockIcon className="h-5 w-5 text-yellow-400" />
-                  )}
-                  {transactionStatus.status === 'success' && (
-                    <CheckCircleIcon className="h-5 w-5 text-green-400" />
-                  )}
-                  {transactionStatus.status === 'error' && (
-                    <XCircleIcon className="h-5 w-5 text-red-400" />
-                  )}
-                </div>
-                <div className="ml-3">
-                  <h3
-                    className={`text-sm font-medium ${
-                      transactionStatus.status === 'processing'
-                        ? 'text-yellow-800'
-                        : transactionStatus.status === 'success'
-                          ? 'text-green-800'
-                          : 'text-red-800'
-                    }`}
-                  >
-                    Blockchain Transaction{' '}
-                    {transactionStatus.status.charAt(0).toUpperCase() +
-                      transactionStatus.status.slice(1)}
-                  </h3>
-                  <div
-                    className={`mt-2 text-sm ${
-                      transactionStatus.status === 'processing'
-                        ? 'text-yellow-700'
-                        : transactionStatus.status === 'success'
-                          ? 'text-green-700'
-                          : 'text-red-700'
-                    }`}
-                  >
-                    <p>{transactionStatus.message}</p>
-                    {transactionStatus.hash && (
-                      <a
-                        href={`https://polygonscan.com/tx/${transactionStatus.hash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-1 inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-500"
-                      >
-                        <DocumentTextIcon className="mr-1 -ml-0.5 h-4 w-4" />
-                        View on Polygon Explorer
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
+          {/* {txData?.hash && (
+            <TransactionStatus
+              status={isProcessingOrder ? 'processing' : 'success'}
+              message={
+                isProcessingOrder
+                  ? 'Processing transaction on blockchain...'
+                  : 'Transaction confirmed on blockchain'
+              }
+              hash={txData?.hash}
+            />
+          )} */}
 
           {predictedMedicines.length === 0 && !isLoadingPredictions && (
             <div className="py-12 text-center">
@@ -780,5 +344,3 @@ const PharmacyOrderSystem = () => {
     </div>
   )
 }
-
-export default PharmacyOrderSystem

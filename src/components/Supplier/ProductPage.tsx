@@ -67,7 +67,7 @@ const VendorProductsPage: React.FC = () => {
   const products = productsData?.body.data || []
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 pb-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Products</h1>
         <div className="space-x-3">
