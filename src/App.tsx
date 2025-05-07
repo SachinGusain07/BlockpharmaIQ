@@ -2,29 +2,43 @@ import BasicLayout from '@/layout/BasicLayout'
 import Home from '@/pages/home'
 import Login from '@/pages/login'
 import Signup from '@/pages/signup'
-import { lazy } from 'react'
+// import { lazy } from 'react'
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 import AccessDenied from './components/AccessDenied'
 import DashboardLayout from './layout/DashboardLayout'
 import ProtectedRoute from './layout/ProtectedRoute'
 import SupplierSettings from './components/Supplier/Setting'
 import VendorProductsPage from './components/Supplier/ProductPage'
+import ProfileInformation from './pages/profile-info'
+import AccountSettings from './components/UserSettings/AccountSetting'
+import ChangePassword from './pages/change-password'
+import UpdateProfile from './pages/update-profile'
+import SuperAdminDashboard from '@/components/SuperAdmin/Dashboard'
+import SupplierDashboard from '@/components/Supplier/Dashboard'
+import SupplierOrdersPage from './components/Supplier/SupplierOrders'
+import OrderHistoryPage from './components/Supplier/OrderHistory'
+import InventoryPage from './pages/inventory'
+import PharmacySetting from './pages/pharmacy-setting'
+import Users from './components/SuperAdmin/User'
+import Pharmacies from './components/SuperAdmin/Pharmacy'
+import Suppliers from './components/SuperAdmin/Supplier'
+import NotFound from './pages/not-found'
 
-const ProfileInformation = lazy(() => import('@/pages/profile-info'))
-const AccountSettings = lazy(() => import('@/pages/account-setting'))
-const ChangePassword = lazy(() => import('@/pages/change-password'))
-const UpdateProfile = lazy(() => import('@/pages/update-profile'))
-const NotFound = lazy(() => import('@/pages/not-found'))
-const InventoryPage = lazy(() => import('@/pages/inventory'))
-const OrdersPage = lazy(() => import('@/pages/order'))
-const PharmacySetting = lazy(() => import('@/pages/pharmacy-setting'))
-const SuperAdminDashboard = lazy(() => import('@/components/SuperAdmin/Dashboard'))
-const Pharmacies = lazy(() => import('@/components/SuperAdmin/Pharmacy'))
-const Suppliers = lazy(() => import('@/components/SuperAdmin/Supplier'))
-const Users = lazy(() => import('@/components/SuperAdmin/User'))
-const SupplierDashboard = lazy(() => import('@/components/Supplier/Dashboard'))
-const OrderHistoryPage = lazy(() => import('@/components/Supplier/OrderHistory'))
-const SupplierOrdersPage = lazy(() => import('@/components/Supplier/SupplierOrders'))
+// const ProfileInformation = lazy(() => import('@/pages/profile-info'))
+// const AccountSettings = lazy(() => import('@/pages/account-setting'))
+// const ChangePassword = lazy(() => import('@/pages/change-password'))
+// const UpdateProfile = lazy(() => import('@/pages/update-profile'))
+// const NotFound = lazy(() => import('@/pages/not-found'))
+// const InventoryPage = lazy(() => import('@/pages/inventory'))
+// const OrdersPage = lazy(() => import('@/pages/order'))
+// const PharmacySetting = lazy(() => import('@/pages/pharmacy-setting'))
+// const SuperAdminDashboard = lazy(() => import('@/components/SuperAdmin/Dashboard'))
+// const Pharmacies = lazy(() => import('@/components/SuperAdmin/Pharmacy'))
+// const Suppliers = lazy(() => import('@/components/SuperAdmin/Supplier'))
+// const Users = lazy(() => import('@/components/SuperAdmin/User'))
+// const SupplierDashboard = lazy(() => import('@/components/Supplier/Dashboard'))
+// const OrderHistoryPage = lazy(() => import('@/components/Supplier/OrderHistory'))
+// const SupplierOrdersPage = lazy(() => import('@/components/Supplier/SupplierOrders'))
 
 export const App = () => {
   return (
@@ -62,7 +76,7 @@ export const App = () => {
         <Route element={<ProtectedRoute roles={['PHARMACY']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="/pharmacy-dashboard" element={<InventoryPage />} />
-            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/orders" element={<OrderHistoryPage />} />
             <Route path="/settings" element={<PharmacySetting />} />
           </Route>
         </Route>
