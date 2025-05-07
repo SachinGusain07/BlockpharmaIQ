@@ -16,9 +16,7 @@ const ChangePassword = lazy(() => import('@/pages/change-password'))
 const UpdateProfile = lazy(() => import('@/pages/update-profile'))
 const NotFound = lazy(() => import('@/pages/not-found'))
 const InventoryPage = lazy(() => import('@/pages/inventory'))
-const AnalyticsPage = lazy(() => import('@/pages/analytics'))
 const OrdersPage = lazy(() => import('@/pages/order'))
-const BlockchainPage = lazy(() => import('@/pages/blockchain'))
 const PharmacySetting = lazy(() => import('@/pages/pharmacy-setting'))
 const SuperAdminDashboard = lazy(() => import('@/components/SuperAdmin/Dashboard'))
 const Pharmacies = lazy(() => import('@/components/SuperAdmin/Pharmacy'))
@@ -30,7 +28,7 @@ const SupplierOrdersPage = lazy(() => import('@/components/Supplier/SupplierOrde
 
 export const App = () => {
   return (
-    <Router basename="/">
+    <Router>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<BasicLayout />}>
@@ -64,9 +62,7 @@ export const App = () => {
         <Route element={<ProtectedRoute roles={['PHARMACY']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="/pharmacy-dashboard" element={<InventoryPage />} />
-            <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/orders" element={<OrdersPage />} />
-            <Route path="/blockchain" element={<BlockchainPage />} />
             <Route path="/settings" element={<PharmacySetting />} />
           </Route>
         </Route>

@@ -26,7 +26,7 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
         </button>
 
         <div className="md:flex-1"></div>
-        <div className="h-10">{role !== 'ADMIN' ? <WalletConnector /> : null}</div>
+        <div className="h-10 mr-5">{role !== 'ADMIN' ? <WalletConnector /> : null}</div>
       </div>
     </header>
   )
