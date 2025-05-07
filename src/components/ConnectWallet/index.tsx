@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useConnectWallet } from '../../hooks/useConnectWallet'
 import { toast } from 'sonner'
+import { Wallet } from 'lucide-react'
 
 const WalletConnector: React.FC = () => {
   const { account, chainId, isConnecting, error, connectWallet, disconnectWallet } =
@@ -72,7 +73,10 @@ const WalletConnector: React.FC = () => {
               Connecting...
             </>
           ) : (
-            'Connect Wallet'
+            <>
+              <Wallet className="h-4 w-4 text-white" />
+              <span>Connect Wallet</span>
+            </>
           )}
         </button>
       )}
