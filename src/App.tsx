@@ -23,6 +23,7 @@ import Users from './components/SuperAdmin/User'
 import Pharmacies from './components/SuperAdmin/Pharmacy'
 import Suppliers from './components/SuperAdmin/Supplier'
 import NotFound from './pages/not-found'
+import { PharmacyOrderSystem } from './components/Pharmacy/Order'
 
 // const ProfileInformation = lazy(() => import('@/pages/profile-info'))
 // const AccountSettings = lazy(() => import('@/pages/account-setting'))
@@ -76,7 +77,7 @@ export const App = () => {
         <Route element={<ProtectedRoute roles={['PHARMACY']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="/pharmacy-dashboard" element={<InventoryPage />} />
-            <Route path="/orders" element={<OrderHistoryPage />} />
+            <Route path="/orders" element={<PharmacyOrderSystem />} />
             <Route path="/settings" element={<PharmacySetting />} />
           </Route>
         </Route>
