@@ -3,6 +3,7 @@ import { EyeIcon, MagnifyingGlassIcon, PencilIcon, TrashIcon } from '@heroicons/
 import { ChevronDownIcon } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useState } from 'react'
+import AddMedicineModal from './AddMedicineModal'
 
 const Inventory = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -46,9 +47,35 @@ const Inventory = () => {
       },
     }),
   }
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleOpen = () => setIsOpen(true);
+  const handleClose = () => setIsOpen(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Submit logic here
+    console.log("Form submitted");
+    handleClose();
+  };
 
   return (
     <div className="space-y-4">
+
+<div className='w-full flex justify-end mb-4'>
+<button
+        onClick={handleOpen}
+        className="bg-gradient-to-r from-gray-800 to-gray-600 hover:scale-105 text-white px-4 py-2 hover:cursor-pointer rounded-full shadow-lg hover:shadow-xl transition duration-300 font-semibold text-lg"
+      >
+        ➕ Add Medicine
+      </button>
+      <AddMedicineModal
+        isOpen={isOpen}
+        onClose={handleClose}
+        onSubmit={handleSubmit}
+      />
+</div>
+
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
           {
@@ -117,10 +144,13 @@ const Inventory = () => {
               <option value="all">All Items</option>
               <option value="low">Low Stock</option>
               <option value="expiring">Expiring Soon</option>
+
             </select>
+
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
               <ChevronDownIcon className="h-4 w-4 text-gray-400 transition-transform duration-200 group-hover:rotate-180" />
             </div>
+            
           </div>
         </div>
 

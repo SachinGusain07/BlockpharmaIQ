@@ -9,7 +9,7 @@ const inventoryData: InventoryItem[] = [
     image: 'https://cdn-icons-png.flaticon.com/512/2937/2937192.png',
     stock: 45,
     threshold: 50,
-    unit: 'tablets',
+    unit: 'tablets', 
     price: 5.99,
     expiry: '2024-12-31',
   },
