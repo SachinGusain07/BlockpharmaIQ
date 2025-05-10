@@ -1,10 +1,12 @@
 import { PasswordInput } from '@/components/ui/PasswordInput'
 import { useLoginMutation } from '@/services/api'
 import { setUser } from '@/store/reducers/userReducer'
-import { useAppDispatch } from '@/store/store'
+import { RootState, useAppDispatch } from '@/store/store'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { RiDoubleQuotesL } from 'react-icons/ri'
+import { useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import * as yup from 'yup'
@@ -25,9 +27,17 @@ const Login = () => {
     resolver: yupResolver(loginSchema),
   })
 
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/')
+    }
+  }, [isAuthenticated, navigate])
+
   const [loginUser, { isLoading }] = useLoginMutation()
   const dispatch = useAppDispatch()
-  const navigate = useNavigate()
 
   const onSubmit = async (formData: LoginFormData) => {
     try {

@@ -126,13 +126,13 @@ export const OrderList = ({ orders }: { orders: IOrder[] }) => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {order.blockchainTxHash ? (
                         <a
-                          href={`https://polygonscan.com/tx/${order.blockchainTxHash}`}
+                          href={`https://sepolia.etherscan.io/tx/${order.blockchainTxHash}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center text-xs text-blue-600 underline hover:text-blue-800"
                         >
                           <DocumentTextIcon className="mr-1 h-3 w-3" />
-                          Verify on Polygon
+                          Verify on Etherscan
                         </a>
                       ) : (
                         <span className="text-xs text-gray-500">Not recorded</span>

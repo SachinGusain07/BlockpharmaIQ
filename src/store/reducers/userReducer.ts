@@ -7,6 +7,7 @@ const initialState: Omit<IUser, 'password' | 'confirmPassword'> = {
   id: '',
   firstName: '',
   phoneNumber: '',
+  walletAddress: '',
   address: {
     id: '',
     userId: '',
@@ -54,6 +55,7 @@ export const userSlice = createSlice({
       state.email = data.email
       state.phoneNumber = data.phoneNumber
       state.profilePic = data.profilePic
+      state.walletAddress = data.walletAddress
       state.role = data.role
       state.createdAt = data.createdAt
       state.address = data.address

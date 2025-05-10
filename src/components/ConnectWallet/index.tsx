@@ -1,11 +1,16 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useConnectWallet } from '../../hooks/useConnectWallet'
 import { toast } from 'sonner'
 import { Wallet } from 'lucide-react'
+import { useMeQuery } from '@/services/api'
 
 const WalletConnector: React.FC = () => {
   const { account, chainId, isConnecting, error, connectWallet, disconnectWallet } =
     useConnectWallet()
+  const { data: userData } = useMeQuery()
+  const walletAddress = userData?.body.data.walletAddress
+
+  const previousAccountRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (error) {
@@ -19,7 +24,30 @@ const WalletConnector: React.FC = () => {
         },
       })
     }
-  }, [error])
+
+    if (account && account !== previousAccountRef.current) {
+      if (walletAddress && account.toLowerCase() !== walletAddress.toLowerCase()) {
+        toast.error('Invalid Wallet Address', {
+          description: 'Please connect the wallet associated with your account.',
+          action: {
+            label: 'Disconnect',
+            onClick: disconnectWallet,
+          },
+        })
+      } else {
+        toast.success('Wallet Connected', {
+          description: `Connected to ${account.substring(0, 5)}...${account.substring(account.length - 4)}`,
+          action: {
+            label: 'Dismiss',
+            onClick: () => toast.dismiss(),
+          },
+        })
+      }
+    }
+
+    // Update the previous account ref
+    previousAccountRef.current = account
+  }, [error, account, walletAddress, disconnectWallet])
 
   const truncatedAddress = account
     ? `${account.substring(0, 5)}...${account.substring(account.length - 4)}`
@@ -80,7 +108,6 @@ const WalletConnector: React.FC = () => {
           )}
         </button>
       )}
-      {/* {error && <div className="mt-2 text-xs text-red-500">{error}</div>} */}
     </div>
   )
 }

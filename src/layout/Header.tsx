@@ -1,13 +1,10 @@
 import WalletConnector from '@/components/ConnectWallet'
-import { useMeQuery } from '@/services/api'
 
 interface HeaderProps {
   onToggleSidebar: () => void
 }
 
 const Header = ({ onToggleSidebar }: HeaderProps) => {
-  const user = useMeQuery()
-  const role = user.data?.body.data.role
   return (
     <header className="z-10 border-b border-gray-100 bg-white/80 backdrop-blur-sm">
       <div className="flex items-center justify-between p-4">
@@ -26,7 +23,7 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
         </button>
 
         <div className="md:flex-1"></div>
-        <div className="h-10 mr-5">{role !== 'ADMIN' ? <WalletConnector /> : null}</div>
+        <div className="mr-5 h-10">{<WalletConnector />}</div>
       </div>
     </header>
   )

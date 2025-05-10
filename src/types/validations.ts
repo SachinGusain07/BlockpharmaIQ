@@ -76,6 +76,7 @@ export const userFormContextSchema = yup.object({
   firstName: yup.string().required('First name is required').trim(),
   lastName: yup.string().required('Last name is required').trim(),
   email: yup.string().required('Email is required').email('Invalid email address').trim(),
+  walletAddress: yup.string().required('Wallet address is required'),
   password: yup.string().when('isCreating', {
     is: true,
     then: (schema) =>

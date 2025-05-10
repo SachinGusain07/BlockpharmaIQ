@@ -36,6 +36,7 @@ interface IUser {
   role: ROLES | string
   active: boolean
   phoneNumber: string
+  walletAddress: string
   profilePic?: string
   street?: string
   city?: string
@@ -61,6 +62,7 @@ interface UserFormProps {
   onSubmit: (data: Partial<IUserFormData>, profileData?: FormData) => void
   onCancel: () => void
   isCreating?: boolean
+  isSuccess?: boolean
 }
 
 const UserForm: React.FC<UserFormProps> = ({
@@ -68,6 +70,7 @@ const UserForm: React.FC<UserFormProps> = ({
   onSubmit,
   onCancel,
   isCreating = false,
+  isSuccess = false,
 }) => {
   const [activeStep, setActiveStep] = useState<number>(1)
   const [profileImage, setProfileImage] = useState<string | null>(null)
@@ -81,6 +84,7 @@ const UserForm: React.FC<UserFormProps> = ({
       email: '',
       role: '',
       phoneNumber: '',
+      walletAddress: '',
       ...initialData,
     },
     mode: 'onChange',
@@ -97,14 +101,6 @@ const UserForm: React.FC<UserFormProps> = ({
 
   const selectedRole = watch('role')
 
-  useEffect(() => {
-    if (initialData) {
-      reset({
-        ...initialData,
-      })
-    }
-  }, [initialData, reset, isCreating])
-
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -117,6 +113,12 @@ const UserForm: React.FC<UserFormProps> = ({
     }
   }
 
+  useEffect(() => {
+    if (isSuccess) {
+      reset()
+    }
+  }, [isSuccess, reset])
+
   const nextStep = async () => {
     const isStepValid = await trigger([
       'firstName',
@@ -124,6 +126,7 @@ const UserForm: React.FC<UserFormProps> = ({
       'email',
       'role',
       'phoneNumber',
+      'walletAddress',
       'password',
       'confirmPassword',
     ])
@@ -149,7 +152,6 @@ const UserForm: React.FC<UserFormProps> = ({
         if (data.zipCode) profileFormData.append('zipCode', data.zipCode)
         if (data.role) profileFormData.append('role', data.role)
         if (profileFile) profileFormData.append('profilePic', profileFile)
-        console.log('Form data:', profileFormData)
         onSubmit(data, profileFormData)
       } else {
         onSubmit(data)
@@ -268,6 +270,27 @@ const UserForm: React.FC<UserFormProps> = ({
                   />
                   {errors.confirmPassword && (
                     <p className="mt-1 text-xs text-red-500">{errors.confirmPassword.message}</p>
+                  )}
+                </div>
+
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700">Wallet Address</label>
+                  <Controller
+                    name="walletAddress"
+                    control={control}
+                    render={({ field }) => (
+                      <input
+                        {...field}
+                        type="text"
+                        value={field.value ?? ''}
+                        className={`mt-1 block w-full rounded-md border ${
+                          errors.walletAddress ? 'border-red-500' : 'border-gray-300'
+                        } px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:outline-none sm:text-sm`}
+                      />
+                    )}
+                  />
+                  {errors.walletAddress && (
+                    <p className="mt-1 text-xs text-red-500">{errors.walletAddress.message}</p>
                   )}
                 </div>
 

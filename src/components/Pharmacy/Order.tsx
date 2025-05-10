@@ -1,12 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useGetAllSuppliersQuery, useGetOrdersQuery } from '@/services/api'
-import { ISupplier } from '@/types'
+import {
+  useCreateOrderMutation,
+  useGetAllSuppliersQuery,
+  useGetAllUsersQuery,
+  useGetOrdersQuery,
+  useMeQuery,
+} from '@/services/api'
+import { ISupplier, IUser, PaymentMethod } from '@/types'
 import { ArrowPathIcon } from '@heroicons/react/24/outline'
 import { AnimatePresence, motion } from 'motion/react'
 import { useState } from 'react'
 import { MedicineItem, MedicinePredictionForm } from './MedicinePredictionForm'
 import { OrderList } from './OrderList'
 import { OrderSummary } from './OrderSummary'
+import web3Service from '@/Contract/SupplyChainService'
+import { toast } from 'sonner'
 
 interface IMedicine {
   id: string
@@ -79,75 +87,25 @@ const predictMedicines = async (): Promise<IMedicine[]> => {
 }
 
 export const PharmacyOrderSystem = () => {
-  const [predictedMedicines, setPredictedMedicines] = useState<any[]>([])
-  const [editingMedicine, setEditingMedicine] = useState<any | null>(null)
+  const [predictedMedicines, setPredictedMedicines] = useState<IMedicine[]>([])
+  const [editingMedicine, setEditingMedicine] = useState<IMedicine | null>(null)
   const [selectedSupplier, setSelectedSupplier] = useState<ISupplier | null>(null)
   const [isLoadingPredictions, setIsLoadingPredictions] = useState(false)
+  const [isProcessingOrder, setIsProcessingOrder] = useState(false)
   const [viewTab, setViewTab] = useState<'orders' | 'prediction'>('orders')
 
   const { data: ordersData } = useGetOrdersQuery()
+  const { data: userData } = useMeQuery()
   const orderData = ordersData?.body.data || []
-
   const { data: suppliersData } = useGetAllSuppliersQuery()
+  const { data: users } = useGetAllUsersQuery()
+  const [createOrder] = useCreateOrderMutation()
+
+  const supplierWalletAddress = users?.body.data.find(
+    (user: IUser) => user.id === selectedSupplier?.ownerId
+  )?.walletAddress
+
   const supplierData = suppliersData?.body.data || []
-
-  // Blockchain interaction
-  // const { config } = usePrepareContractWrite({
-  //   address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
-  //   abi: PharmacySupplyChainABI,
-  //   functionName: 'createOrder',
-  //   args: [
-  //     selectedSupplier?.walletAddress,
-  //     predictedMedicines.filter((m) => m.isRecommended).map((m) => m.id),
-  //     predictedMedicines.filter((m) => m.isRecommended).map((m) => m.quantity),
-  //     predictedMedicines
-  //       .filter((m) => m.isRecommended)
-  //       .reduce((sum, med) => sum + med.price * med.quantity, 0),
-  //   ],
-  //   enabled:
-  //     selectedSupplier !== null && predictedMedicines.filter((m) => m.isRecommended).length > 0,
-  // })
-
-  // const { data: txData, writeAsync: createOrder } = useContractWrite(config)
-
-  // const { isLoading: isProcessingOrder } = useWaitForTransaction({
-  //   hash: txData?.hash,
-  //   onSuccess: async () => {
-  //     // Create order in database after blockchain confirmation
-  //     const totalItems = predictedMedicines
-  //       .filter((m) => m.isRecommended)
-  //       .reduce((sum, med) => sum + med.quantity, 0)
-  //     const totalAmount = predictedMedicines
-  //       .filter((m) => m.isRecommended)
-  //       .reduce((sum, med) => sum + med.price * med.quantity, 0)
-
-  //     const orderData = {
-  //       supplierId: selectedSupplier?.id,
-  //       items: totalItems,
-  //       amount: totalAmount,
-  //       medicines: predictedMedicines.filter((m) => m.isRecommended),
-  //       blockchainTxHash: txData?.hash,
-  //     }
-
-  //     try {
-  //       const response = await fetch('/api/orders', {
-  //         method: 'POST',
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //         body: JSON.stringify(orderData),
-  //       })
-
-  //       if (response.ok) {
-  //         setPredictedMedicines([])
-  //         setSelectedSupplier(null)
-  //         setViewTab('orders')
-  //       }
-  //     } catch (error) {
-  //       console.error('Error creating order:', error)
-  //     }
-  //   },
-  // })
 
   const handlePredictMedicines = async () => {
     setIsLoadingPredictions(true)
@@ -156,12 +114,13 @@ export const PharmacyOrderSystem = () => {
       setPredictedMedicines(predictions)
     } catch (error) {
       console.error('Error predicting medicines:', error)
+      toast.error('Failed to predict medicines. Please try again.')
     } finally {
       setIsLoadingPredictions(false)
     }
   }
 
-  const handleSaveEdit = (updatedMedicine: any) => {
+  const handleSaveEdit = (updatedMedicine: IMedicine) => {
     setPredictedMedicines((medicines) =>
       medicines.map((med) => (med.id === updatedMedicine.id ? updatedMedicine : med))
     )
@@ -180,15 +139,83 @@ export const PharmacyOrderSystem = () => {
 
   const handleCreateOrderWithBlockchain = async () => {
     if (!selectedSupplier) {
-      alert('Please select a supplier')
+      toast.error('Please select a supplier')
       return
     }
 
+    if (predictedMedicines.filter((m) => m.isRecommended).length === 0) {
+      toast.error('Please select at least one medicine to order')
+      return
+    }
+
+    setIsProcessingOrder(true)
     try {
-      console.log(predictedMedicines)
-      // await createOrder?.()
-    } catch (error) {
+      // Connect wallet if not already connected
+      const walletAddress = await web3Service.connectWallet()
+      if (!walletAddress) {
+        throw new Error('Wallet connection failed')
+      }
+
+      // Check if the user has the pharmacy role
+      const isPharmacy = await web3Service.isCurrentUserPharmacy()
+      if (!isPharmacy) {
+        throw new Error('Only users with pharmacy role can create orders')
+      }
+
+      // Calculate total amount
+      const totalAmount = predictedMedicines
+        .filter((m) => m.isRecommended)
+        .reduce((sum, med) => sum + med.price * med.quantity, 0)
+
+      console.log(
+        walletAddress,
+        userData?.body?.data?.walletAddress ?? '',
+        supplierWalletAddress ?? '',
+        totalAmount
+      )
+
+      // Create order on blockchain
+      const receipt = await web3Service.createOrder(
+        walletAddress,
+        userData?.body?.data?.walletAddress ?? '', // pharmacyOutletId
+        supplierWalletAddress ?? '', // vendorOrgId
+        totalAmount // amount
+      )
+      console.log(receipt, 'Order created on blockchain')
+
+      // Save order to backend API
+      const totalItems = predictedMedicines
+        .filter((m) => m.isRecommended)
+        .reduce((sum, med) => sum + med.quantity, 0)
+
+      const orderData = {
+        vendorOrgId: selectedSupplier.id,
+        items: totalItems,
+        amount: totalAmount,
+        pharmacyOutletId: userData?.body?.data?.pharmacyOutlets?.[0]?.id ?? '',
+        orderItems: predictedMedicines
+          .filter((m) => m.isRecommended)
+          .map((med) => ({
+            productId: med.id,
+            quantity: med.quantity,
+            price: med.price,
+          })),
+        blockchainTxHash:
+          receipt.hash ?? '0x8f15cac06362f23711c5e17755c00afaddf4ad26dce3c16ae0296f13fa14c021',
+        paymentMethod: 'UPI' as PaymentMethod,
+      }
+      console.log(orderData)
+      await createOrder(orderData).unwrap()
+
+      toast.success('Order created successfully on blockchain and saved to database')
+      setPredictedMedicines([])
+      setSelectedSupplier(null)
+      setViewTab('orders')
+    } catch (error: any) {
       console.error('Error creating order:', error)
+      toast.error(error.message || 'Failed to create order. Please try again.')
+    } finally {
+      setIsProcessingOrder(false)
     }
   }
 
@@ -275,10 +302,9 @@ export const PharmacyOrderSystem = () => {
                   {predictedMedicines.map((medicine) => (
                     <motion.li
                       key={medicine.id}
-                      // variants={rowVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
                     >
                       {editingMedicine?.id === medicine.id ? (
                         <MedicinePredictionForm
@@ -309,24 +335,11 @@ export const PharmacyOrderSystem = () => {
                     setSelectedSupplier(supplier || null)
                   }}
                   onCreateOrder={handleCreateOrderWithBlockchain}
-                  isProcessingOrder={false}
+                  isProcessingOrder={isProcessingOrder}
                 />
               )}
             </div>
           )}
-
-          {/* Transaction Status */}
-          {/* {txData?.hash && (
-            <TransactionStatus
-              status={isProcessingOrder ? 'processing' : 'success'}
-              message={
-                isProcessingOrder
-                  ? 'Processing transaction on blockchain...'
-                  : 'Transaction confirmed on blockchain'
-              }
-              hash={txData?.hash}
-            />
-          )} */}
 
           {predictedMedicines.length === 0 && !isLoadingPredictions && (
             <div className="py-12 text-center">
