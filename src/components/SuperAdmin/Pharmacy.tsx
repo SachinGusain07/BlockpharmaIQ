@@ -75,7 +75,6 @@ const Pharmacies: React.FC = () => {
 
   const onSubmit = async (data: PharmacyFormData): Promise<void> => {
     try {
-      // For updates, we skip blockchain integration for simplicity
       if (currentPharmacy) {
         await updatePharmacy(data).unwrap()
         toast.success('Pharmacy updated successfully!')
@@ -85,18 +84,7 @@ const Pharmacies: React.FC = () => {
 
       // First create in backend
       setIsBlockchainProcessing(true)
-      const response = await createPharmacy(data).unwrap()
-
-      // Then record on blockchain
-      if (response?.body?.data?.id) {
-        try {
-          await web3Service.createPharmacyOnBlockchain(response.body.data.id, data.businessName)
-          toast.success('Pharmacy created successfully on blockchain!')
-        } catch (error) {
-          console.error('Blockchain registration failed:', error)
-          toast.warning('Pharmacy created in database but blockchain registration failed.')
-        }
-      }
+      await createPharmacy(data).unwrap()
 
       toast.success('Pharmacy created successfully!')
       setIsModalOpen(false)

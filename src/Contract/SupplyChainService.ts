@@ -84,11 +84,9 @@ class Web3Service {
   // Create a new order (only pharmacy)
   async createOrder(userId: string, pharmacyOutletId: string, vendorOrgId: string, amount: number) {
     try {
+      await this.initializeWeb3()
       if (!this.contract || !this.signer) {
-        await this.initializeWeb3()
-        if (!this.contract || !this.signer) {
-          throw new Error('Contract or signer not initialized')
-        }
+        throw new Error('Contract or signer not initialized')
       }
 
       const tx = await this.contract.createOrder(
@@ -111,11 +109,9 @@ class Web3Service {
   // Update order status (only supplier)
   async updateOrderStatus(orderId: number, newStatus: number) {
     try {
+      await this.initializeWeb3()
       if (!this.contract || !this.signer) {
-        await this.initializeWeb3()
-        if (!this.contract || !this.signer) {
-          throw new Error('Contract or signer not initialized')
-        }
+        throw new Error('Contract or signer not initialized')
       }
 
       const tx = await this.contract.updateOrderStatus(orderId, newStatus)
@@ -133,11 +129,9 @@ class Web3Service {
   // Update payment status
   async updatePaymentStatus(orderId: number, newStatus: number) {
     try {
+      await this.initializeWeb3()
       if (!this.contract || !this.signer) {
-        await this.initializeWeb3()
-        if (!this.contract || !this.signer) {
-          throw new Error('Contract or signer not initialized')
-        }
+        throw new Error('Contract or signer not initialized')
       }
 
       const tx = await this.contract.updatePaymentStatus(orderId, newStatus)
@@ -240,11 +234,9 @@ class Web3Service {
   // Check if the current user has pharmacy role
   async isCurrentUserPharmacy() {
     try {
+      await this.initializeWeb3()
       if (!this.contract || !this.signer) {
-        await this.initializeWeb3()
-        if (!this.contract || !this.signer) {
-          return false
-        }
+        return false
       }
 
       const address = await this.signer.getAddress()

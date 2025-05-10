@@ -140,6 +140,25 @@ interface IOrderItem {
   updatedAt: string
 }
 
+interface IOrderFormData {
+  userId: string
+  pharmacyOutletId: string
+  vendorOrgId: string
+  orderDate: string
+  orderStatus: OrderStatus
+  paymentStatus: PaymentStatus
+  paymentMethod: PaymentMethod
+  amount: number
+  orderItems: IOrderItemFormData[]
+  paymentMethod: PaymentMethod
+}
+
+interface IOrderItemFormData {
+  productId: string
+  quantity: number
+  price: number
+}
+
 // enum OrderStatus {
 //   PENDING = 'PENDING',
 //   IN_PROGRESS = 'IN_PROGRESS',
