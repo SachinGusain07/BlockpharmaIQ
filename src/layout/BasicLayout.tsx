@@ -1,15 +1,15 @@
-// src/layout/BasicLayout.tsx
+import { useLogoutMutation, useMeQuery } from '@/services/api'
 import { RootState } from '@/store/store'
+import { navLinks } from '@/utils/navlinks'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
-import { navLinks } from '../utils/navlinks'
-import { useLogoutMutation } from '@/services/api'
 
 const BasicLayout = () => {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const userRole = useSelector((state: RootState) => state.user.role)
+  const { data: user } = useMeQuery()
+  const userRole = user?.body.data.role
   const { isAuthenticated } = useSelector((state: RootState) => state.auth)
   const [logout] = useLogoutMutation()
   console.log(userRole, 'role')

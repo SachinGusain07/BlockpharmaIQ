@@ -45,6 +45,7 @@ interface IUser {
   role: string
   isDeleted: boolean
   phoneNumber: string
+  walletAddress: string
   profilePic?: string
   address?: IAddress
   vendorOwner?: IVendorOwner

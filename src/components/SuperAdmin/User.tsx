@@ -15,6 +15,7 @@ import {
 } from '@/services/api'
 import { toast } from 'sonner'
 import { IUser } from '@/types'
+import web3Service from '@/Contract/SupplyChainService'
 
 const Users: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -26,7 +27,8 @@ const Users: React.FC = () => {
 
   const { data: userData, refetch } = useGetAllUsersQuery()
   const [registerUser, { isLoading: isRegistering }] = useRegisterMutation()
-  const [completeProfile, { isLoading: isCompletingProfile }] = useCompleteProfileMutation()
+  const [completeProfile, { isLoading: isCompletingProfile, isSuccess }] =
+    useCompleteProfileMutation()
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation()
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation()
 
@@ -70,11 +72,54 @@ const Users: React.FC = () => {
   const handleSubmitUser = async (userData: Partial<IUser>, profileData?: FormData) => {
     setFormErrors({})
 
+    console.log('Submitting user data:', userData)
+
     try {
       if (isCreating && profileData) {
         if (!userData.password) {
           setFormErrors((prev) => ({ ...prev, password: 'Password is required' }))
           return
+        }
+
+        if (!userData.walletAddress) {
+          setFormErrors((prev) => ({ ...prev, walletAddress: 'Wallet address is required' }))
+          return
+        }
+
+        // First register on blockchain
+        try {
+          const roleMap: Record<string, number> = {
+            USER: 0,
+            ADMIN: 1,
+            SUPPLIER: 2,
+            PHARMACY: 3,
+          }
+
+          const roleValue = roleMap[userData.role || 'USER']
+
+          const isAdmin = await web3Service.isCurrentUserAdmin()
+          if (!isAdmin) {
+            throw new Error('Only admin can register users')
+          }
+
+          if (!userData.walletAddress) {
+            throw new Error('Wallet address is required')
+          }
+
+          console.log('Registering user on blockchain:', userData.walletAddress, roleValue)
+          await web3Service.registerUser(userData.walletAddress, roleValue)
+
+          toast.success('User registered on blockchain successfully')
+        } catch (blockchainError: unknown) {
+          toast.error(
+            blockchainError instanceof Error
+              ? blockchainError.message
+              : 'Blockchain registration failed'
+          )
+          console.error('Blockchain registration error:', blockchainError)
+          throw new Error(
+            `Blockchain registration failed: ${blockchainError instanceof Error ? blockchainError.message : 'Unknown error'}`
+          )
         }
 
         const registerData = {
@@ -84,6 +129,7 @@ const Users: React.FC = () => {
           password: userData.password || '',
           confirmPassword: userData.password || '',
           role: userData.role || 'USER',
+          walletAddress: userData.walletAddress || '',
           phoneNumber: userData.phoneNumber || '',
           active: userData.isDeleted !== undefined ? userData.isDeleted : true,
         }
@@ -155,6 +201,7 @@ const Users: React.FC = () => {
             ...currentUser,
             role: typeof currentUser?.role === 'string' ? currentUser.role : undefined,
           }}
+          isSuccess={isSuccess}
           onSubmit={handleSubmitUser}
           onCancel={() => setIsModalOpen(false)}
           isCreating={isCreating}

@@ -15,6 +15,7 @@ import Modal from '../ui/Modal'
 import Badge from './Badge'
 import PharmacyForm from './PharmacyForm'
 import Table from './Table'
+import web3Service from '@/Contract/SupplyChainService'
 
 const Pharmacies: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -22,6 +23,7 @@ const Pharmacies: React.FC = () => {
   const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false)
   const [pharmacyToDelete, setPharmacyToDelete] = useState<string | null>(null)
   const [pharmacies, setPharmacies] = useState<IPharmacy[]>([])
+  const [isBlockchainProcessing, setIsBlockchainProcessing] = useState(false)
   const [createPharmacy] = useCreatePharmacyMutation()
   const { data, isLoading } = useGetAllPharmaciesQuery()
   const [updatePharmacy] = useUpdatePharmacyMutation()
@@ -63,22 +65,49 @@ const Pharmacies: React.FC = () => {
     }
   }, [data, isLoading])
 
+  // Connect wallet on component mount
+  useEffect(() => {
+    const connectWallet = async () => {
+      await web3Service.connectWallet()
+    }
+    connectWallet()
+  }, [])
+
   const onSubmit = async (data: PharmacyFormData): Promise<void> => {
-    console.log(data)
     try {
+      // For updates, we skip blockchain integration for simplicity
       if (currentPharmacy) {
         await updatePharmacy(data).unwrap()
         toast.success('Pharmacy updated successfully!')
+        setIsModalOpen(false)
         return
       }
-      await createPharmacy(data).unwrap()
+
+      // First create in backend
+      setIsBlockchainProcessing(true)
+      const response = await createPharmacy(data).unwrap()
+
+      // Then record on blockchain
+      if (response?.body?.data?.id) {
+        try {
+          await web3Service.createPharmacyOnBlockchain(response.body.data.id, data.businessName)
+          toast.success('Pharmacy created successfully on blockchain!')
+        } catch (error) {
+          console.error('Blockchain registration failed:', error)
+          toast.warning('Pharmacy created in database but blockchain registration failed.')
+        }
+      }
+
       toast.success('Pharmacy created successfully!')
       setIsModalOpen(false)
     } catch (error) {
       console.error('Error creating pharmacy:', error)
       toast.error('Failed to create pharmacy. Please try again.')
+    } finally {
+      setIsBlockchainProcessing(false)
     }
   }
+
   const columns = [
     { header: 'Business Name', accessor: 'businessName' as keyof IPharmacy },
     { header: 'Email', accessor: 'email' as keyof IPharmacy },
@@ -143,6 +172,7 @@ const Pharmacies: React.FC = () => {
           initialData={currentPharmacy || {}}
           onSubmit={onSubmit}
           onCancel={() => setIsModalOpen(false)}
+          isSubmitting={isBlockchainProcessing}
         />
       </Modal>
 
