@@ -212,6 +212,7 @@ interface IResponseUser {
     email: string
     isProfileCompleted: boolean
     isDeleted: boolean
+    walletAddress: string
     createdAt: string
     updatedAt: string
     role: string
