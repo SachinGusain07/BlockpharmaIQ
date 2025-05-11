@@ -10,6 +10,7 @@ interface PharmacyFormProps {
   initialData?: Partial<IPharmacy>
   onSubmit?: (data: PharmacyFormData) => void
   onCancel: () => void
+  isSubmitting?: boolean
 }
 
 const PharmacyForm: React.FC<PharmacyFormProps> = ({
