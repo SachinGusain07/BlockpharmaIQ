@@ -181,7 +181,6 @@ export const PharmacyOrderSystem = () => {
         supplierWalletAddress ?? '', // vendorOrgId
         totalAmount // amount
       )
-      console.log(receipt.logs[0].args[0], 'Order created on blockchain')
 
       // Save order to backend API
       const totalItems = predictedMedicines
@@ -201,8 +200,7 @@ export const PharmacyOrderSystem = () => {
             price: med.price,
           })),
         blockchainTxHash:
-          // receipt.hash ??
-          '0x8f15cac06362f23711c5e17755c00afaddf4ad26dce3c16ae0296f13fa154c233',
+          receipt.hash ?? '0x8f15cac06362f23711c5e17755c00afaddf4ad26dce3c16ae0296f13fa154c233',
         paymentMethod: 'UPI' as PaymentMethod,
         blockchainOrderId: receipt.logs[0].args[0].toString(),
       }

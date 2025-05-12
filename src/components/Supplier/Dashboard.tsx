@@ -81,8 +81,6 @@ function Dashboard() {
   const totalOrders = orders.length
   const pendingOrders = orders.filter((order) => order.orderStatus === 'PENDING').length
   const revenue = orders.reduce((sum, order) => sum + order.amount, 0)
-  // Low Stock Items is a placeholder (no data provided)
-  const lowStockItems = 17 // Static placeholder
 
   // Sort orders by date (descending) and take the 5 most recent
   const recentOrders = orders
@@ -107,7 +105,7 @@ function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {[
                 {
                   title: 'Total Orders',
@@ -118,11 +116,6 @@ function Dashboard() {
                   title: 'Pending Orders',
                   value: pendingOrders.toLocaleString(),
                   up: false,
-                },
-                {
-                  title: 'Low Stock Items',
-                  value: lowStockItems.toLocaleString(),
-                  up: true,
                 },
                 {
                   title: 'Revenue',
