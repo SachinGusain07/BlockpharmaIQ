@@ -1,151 +1,64 @@
-import React, { useState, useEffect } from 'react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import web3Service from '@/Contract/SupplyChainService'
+import { useGetSupplierOrdersQuery, useMeQuery, useUpdateOrderMutation } from '@/services/api'
 import { motion } from 'framer-motion'
-import {
-  CheckIcon,
-  XIcon,
-  ClockIcon,
-  TruckIcon,
-  SearchIcon,
-  FilterIcon,
-  PackageIcon,
-} from 'lucide-react'
+import { CheckIcon, ClockIcon, FilterIcon, SearchIcon, XIcon } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
-type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+type OrderStatus = 'PENDING' | 'IN_PROGRESS' | 'DELIVERED' | 'CANCELLED'
 
 interface OrderItem {
   id: string
-  name: string
+  productId: string
   quantity: number
   price: number
-  total: number
+  createdAt: string
+  updatedAt: string
 }
 
-// Pharmacy interface
 interface Pharmacy {
   id: string
-  name: string
-  location: string
-  logo?: string
+  businessName: string
+  street: string
+  city: string
+  state: string
+  pincode: string
 }
 
-// Order interface
+interface Vendor {
+  id: string
+  businessName: string
+  street: string
+  city: string
+  state: string
+  pincode: string
+}
+
 interface Order {
   id: string
   orderNumber: string
-  date: string
-  status: OrderStatus
-  pharmacy: Pharmacy
-  items: OrderItem[]
-  total: number
-  priority: 'low' | 'medium' | 'high'
+  orderDate: string
+  orderStatus: OrderStatus
+  paymentStatus: string
+  paymentMethod: string
+  amount: number
+  blockchainTxHash: string
+  pharmacyOutlet: Pharmacy
+  vendorOrg: Vendor
+  orderItems: OrderItem[]
 }
-
-// Mock data
-const mockOrders: Order[] = [
-  {
-    id: '1',
-    orderNumber: 'ORD-2025-0001',
-    date: '2025-04-05T10:30:00',
-    status: 'pending',
-    pharmacy: {
-      id: 'ph1',
-      name: 'MediCare Pharmacy',
-      location: 'New York, NY',
-      logo: '/medicare-logo.png',
-    },
-    items: [
-      { id: 'i1', name: 'Amoxicillin 500mg', quantity: 200, price: 0.85, total: 170 },
-      { id: 'i2', name: 'Lisinopril 10mg', quantity: 150, price: 0.65, total: 97.5 },
-    ],
-    total: 267.5,
-    priority: 'high',
-  },
-  {
-    id: '2',
-    orderNumber: 'ORD-2025-0002',
-    date: '2025-04-05T11:45:00',
-    status: 'pending',
-    pharmacy: {
-      id: 'ph2',
-      name: 'Wellness Pharma',
-      location: 'Boston, MA',
-      logo: '/wellness-logo.png',
-    },
-    items: [
-      { id: 'i3', name: 'Metformin 850mg', quantity: 300, price: 0.45, total: 135 },
-      { id: 'i4', name: 'Atorvastatin 20mg', quantity: 200, price: 0.75, total: 150 },
-    ],
-    total: 285,
-    priority: 'medium',
-  },
-  {
-    id: '3',
-    orderNumber: 'ORD-2025-0003',
-    date: '2025-04-05T14:20:00',
-    status: 'processing',
-    pharmacy: {
-      id: 'ph3',
-      name: 'HealthPlus Pharmacy',
-      location: 'Chicago, IL',
-      logo: '/healthplus-logo.png',
-    },
-    items: [
-      { id: 'i5', name: 'Losartan 50mg', quantity: 250, price: 0.55, total: 137.5 },
-      { id: 'i6', name: 'Escitalopram 10mg', quantity: 100, price: 0.95, total: 95 },
-    ],
-    total: 232.5,
-    priority: 'low',
-  },
-  {
-    id: '4',
-    orderNumber: 'ORD-2025-0004',
-    date: '2025-04-05T15:10:00',
-    status: 'pending',
-    pharmacy: {
-      id: 'ph4',
-      name: 'CityMed Pharmacy',
-      location: 'Miami, FL',
-      logo: '/citymed-logo.png',
-    },
-    items: [
-      { id: 'i7', name: 'Metoprolol 25mg', quantity: 180, price: 0.6, total: 108 },
-      { id: 'i8', name: 'Levothyroxine 50mcg', quantity: 120, price: 0.7, total: 84 },
-    ],
-    total: 192,
-    priority: 'high',
-  },
-  {
-    id: '5',
-    orderNumber: 'ORD-2025-0005',
-    date: '2025-04-04T09:15:00',
-    status: 'shipped',
-    pharmacy: {
-      id: 'ph5',
-      name: 'FamilyCare Pharmacy',
-      location: 'Seattle, WA',
-      logo: '/familycare-logo.png',
-    },
-    items: [
-      { id: 'i9', name: 'Albuterol Inhaler', quantity: 50, price: 15.0, total: 750 },
-      { id: 'i10', name: 'Prednisone 20mg', quantity: 100, price: 0.8, total: 80 },
-    ],
-    total: 830,
-    priority: 'medium',
-  },
-]
 
 // Get status badge styling
 const getStatusBadge = (status: OrderStatus) => {
   switch (status) {
-    case 'pending':
+    case 'PENDING':
       return 'bg-amber-50 text-amber-700 border-amber-200'
-    case 'processing':
+    case 'IN_PROGRESS':
       return 'bg-blue-50 text-blue-700 border-blue-200'
-    case 'shipped':
-      return 'bg-indigo-50 text-indigo-700 border-indigo-200'
-    case 'delivered':
+    case 'DELIVERED':
       return 'bg-emerald-50 text-emerald-700 border-emerald-200'
-    case 'cancelled':
+    case 'CANCELLED':
       return 'bg-red-50 text-red-700 border-red-200'
     default:
       return 'bg-gray-50 text-gray-700 border-gray-200'
@@ -155,32 +68,16 @@ const getStatusBadge = (status: OrderStatus) => {
 // Get status icon
 const getStatusIcon = (status: OrderStatus) => {
   switch (status) {
-    case 'pending':
+    case 'PENDING':
       return ClockIcon
-    case 'processing':
+    case 'IN_PROGRESS':
       return FilterIcon
-    case 'shipped':
-      return TruckIcon
-    case 'delivered':
+    case 'DELIVERED':
       return CheckIcon
-    case 'cancelled':
+    case 'CANCELLED':
       return XIcon
     default:
       return ClockIcon
-  }
-}
-
-// Get priority badge styling
-const getPriorityBadge = (priority: 'low' | 'medium' | 'high') => {
-  switch (priority) {
-    case 'low':
-      return 'bg-gray-50 text-gray-600 border-gray-200'
-    case 'medium':
-      return 'bg-blue-50 text-blue-600 border-blue-200'
-    case 'high':
-      return 'bg-rose-50 text-rose-600 border-rose-200'
-    default:
-      return 'bg-gray-50 text-gray-600 border-gray-200'
   }
 }
 
@@ -192,12 +89,43 @@ const SupplierOrdersPage: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
 
-  // Load orders on component mount
+  const { data: userData } = useMeQuery()
+  const { data: supplierOrdersData } = useGetSupplierOrdersQuery(userData?.body?.data?.id || '')
+  const [updateOrder] = useUpdateOrderMutation()
+
   useEffect(() => {
-    // In a real app, this would fetch from an API
-    setOrders(mockOrders)
-    setFilteredOrders(mockOrders)
-  }, [])
+    if (supplierOrdersData?.body?.data) {
+      const formattedOrders = supplierOrdersData.body.data.map((order: any) => ({
+        id: order.id,
+        orderNumber: `ORD-${new Date(order.orderDate).toISOString().split('T')[0]}-${order.id.slice(0, 8)}`,
+        orderDate: order.orderDate,
+        orderStatus: order.orderStatus,
+        paymentStatus: order.paymentStatus,
+        paymentMethod: order.paymentMethod,
+        amount: order.amount,
+        blockchainTxHash: order.blockchainTxHash,
+        pharmacyOutlet: {
+          id: order.pharmacyOutlet.id,
+          businessName: order.pharmacyOutlet.businessName,
+          street: order.pharmacyOutlet.street,
+          city: order.pharmacyOutlet.city,
+          state: order.pharmacyOutlet.state,
+          pincode: order.pharmacyOutlet.pincode,
+        },
+        vendorOrg: {
+          id: order.vendorOrg.id,
+          businessName: order.vendorOrg.businessName,
+          street: order.vendorOrg.street,
+          city: order.vendorOrg.city,
+          state: order.vendorOrg.state,
+          pincode: order.vendorOrg.pincode,
+        },
+        orderItems: order.orderItems,
+      }))
+      setOrders(formattedOrders)
+      setFilteredOrders(formattedOrders)
+    }
+  }, [supplierOrdersData])
 
   // Filter orders based on search term and status
   useEffect(() => {
@@ -207,29 +135,41 @@ const SupplierOrdersPage: React.FC = () => {
       result = result.filter(
         (order) =>
           order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.pharmacy.name.toLowerCase().includes(searchTerm.toLowerCase())
+          order.pharmacyOutlet.businessName.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
     if (statusFilter !== 'all') {
-      result = result.filter((order) => order.status === statusFilter)
+      result = result.filter((order) => order.orderStatus === statusFilter)
     }
 
     setFilteredOrders(result)
   }, [searchTerm, statusFilter, orders])
 
-  // Process the order
-  const processOrder = (orderId: string) => {
+  // Update order status
+  const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
     setIsProcessing(true)
+    try {
+      // TODO: Implement the logic to update the order status in the blockchain
+      // web3Service.updateOrderStatus(orderId, newStatus)
 
-    // Simulate API call with timeout
-    setTimeout(() => {
+      const response = await updateOrder({ id: orderId, orderStatus: newStatus }).unwrap()
+      if (response) {
+        toast.success('Order status updated successfully')
+      }
+
       setOrders(
-        orders.map((order) => (order.id === orderId ? { ...order, status: 'processing' } : order))
+        orders.map((order) => (order.id === orderId ? { ...order, orderStatus: newStatus } : order))
       )
-      setSelectedOrder(null)
+      setSelectedOrder((prev) =>
+        prev && prev.id === orderId ? { ...prev, orderStatus: newStatus } : prev
+      )
+    } catch (error) {
+      console.error('Failed to update order status:', error)
+      toast.error('Failed to update order status')
+    } finally {
       setIsProcessing(false)
-    }, 1000)
+    }
   }
 
   // Format date string
@@ -248,13 +188,10 @@ const SupplierOrdersPage: React.FC = () => {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Orders Management</h1>
-          <p className="text-sm text-gray-500">
-            Manage pending and in-progress orders from pharmacies
-          </p>
+          <p className="text-sm text-gray-500">Manage pharmacy orders and update their status</p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          {/* Search bar */}
           <div className="relative">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <SearchIcon className="h-4 w-4 text-gray-400" />
@@ -268,23 +205,20 @@ const SupplierOrdersPage: React.FC = () => {
             />
           </div>
 
-          {/* Status filter */}
           <select
             className="block rounded-lg border border-gray-200 bg-white/50 py-2 pr-10 pl-3 text-sm text-gray-900 backdrop-blur-sm focus:border-emerald-500 focus:ring-emerald-500 focus:outline-none"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as OrderStatus | 'all')}
           >
             <option value="all">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="processing">Processing</option>
-            <option value="shipped">Shipped</option>
-            <option value="delivered">Delivered</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="PENDING">Pending</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="DELIVERED">Delivered</option>
+            <option value="CANCELLED">Cancelled</option>
           </select>
         </div>
       </div>
 
-      {/* Orders list */}
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -322,6 +256,12 @@ const SupplierOrdersPage: React.FC = () => {
                 </th>
                 <th
                   scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+                >
+                  Transaction Hash
+                </th>
+                <th
+                  scope="col"
                   className="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase"
                 >
                   Actions
@@ -342,43 +282,53 @@ const SupplierOrdersPage: React.FC = () => {
                       <div className="flex items-center">
                         <div>
                           <div className="font-medium text-gray-900">{order.orderNumber}</div>
-                          <div className="text-xs text-gray-500">{order.items.length} items</div>
+                          <div className="text-xs text-gray-500">
+                            {order.orderItems.length} items
+                          </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                          {order.pharmacy.name.charAt(0)}
+                          {order.pharmacyOutlet.businessName.charAt(0)}
                         </div>
                         <div className="ml-3">
-                          <div className="font-medium text-gray-900">{order.pharmacy.name}</div>
-                          <div className="text-xs text-gray-500">{order.pharmacy.location}</div>
+                          <div className="font-medium text-gray-900">
+                            {order.pharmacyOutlet.businessName}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {order.pharmacyOutlet.city}, {order.pharmacyOutlet.state}
+                          </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
-                      {formatDate(order.date)}
+                      {formatDate(order.orderDate)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <span
-                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(order.status)}`}
-                        >
-                          {React.createElement(getStatusIcon(order.status), {
-                            className: 'mr-1 h-3 w-3',
-                          })}
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                        </span>
-                        {order.priority === 'high' && (
-                          <span className="ml-2 inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2.5 py-0.5 text-xs font-medium text-rose-700">
-                            Urgent
-                          </span>
-                        )}
-                      </div>
+                      <span
+                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(order.orderStatus)}`}
+                      >
+                        {React.createElement(getStatusIcon(order.orderStatus), {
+                          className: 'mr-1 h-3 w-3',
+                        })}
+                        {order.orderStatus}
+                      </span>
                     </td>
                     <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
-                      ${order.total.toFixed(2)}
+                      ₹{order.amount.toFixed(2)}
+                    </td>
+                    <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+                      <a
+                        href={`https://sepolia.etherscan.io/tx/${order.blockchainTxHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                        title={order.blockchainTxHash}
+                      >
+                        {order.blockchainTxHash.slice(0, 6)}...{order.blockchainTxHash.slice(-4)}
+                      </a>
                     </td>
                     <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
                       <button
@@ -392,7 +342,7 @@ const SupplierOrdersPage: React.FC = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
                     No orders found matching your criteria
                   </td>
                 </tr>
@@ -402,7 +352,6 @@ const SupplierOrdersPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Order detail modal */}
       {selectedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <motion.div
@@ -426,19 +375,12 @@ const SupplierOrdersPage: React.FC = () => {
               </div>
               <div className="flex gap-2">
                 <span
-                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(selectedOrder.status)}`}
+                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(selectedOrder.orderStatus)}`}
                 >
-                  {React.createElement(getStatusIcon(selectedOrder.status), {
+                  {React.createElement(getStatusIcon(selectedOrder.orderStatus), {
                     className: 'mr-1 h-3 w-3',
                   })}
-                  {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
-                </span>
-
-                <span
-                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getPriorityBadge(selectedOrder.priority)}`}
-                >
-                  {selectedOrder.priority.charAt(0).toUpperCase() + selectedOrder.priority.slice(1)}{' '}
-                  Priority
+                  {selectedOrder.orderStatus}
                 </span>
               </div>
             </div>
@@ -447,11 +389,16 @@ const SupplierOrdersPage: React.FC = () => {
               <div className="mb-2 text-sm font-medium text-gray-700">Pharmacy Information</div>
               <div className="flex items-center">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                  {selectedOrder.pharmacy.name.charAt(0)}
+                  {selectedOrder.pharmacyOutlet.businessName.charAt(0)}
                 </div>
                 <div className="ml-3">
-                  <div className="font-medium text-gray-900">{selectedOrder.pharmacy.name}</div>
-                  <div className="text-sm text-gray-500">{selectedOrder.pharmacy.location}</div>
+                  <div className="font-medium text-gray-900">
+                    {selectedOrder.pharmacyOutlet.businessName}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {selectedOrder.pharmacyOutlet.street}, {selectedOrder.pharmacyOutlet.city},{' '}
+                    {selectedOrder.pharmacyOutlet.state} - {selectedOrder.pharmacyOutlet.pincode}
+                  </div>
                 </div>
               </div>
             </div>
@@ -467,7 +414,7 @@ const SupplierOrdersPage: React.FC = () => {
                           scope="col"
                           className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
                         >
-                          Item
+                          Product ID
                         </th>
                         <th
                           scope="col"
@@ -477,7 +424,7 @@ const SupplierOrdersPage: React.FC = () => {
                         </th>
                         <th
                           scope="col"
-                          className="px-4 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase"
+                          className="py3 px-4 text-right text-xs font-medium tracking-wider text-gray-500 uppercase"
                         >
                           Price
                         </th>
@@ -490,19 +437,19 @@ const SupplierOrdersPage: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
-                      {selectedOrder.items.map((item) => (
+                      {selectedOrder.orderItems.map((item) => (
                         <tr key={item.id} className="hover:bg-gray-50">
                           <td className="px-4 py-3 text-sm font-medium whitespace-nowrap text-gray-900">
-                            {item.name}
+                            {item.productId}
                           </td>
                           <td className="px-4 py-3 text-center text-sm whitespace-nowrap text-gray-500">
                             {item.quantity.toLocaleString()}
                           </td>
                           <td className="px-4 py-3 text-right text-sm whitespace-nowrap text-gray-500">
-                            ${item.price.toFixed(2)}
+                            ₹{item.price.toFixed(2)}
                           </td>
                           <td className="px-4 py-3 text-right text-sm font-medium whitespace-nowrap text-gray-900">
-                            ${item.total.toFixed(2)}
+                            ₹{(item.quantity * item.price).toFixed(2)}
                           </td>
                         </tr>
                       ))}
@@ -517,13 +464,53 @@ const SupplierOrdersPage: React.FC = () => {
                           Total
                         </th>
                         <td className="px-4 py-3 text-right text-sm font-medium whitespace-nowrap text-gray-900">
-                          ${selectedOrder.total.toFixed(2)}
+                          ₹{selectedOrder.amount.toFixed(2)}
                         </td>
                       </tr>
                     </tfoot>
                   </table>
                 </div>
               </div>
+            </div>
+
+            <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <div className="mb-2 text-sm font-medium text-gray-700">Transaction Details</div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-sm text-gray-500">Payment Method</div>
+                  <div className="font-medium text-gray-900">{selectedOrder.paymentMethod}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">Payment Status</div>
+                  <div className="font-medium text-gray-900">{selectedOrder.paymentStatus}</div>
+                </div>
+                <div className="col-span-2">
+                  <div className="text-sm text-gray-500">Blockchain Transaction Hash</div>
+                  <a
+                    href={`https://sepolia.etherscan.io/tx/${selectedOrder.blockchainTxHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-blue-600 hover:underline"
+                  >
+                    {selectedOrder.blockchainTxHash}
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <div className="mb-2 text-sm font-medium text-gray-700">Update Order Status</div>
+              <select
+                className="block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-emerald-500 focus:ring-emerald-500 focus:outline-none"
+                value={selectedOrder.orderStatus}
+                onChange={(e) => updateOrderStatus(selectedOrder.id, e.target.value as OrderStatus)}
+                disabled={isProcessing}
+              >
+                <option value="PENDING">Pending</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="DELIVERED">Delivered</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
             </div>
 
             <div className="mt-8 flex justify-end gap-3">
@@ -533,45 +520,6 @@ const SupplierOrdersPage: React.FC = () => {
               >
                 Close
               </button>
-
-              {selectedOrder.status === 'pending' && (
-                <button
-                  onClick={() => processOrder(selectedOrder.id)}
-                  disabled={isProcessing}
-                  className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:outline-none"
-                >
-                  {isProcessing ? (
-                    <>
-                      <svg
-                        className="mr-2 h-4 w-4 animate-spin text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <PackageIcon className="mr-2 h-4 w-4" />
-                      Process Order
-                    </>
-                  )}
-                </button>
-              )}
             </div>
           </motion.div>
         </div>

@@ -62,4 +62,5 @@ export const {
   useDeleteProductMutation,
 } = supplierInventoryApiEndpoints
 
-export const { useGetOrdersQuery, useCreateOrderMutation } = OrderApiEndpoints
+export const { useGetOrdersQuery, useCreateOrderMutation, useGetSupplierOrdersQuery, useUpdateOrderMutation } =
+  OrderApiEndpoints

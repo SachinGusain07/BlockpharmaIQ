@@ -3,27 +3,26 @@ import Home from '@/pages/home'
 import Login from '@/pages/login'
 import Signup from '@/pages/signup'
 // import { lazy } from 'react'
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
-import AccessDenied from './components/AccessDenied'
-import DashboardLayout from './layout/DashboardLayout'
-import ProtectedRoute from './layout/ProtectedRoute'
-import SupplierSettings from './components/Supplier/Setting'
-import VendorProductsPage from './components/Supplier/ProductPage'
-import ProfileInformation from './pages/profile-info'
-import AccountSettings from './components/UserSettings/AccountSetting'
-import ChangePassword from './pages/change-password'
-import UpdateProfile from './pages/update-profile'
 import SuperAdminDashboard from '@/components/SuperAdmin/Dashboard'
 import SupplierDashboard from '@/components/Supplier/Dashboard'
-import SupplierOrdersPage from './components/Supplier/SupplierOrders'
-import OrderHistoryPage from './components/Supplier/OrderHistory'
-import InventoryPage from './pages/inventory'
-import PharmacySetting from './pages/pharmacy-setting'
-import Users from './components/SuperAdmin/User'
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
+import AccessDenied from './components/AccessDenied'
+import { PharmacyOrderSystem } from './components/Pharmacy/Order'
 import Pharmacies from './components/SuperAdmin/Pharmacy'
 import Suppliers from './components/SuperAdmin/Supplier'
+import Users from './components/SuperAdmin/User'
+import VendorProductsPage from './components/Supplier/ProductPage'
+import SupplierSettings from './components/Supplier/Setting'
+import SupplierOrdersPage from './components/Supplier/SupplierOrders'
+import AccountSettings from './components/UserSettings/AccountSetting'
+import DashboardLayout from './layout/DashboardLayout'
+import ProtectedRoute from './layout/ProtectedRoute'
+import ChangePassword from './pages/change-password'
+import InventoryPage from './pages/inventory'
 import NotFound from './pages/not-found'
-import { PharmacyOrderSystem } from './components/Pharmacy/Order'
+import PharmacySetting from './pages/pharmacy-setting'
+import ProfileInformation from './pages/profile-info'
+import UpdateProfile from './pages/update-profile'
 
 // const ProfileInformation = lazy(() => import('@/pages/profile-info'))
 // const AccountSettings = lazy(() => import('@/pages/account-setting'))
@@ -67,7 +66,6 @@ export const App = () => {
           <Route element={<DashboardLayout />}>
             <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
             <Route path="/pending-orders" element={<SupplierOrdersPage />} />
-            <Route path="/order-history" element={<OrderHistoryPage />} />
             <Route path="/products" element={<VendorProductsPage />} />
             <Route path="/supplier-settings" element={<SupplierSettings />} />
           </Route>
