@@ -13,5 +13,15 @@ export const OrderApiEndpoints = api.injectEndpoints({
         body: order,
       }),
     }),
+    getSupplierOrders: builder.query<ApiResponse<IOrder[]>, string>({
+      query: (supplierId) => `/orders/vendor/${supplierId}`,
+    }),
+    updateOrder: builder.mutation<ApiResponse<IOrder>, Partial<IOrder>>({
+      query: (order) => ({
+        url: `/orders/${order.id}/status`,
+        method: 'PUT',
+        body: order,
+      }),
+    }),
   }),
 })

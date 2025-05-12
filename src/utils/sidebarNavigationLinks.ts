@@ -46,14 +46,9 @@ export const supplierNavItems = [
     icon: TruckIcon,
   },
   {
-    name: 'Pending Orders',
+    name: 'Orders',
     path: '/pending-orders',
     icon: ClipboardDocumentListIcon,
-  },
-  {
-    name: 'Order History',
-    path: '/order-history',
-    icon: ShoppingBagIcon,
   },
   {
     name: 'Setting',
@@ -68,26 +63,11 @@ export const pharmacyNavItems = [
     path: '/pharmacy-dashboard',
     icon: CubeIcon,
   },
-  // {
-  //   name: 'Analytics',
-  //   path: '/analytics',
-  //   icon: ChartBarIcon,
-  // },
   {
     name: 'Orders',
     path: '/orders',
     icon: ShoppingBagIcon,
   },
-  // {
-  //   name: 'Predictions',
-  //   path: '/predict',
-  //   icon: ShoppingBagIcon,
-  // },
-  // {
-  //   name: 'Blockchain',
-  //   path: '/blockchain',
-  //   icon: CircleStackIcon,
-  // },
   {
     name: 'Settings',
     path: '/settings',
