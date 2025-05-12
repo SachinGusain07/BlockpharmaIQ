@@ -320,3 +320,45 @@ export interface ProductFormValues {
 export interface BulkProductFormValues {
   products: ProductFormValues[]
 }
+
+interface OrderItem {
+  id: string
+  productId: string
+  quantity: number
+  price: number
+  createdAt: string
+  updatedAt: string
+}
+
+interface Pharmacy {
+  id: string
+  businessName: string
+  street: string
+  city: string
+  state: string
+  pincode: string
+}
+
+interface Vendor {
+  id: string
+  businessName: string
+  street: string
+  city: string
+  state: string
+  pincode: string
+}
+
+interface Order {
+  id: string
+  orderNumber: string
+  orderDate: string
+  orderStatus: OrderStatus
+  paymentStatus: string
+  paymentMethod: string
+  amount: number
+  blockchainOrderId: string
+  blockchainTxHash: string
+  pharmacyOutlet: Pharmacy
+  vendorOrg: Vendor
+  orderItems: OrderItem[]
+}

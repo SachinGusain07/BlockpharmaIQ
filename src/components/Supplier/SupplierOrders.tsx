@@ -1,39 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import web3Service from '@/Contract/SupplyChainService'
 import { useGetSupplierOrdersQuery, useMeQuery, useUpdateOrderMutation } from '@/services/api'
+import { OrderItem, Pharmacy, Vendor } from '@/types'
+import { getStatusBadge, getStatusIcon, statusToNumber } from '@/utils/dashboardFunctions'
 import { motion } from 'framer-motion'
-import { CheckIcon, ClockIcon, FilterIcon, SearchIcon, XIcon } from 'lucide-react'
+import { SearchIcon, XIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 type OrderStatus = 'PENDING' | 'IN_PROGRESS' | 'DELIVERED' | 'CANCELLED'
-
-interface OrderItem {
-  id: string
-  productId: string
-  quantity: number
-  price: number
-  createdAt: string
-  updatedAt: string
-}
-
-interface Pharmacy {
-  id: string
-  businessName: string
-  street: string
-  city: string
-  state: string
-  pincode: string
-}
-
-interface Vendor {
-  id: string
-  businessName: string
-  street: string
-  city: string
-  state: string
-  pincode: string
-}
 
 interface Order {
   id: string
@@ -43,42 +18,11 @@ interface Order {
   paymentStatus: string
   paymentMethod: string
   amount: number
+  blockchainOrderId: string
   blockchainTxHash: string
   pharmacyOutlet: Pharmacy
   vendorOrg: Vendor
   orderItems: OrderItem[]
-}
-
-// Get status badge styling
-const getStatusBadge = (status: OrderStatus) => {
-  switch (status) {
-    case 'PENDING':
-      return 'bg-amber-50 text-amber-700 border-amber-200'
-    case 'IN_PROGRESS':
-      return 'bg-blue-50 text-blue-700 border-blue-200'
-    case 'DELIVERED':
-      return 'bg-emerald-50 text-emerald-700 border-emerald-200'
-    case 'CANCELLED':
-      return 'bg-red-50 text-red-700 border-red-200'
-    default:
-      return 'bg-gray-50 text-gray-700 border-gray-200'
-  }
-}
-
-// Get status icon
-const getStatusIcon = (status: OrderStatus) => {
-  switch (status) {
-    case 'PENDING':
-      return ClockIcon
-    case 'IN_PROGRESS':
-      return FilterIcon
-    case 'DELIVERED':
-      return CheckIcon
-    case 'CANCELLED':
-      return XIcon
-    default:
-      return ClockIcon
-  }
 }
 
 const SupplierOrdersPage: React.FC = () => {
@@ -90,7 +34,9 @@ const SupplierOrdersPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
 
   const { data: userData } = useMeQuery()
-  const { data: supplierOrdersData } = useGetSupplierOrdersQuery(userData?.body?.data?.id || '')
+  const { data: supplierOrdersData, refetch } = useGetSupplierOrdersQuery(
+    userData?.body?.data?.id || ''
+  )
   const [updateOrder] = useUpdateOrderMutation()
 
   useEffect(() => {
@@ -104,6 +50,7 @@ const SupplierOrdersPage: React.FC = () => {
         paymentMethod: order.paymentMethod,
         amount: order.amount,
         blockchainTxHash: order.blockchainTxHash,
+        blockchainOrderId: order.blockchainOrderId,
         pharmacyOutlet: {
           id: order.pharmacyOutlet.id,
           businessName: order.pharmacyOutlet.businessName,
@@ -127,7 +74,6 @@ const SupplierOrdersPage: React.FC = () => {
     }
   }, [supplierOrdersData])
 
-  // Filter orders based on search term and status
   useEffect(() => {
     let result = orders
 
@@ -147,20 +93,35 @@ const SupplierOrdersPage: React.FC = () => {
   }, [searchTerm, statusFilter, orders])
 
   // Update order status
-  const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
+  const updateOrderStatus = async (
+    orderId: string,
+    blockchainOrderId: string,
+    newStatus: OrderStatus
+  ) => {
     setIsProcessing(true)
     try {
-      // TODO: Implement the logic to update the order status in the blockchain
-      // web3Service.updateOrderStatus(orderId, newStatus)
+      const statusNumber = statusToNumber(newStatus)
 
-      const response = await updateOrder({ id: orderId, orderStatus: newStatus }).unwrap()
+      // TODO: Implement the logic to update the order status in the blockchain
+      const reciept = await web3Service.updateOrderStatus(Number(blockchainOrderId), statusNumber)
+
+      const response = await updateOrder({
+        id: orderId,
+        orderStatus: newStatus,
+        blockchainTxHash:
+          reciept.hash || '0x8f15cac06362f23711c5e17755c00afaddf4ad26dce3216ae0296f13a154c2555',
+      }).unwrap()
+
       if (response) {
         toast.success('Order status updated successfully')
+        refetch()
+        setSelectedOrder(null)
       }
 
       setOrders(
         orders.map((order) => (order.id === orderId ? { ...order, orderStatus: newStatus } : order))
       )
+
       setSelectedOrder((prev) =>
         prev && prev.id === orderId ? { ...prev, orderStatus: newStatus } : prev
       )
@@ -503,7 +464,13 @@ const SupplierOrdersPage: React.FC = () => {
               <select
                 className="block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-emerald-500 focus:ring-emerald-500 focus:outline-none"
                 value={selectedOrder.orderStatus}
-                onChange={(e) => updateOrderStatus(selectedOrder.id, e.target.value as OrderStatus)}
+                onChange={(e) =>
+                  updateOrderStatus(
+                    selectedOrder.id,
+                    selectedOrder.blockchainOrderId,
+                    e.target.value as OrderStatus
+                  )
+                }
                 disabled={isProcessing}
               >
                 <option value="PENDING">Pending</option>

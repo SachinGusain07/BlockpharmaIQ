@@ -1,10 +1,107 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useGetSupplierOrdersQuery, useMeQuery } from '@/services/api'
+import { OrderItem, Pharmacy, Vendor } from '@/types'
+import { getStatusBadge } from '@/utils/dashboardFunctions'
 import { motion } from 'framer-motion'
 
+type OrderStatus = 'PENDING' | 'IN_PROGRESS' | 'DELIVERED' | 'CANCELLED'
+
+interface Order {
+  id: string
+  orderNumber: string
+  orderDate: string
+  orderStatus: OrderStatus
+  paymentStatus: string
+  paymentMethod: string
+  amount: number
+  blockchainOrderId: string
+  blockchainTxHash: string
+  pharmacyOutlet: Pharmacy
+  vendorOrg: Vendor
+  orderItems: OrderItem[]
+}
+
+// Format date (reused from SupplierOrdersPage)
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr)
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date)
+}
+
 function Dashboard() {
+  // Fetch user data to get supplier ID
+  const { data: userData, isLoading: isUserLoading, error: userError } = useMeQuery()
+  const supplierId = userData?.body?.data?.id || ''
+
+  // Fetch supplier orders
+  const {
+    data: supplierOrdersData,
+    isLoading: isOrdersLoading,
+    error: ordersError,
+  } = useGetSupplierOrdersQuery(supplierId, {
+    skip: !supplierId, // Skip query until supplierId is available
+  })
+
+  // Format orders
+  const orders: Order[] = supplierOrdersData?.body?.data
+    ? supplierOrdersData.body.data.map((order: any) => ({
+        id: order.id,
+        orderNumber: `ORD-${new Date(order.orderDate).toISOString().split('T')[0]}-${order.id.slice(0, 8)}`,
+        orderDate: order.orderDate,
+        orderStatus: order.orderStatus,
+        paymentStatus: order.paymentStatus,
+        paymentMethod: order.paymentMethod,
+        amount: order.amount,
+        blockchainTxHash: order.blockchainTxHash,
+        blockchainOrderId: order.blockchainOrderId.toString(), // Ensure string
+        pharmacyOutlet: {
+          id: order.pharmacyOutlet.id,
+          businessName: order.pharmacyOutlet.businessName,
+          street: order.pharmacyOutlet.street,
+          city: order.pharmacyOutlet.city,
+          state: order.pharmacyOutlet.state,
+          pincode: order.pharmacyOutlet.pincode,
+        },
+        vendorOrg: {
+          id: order.vendorOrg.id,
+          businessName: order.vendorOrg.businessName,
+          street: order.vendorOrg.street,
+          city: order.vendorOrg.city,
+          state: order.vendorOrg.state,
+          pincode: order.vendorOrg.pincode,
+        },
+        orderItems: order.orderItems,
+      }))
+    : []
+
+  // Calculate dashboard card metrics
+  const totalOrders = orders.length
+  const pendingOrders = orders.filter((order) => order.orderStatus === 'PENDING').length
+  const revenue = orders.reduce((sum, order) => sum + order.amount, 0)
+  // Low Stock Items is a placeholder (no data provided)
+  const lowStockItems = 17 // Static placeholder
+
+  // Sort orders by date (descending) and take the 5 most recent
+  const recentOrders = orders
+    .sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime())
+    .slice(0, 5)
+
+  // Handle loading and error states
+  if (isUserLoading || isOrdersLoading) {
+    return <div className="p-4 text-center">Loading...</div>
+  }
+
+  if (userError || ordersError) {
+    return <div className="p-4 text-center text-red-500">Error loading data. Please try again.</div>
+  }
+
   return (
     <div className="flex">
       <div className="flex flex-1 flex-col overflow-hidden">
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-hidden p-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -12,10 +109,28 @@ function Dashboard() {
           >
             <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
               {[
-                { title: 'Total Orders', value: '1,254', change: '+12.5%', up: true },
-                { title: 'Pending Orders', value: '42', change: '-3.2%', up: false },
-                { title: 'Low Stock Items', value: '17', change: '+5.1%', up: true },
-                { title: 'Revenue', value: '$42,580', change: '+8.3%', up: true },
+                {
+                  title: 'Total Orders',
+                  value: totalOrders.toLocaleString(),
+                  up: true,
+                },
+                {
+                  title: 'Pending Orders',
+                  value: pendingOrders.toLocaleString(),
+                  up: false,
+                },
+                {
+                  title: 'Low Stock Items',
+                  value: lowStockItems.toLocaleString(),
+                  up: true,
+                },
+                {
+                  title: 'Revenue',
+                  value: `₹${revenue.toLocaleString('en-IN', {
+                    maximumFractionDigits: 2,
+                  })}`,
+                  up: true,
+                },
               ].map((card, index) => (
                 <motion.div
                   key={card.title}
@@ -27,9 +142,6 @@ function Dashboard() {
                   <h3 className="text-sm font-medium text-gray-500">{card.title}</h3>
                   <div className="mt-2 flex items-center">
                     <span className="text-2xl font-bold">{card.value}</span>
-                    <span className={`ml-2 text-sm ${card.up ? 'text-green-500' : 'text-red-500'}`}>
-                      {card.change}
-                    </span>
                   </div>
                 </motion.div>
               ))}
@@ -68,65 +180,37 @@ function Dashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
-                      {[
-                        {
-                          id: 'ORD-7829',
-                          pharmacy: 'MedLife Pharmacy',
-                          status: 'Delivered',
-                          date: 'Apr 05, 2025',
-                          amount: '$2,456',
-                        },
-                        {
-                          id: 'ORD-7830',
-                          pharmacy: 'City Drugs',
-                          status: 'Processing',
-                          date: 'Apr 05, 2025',
-                          amount: '$1,893',
-                        },
-                        {
-                          id: 'ORD-7831',
-                          pharmacy: 'HealthPlus',
-                          status: 'Shipped',
-                          date: 'Apr 04, 2025',
-                          amount: '$3,752',
-                        },
-                        {
-                          id: 'ORD-7832',
-                          pharmacy: 'QuickMeds',
-                          status: 'Processing',
-                          date: 'Apr 04, 2025',
-                          amount: '$954',
-                        },
-                        {
-                          id: 'ORD-7833',
-                          pharmacy: 'Family Pharma',
-                          status: 'Pending',
-                          date: 'Apr 03, 2025',
-                          amount: '$2,108',
-                        },
-                      ].map((order) => (
-                        <tr key={order.id} className="hover:bg-gray-50">
-                          <td className="px-4 py-3 text-sm text-blue-600">{order.id}</td>
-                          <td className="px-4 py-3 text-sm">{order.pharmacy}</td>
-                          <td className="px-4 py-3 text-sm">
-                            <span
-                              className={`rounded-full px-2 py-1 text-xs ${
-                                order.status === 'Delivered'
-                                  ? 'bg-green-100 text-green-800'
-                                  : order.status === 'Processing'
-                                    ? 'bg-yellow-100 text-yellow-800'
-                                    : order.status === 'Shipped'
-                                      ? 'bg-blue-100 text-blue-800'
-                                      : 'bg-gray-100 text-gray-800'
-                              }`}
-                            >
-                              {order.status}
-                            </span>
+                      {recentOrders.length > 0 ? (
+                        recentOrders.map((order) => (
+                          <tr key={order.id} className="hover:bg-gray-50">
+                            <td className="px-4 py-3 text-sm text-blue-600">{order.orderNumber}</td>
+                            <td className="px-4 py-3 text-sm">
+                              {order.pharmacyOutlet.businessName}
+                            </td>
+                            <td className="px-4 py-3 text-sm">
+                              <span
+                                className={`rounded-full px-2 py-1 text-xs ${getStatusBadge(
+                                  order.orderStatus
+                                )}`}
+                              >
+                                {order.orderStatus}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-500">
+                              {formatDate(order.orderDate)}
+                            </td>
+                            <td className="px-4 py-3 text-sm font-medium">
+                              ₹{order.amount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} className="px-4 py-3 text-center text-sm text-gray-500">
+                            No recent orders found
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-500">{order.date}</td>
-                          <td className="px-4 py-3 text-sm font-medium">{order.amount}</td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                   </table>
                 </div>
