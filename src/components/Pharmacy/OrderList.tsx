@@ -1,5 +1,4 @@
 import { IOrder } from '@/types'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   CheckCircleIcon,
   ClockIcon,
@@ -7,9 +6,10 @@ import {
   TruckIcon,
   XCircleIcon,
 } from '@heroicons/react/24/outline'
+import { motion } from 'framer-motion'
 
 const rowVariants = {
-  hidden: { opacity: 0, x: -10 },
+  hidden: { opacity: 0, y: -10 },
   visible: {
     opacity: 1,
     x: 0,
@@ -59,7 +59,13 @@ const getStatusBadge = (status: string) => {
   }
 }
 
-export const OrderList = ({ orders }: { orders: IOrder[] }) => {
+export const OrderList = ({
+  orders,
+  isOrderDataLoading,
+}: {
+  orders: IOrder[]
+  isOrderDataLoading: boolean
+}) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -92,70 +98,81 @@ export const OrderList = ({ orders }: { orders: IOrder[] }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            <AnimatePresence>
-              {orders.length > 0 ? (
-                orders.map((order) => (
-                  <motion.tr
-                    key={order.id}
-                    variants={rowVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="hover:bg-gray-50"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-ellipsis text-gray-900">
-                        {order.id}
-                      </div>
-                      <div className="text-xs font-medium text-gray-400">
-                        {order.orderDate.split('T')[0]}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
-                      {order.vendorOrg?.businessName}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
-                      {order.orderItems?.length}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
-                      ${order.amount.toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(order.orderStatus)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {order.blockchainTxHash ? (
-                        <a
-                          href={`https://sepolia.etherscan.io/tx/${order.blockchainTxHash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-xs text-blue-600 underline hover:text-blue-800"
-                        >
-                          <DocumentTextIcon className="mr-1 h-3 w-3" />
-                          Verify on Etherscan
-                        </a>
-                      ) : (
-                        <span className="text-xs text-gray-500">Not recorded</span>
-                      )}
-                    </td>
-                  </motion.tr>
-                ))
-              ) : (
-                <motion.div
+            {isOrderDataLoading ? (
+              <motion.tr
+                key="loading"
+                variants={rowVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                <td colSpan={6} className="px-6 py-4 text-center">
+                  <div className="flex items-center justify-center">
+                    <div className="h-6 w-6 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+                  </div>
+                </td>
+              </motion.tr>
+            ) : orders.length > 0 ? (
+              orders.map((order) => (
+                <motion.tr
+                  key={order.id}
                   variants={rowVariants}
                   initial="hidden"
                   animate="visible"
                   exit="exit"
-                  className="w-full text-center hover:bg-gray-50"
+                  className="hover:bg-gray-50"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-ellipsis text-gray-600">
-                      No orders found
+                    <div className="text-sm font-medium text-ellipsis text-gray-900">
+                      {order.id}
+                    </div>
+                    <div className="text-xs font-medium text-gray-400">
+                      {order.orderDate.split('T')[0]}
                     </div>
                   </td>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+                    {order.vendorOrg?.businessName}
+                  </td>
+                  <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
+                    {order.orderItems?.length}
+                  </td>
+                  <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
+                    ${order.amount.toFixed(2)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {getStatusBadge(order.orderStatus)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {order.blockchainTxHash ? (
+                      <a
+                        href={`https://sepolia.etherscan.io/tx/${order.blockchainTxHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center text-xs text-blue-600 underline hover:text-blue-800"
+                      >
+                        <DocumentTextIcon className="mr-1 h-3 w-3" />
+                        Verify on Etherscan
+                      </a>
+                    ) : (
+                      <span className="text-xs text-gray-500">Not recorded</span>
+                    )}
+                  </td>
+                </motion.tr>
+              ))
+            ) : (
+              <motion.tr
+                key="no-orders"
+                variants={rowVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="hover:bg-gray-50"
+              >
+                <td colSpan={6} className="px-6 py-4 text-center">
+                  <div className="text-sm font-medium text-gray-600">No orders found</div>
+                </td>
+              </motion.tr>
+            )}
           </tbody>
         </table>
       </div>

@@ -13,9 +13,9 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ roles, children }: ProtectedRouteProps) => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth)
   const { role } = useSelector((state: RootState) => state.user)
-  const { data, isLoading } = useMeQuery()
+  const { data, isLoading, isError } = useMeQuery()
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader />
@@ -23,7 +23,12 @@ const ProtectedRoute = ({ roles, children }: ProtectedRouteProps) => {
     )
   }
 
-  if (!isAuthenticated) {
+  if (isError || data?.status === 401) {
+    localStorage.clear()
+    return <Navigate to="/login" replace />
+  }
+
+  if (!isAuthenticated || !data) {
     return <Navigate to="/login" replace />
   }
 
@@ -31,7 +36,7 @@ const ProtectedRoute = ({ roles, children }: ProtectedRouteProps) => {
     return <AccessDenied />
   }
 
-  return children ? children : <Outlet />
+  return children ? <>{children}</> : <Outlet />
 }
 
 export default ProtectedRoute
