@@ -1,8 +1,9 @@
-import { useLogoutMutation, useMeQuery } from '@/services/api'
+import { useMeQuery } from '@/services/api'
+import { resetTokens } from '@/store/reducers/authReducer'
 import { RootState } from '@/store/store'
 import { navLinks } from '@/utils/navlinks'
 import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 const BasicLayout = () => {
@@ -11,8 +12,8 @@ const BasicLayout = () => {
   const { data: user } = useMeQuery()
   const userRole = user?.body.data.role
   const { isAuthenticated } = useSelector((state: RootState) => state.auth)
-  const [logout] = useLogoutMutation()
-  console.log(userRole, 'role')
+  const dispatch = useDispatch()
+
   useEffect(() => {
     console.log(userRole, isAuthenticated)
     if (isAuthenticated && userRole) {
@@ -56,9 +57,9 @@ const BasicLayout = () => {
               {isAuthenticated ? (
                 <button
                   onClick={() => {
-                    logout()
-                    localStorage.removeItem('accessToken')
+                    localStorage.clear()
                     navigate('/login')
+                    dispatch(resetTokens())
                   }}
                   className="rounded-full bg-[#353535] px-6 py-2 text-sm leading-5 font-medium text-white"
                 >
