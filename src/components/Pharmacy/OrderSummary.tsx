@@ -36,12 +36,6 @@ export const OrderSummary = ({
           <div className="text-sm font-medium text-gray-700">
             Total Items: {recommendedMedicines.reduce((sum, med) => sum + med.quantity, 0)}
           </div>
-          <div className="text-sm font-medium text-gray-700">
-            Total Amount: $
-            {recommendedMedicines
-              .reduce((sum, med) => sum + med.price * med.quantity, 0)
-              .toFixed(2)}
-          </div>
         </div>
 
         <div className="space-y-2">

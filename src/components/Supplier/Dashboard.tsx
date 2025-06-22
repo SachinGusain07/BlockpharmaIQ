@@ -21,7 +21,6 @@ interface Order {
   orderItems: OrderItem[]
 }
 
-// Format date (reused from SupplierOrdersPage)
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr)
   return new Intl.DateTimeFormat('en-US', {
@@ -32,17 +31,15 @@ const formatDate = (dateStr: string) => {
 }
 
 function Dashboard() {
-  // Fetch user data to get supplier ID
   const { data: userData, isLoading: isUserLoading, error: userError } = useMeQuery()
   const supplierId = userData?.body?.data?.id || ''
 
-  // Fetch supplier orders
   const {
     data: supplierOrdersData,
     isLoading: isOrdersLoading,
     error: ordersError,
   } = useGetSupplierOrdersQuery(supplierId, {
-    skip: !supplierId, // Skip query until supplierId is available
+    skip: !supplierId,
   })
 
   // Format orders
@@ -80,7 +77,6 @@ function Dashboard() {
   // Calculate dashboard card metrics
   const totalOrders = orders.length
   const pendingOrders = orders.filter((order) => order.orderStatus === 'PENDING').length
-  const revenue = orders.reduce((sum, order) => sum + order.amount, 0)
 
   // Sort orders by date (descending) and take the 5 most recent
   const recentOrders = orders
@@ -105,7 +101,7 @@ function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
               {[
                 {
                   title: 'Total Orders',
@@ -116,13 +112,6 @@ function Dashboard() {
                   title: 'Pending Orders',
                   value: pendingOrders.toLocaleString(),
                   up: false,
-                },
-                {
-                  title: 'Revenue',
-                  value: `₹${revenue.toLocaleString('en-IN', {
-                    maximumFractionDigits: 2,
-                  })}`,
-                  up: true,
                 },
               ].map((card, index) => (
                 <motion.div
@@ -149,7 +138,6 @@ function Dashboard() {
               >
                 <div className="flex items-center justify-between border-b border-gray-200 p-4">
                   <h2 className="text-lg font-medium">Recent Orders</h2>
-                  <button className="text-sm text-blue-600 hover:text-blue-800">View All</button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -166,9 +154,6 @@ function Dashboard() {
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                           Date
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Amount
                         </th>
                       </tr>
                     </thead>
@@ -191,9 +176,6 @@ function Dashboard() {
                             </td>
                             <td className="px-4 py-3 text-sm text-gray-500">
                               {formatDate(order.orderDate)}
-                            </td>
-                            <td className="px-4 py-3 text-sm font-medium">
-                              ₹{order.amount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                             </td>
                           </tr>
                         ))

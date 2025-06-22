@@ -42,7 +42,7 @@ const BulkProductFormModal: React.FC<BulkProductFormModalProps> = ({
   } = useForm<BulkProductFormValues>({
     resolver: yupResolver(bulkProductSchema),
     defaultValues: {
-      products: [{ name: '', brand: '', category: '', unit: '', price: 0, vendorOrgId }],
+      products: [{ name: '', brand: '', category: '', unit: '', vendorOrgId }],
     },
   })
 
@@ -63,7 +63,7 @@ const BulkProductFormModal: React.FC<BulkProductFormModalProps> = ({
   const handleClose = () => {
     if (!isLoading) {
       reset({
-        products: [{ name: '', brand: '', category: '', unit: '', price: 0, vendorOrgId }],
+        products: [{ name: '', brand: '', category: '', unit: '', vendorOrgId }],
       })
       onClose()
     }
@@ -200,24 +200,6 @@ const BulkProductFormModal: React.FC<BulkProductFormModalProps> = ({
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div className="flex flex-col gap-2">
-                        <Label htmlFor={`price-${index}`}>Price*</Label>
-                        <Input
-                          id={`price-${index}`}
-                          type="number"
-                          step="0.01"
-                          {...register(`products.${index}.price`)}
-                          placeholder="0.00"
-                          disabled={isLoading}
-                          className={cn(errors.products?.[index]?.price && 'border-destructive')}
-                        />
-                        {errors.products?.[index]?.price && (
-                          <p className="text-destructive mt-1 text-sm">
-                            {errors.products[index]?.price?.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="flex flex-col gap-2">
                         <Label htmlFor={`image-${index}`}>Image URL</Label>
                         <Input
                           id={`image-${index}`}
@@ -247,7 +229,6 @@ const BulkProductFormModal: React.FC<BulkProductFormModalProps> = ({
                       brand: '',
                       category: '',
                       unit: '',
-                      price: 0,
                       vendorOrgId,
                     })
                   }

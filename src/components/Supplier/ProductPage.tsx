@@ -51,7 +51,11 @@ const VendorProductsPage: React.FC = () => {
 
   const handleCreateBulkProducts = async (data: { products: ProductFormValues[] }) => {
     try {
-      await createBulkProducts(data).unwrap()
+      const productsWithImage = data.products.map((product) => ({
+        ...product,
+        image: product.image ?? 'https://cdn-icons-png.flaticon.com/512/2937/2937192.png',
+      }))
+      await createBulkProducts(productsWithImage).unwrap()
       setIsBulkModalOpen(false)
       refetch()
     } catch (error) {
@@ -113,11 +117,7 @@ const VendorProductsPage: React.FC = () => {
         isOpen={isProductModalOpen}
         onClose={() => setIsProductModalOpen(false)}
         onSubmit={handleCreateProduct}
-        defaultValues={
-          editingProduct
-            ? { ...editingProduct, price: Number(editingProduct.price) }
-            : { vendorOrgId }
-        }
+        defaultValues={editingProduct ? { ...editingProduct } : { vendorOrgId }}
         vendorOrgId={vendorOrgId}
         isEditing={!!editingProduct}
       />

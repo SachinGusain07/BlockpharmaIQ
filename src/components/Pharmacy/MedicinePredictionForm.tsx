@@ -120,18 +120,8 @@ export const MedicineItem = ({
           <div className="mt-2 flex">
             <div className="flex items-center text-sm text-gray-500">
               <p>
-                Current Stock:{' '}
-                <span className="font-medium text-gray-900">{medicine.currentStock}</span>
-              </p>
-              <span className="mx-2 text-gray-500">•</span>
-              <p>
                 Recommended Order:{' '}
                 <span className="font-medium text-gray-900">{medicine.quantity}</span>
-              </p>
-              <span className="mx-2 text-gray-500">•</span>
-              <p>
-                Unit Price:{' '}
-                <span className="font-medium text-gray-900">${medicine.price.toFixed(2)}</span>
               </p>
             </div>
           </div>

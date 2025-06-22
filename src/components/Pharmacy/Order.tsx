@@ -7,7 +7,7 @@ import {
   useMeQuery,
 } from '@/services/api'
 import { ISupplier, IUser, PaymentMethod } from '@/types'
-import { ArrowPathIcon } from '@heroicons/react/24/outline'
+import { ArrowPathIcon, FunnelIcon } from '@heroicons/react/24/outline'
 import { AnimatePresence, motion } from 'motion/react'
 import { useState } from 'react'
 import { MedicineItem, MedicinePredictionForm } from './MedicinePredictionForm'
@@ -28,68 +28,35 @@ interface IMedicine {
   expiry?: string
 }
 
-const predictMedicines = async (): Promise<IMedicine[]> => {
-  // Simulate ML prediction API call
-  await new Promise((resolve) => setTimeout(resolve, 1500))
+// Available medicine categories
+const MEDICINE_CATEGORIES = [
+  'Bones & Joints',
+  'Brain & Cognitive Health',
+  'Feet & Legs',
+  'Female Reproductive Health',
+  'Gastrointestinal Health',
+  'Glandular Support',
+  'Gum & Teeth',
+  'Hair Skin & Nail',
+  'Heart & Cardiovascular Health',
+  'Liver Health',
+  'Male Reproductive Health',
+  'Musculoskeletal Health',
+  'Nervous System',
+  'Respiratory Health',
+  'Visual health',
+  'kidney & Bladder Health',
+] as const
 
-  return [
-    {
-      id: 'med-001',
-      name: 'Paracetamol 500mg',
-      quantity: 200,
-      currentStock: 50,
-      price: 0.15,
-      category: 'Pain Relief',
-      isRecommended: true,
-      confidence: 0.92,
-    },
-    {
-      id: 'med-002',
-      name: 'Amoxicillin 250mg',
-      quantity: 150,
-      currentStock: 30,
-      price: 0.45,
-      category: 'Antibiotics',
-      isRecommended: true,
-      confidence: 0.87,
-    },
-    {
-      id: 'med-003',
-      name: 'Cetirizine 10mg',
-      quantity: 100,
-      currentStock: 15,
-      price: 0.25,
-      category: 'Antihistamine',
-      isRecommended: true,
-      confidence: 0.83,
-    },
-    {
-      id: 'med-004',
-      name: 'Omeprazole 20mg',
-      quantity: 80,
-      currentStock: 25,
-      price: 0.35,
-      category: 'Antacid',
-      isRecommended: true,
-      confidence: 0.79,
-    },
-    {
-      id: 'med-005',
-      name: 'Metformin 500mg',
-      quantity: 120,
-      currentStock: 40,
-      price: 0.3,
-      category: 'Diabetes',
-      isRecommended: true,
-      confidence: 0.76,
-    },
-  ]
-}
+type MedicineCategory = (typeof MEDICINE_CATEGORIES)[number]
 
 export const PharmacyOrderSystem = () => {
   const [predictedMedicines, setPredictedMedicines] = useState<IMedicine[]>([])
   const [editingMedicine, setEditingMedicine] = useState<IMedicine | null>(null)
   const [selectedSupplier, setSelectedSupplier] = useState<ISupplier | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<MedicineCategory>(
+    'Female Reproductive Health'
+  )
   const [isLoadingPredictions, setIsLoadingPredictions] = useState(false)
   const [isProcessingOrder, setIsProcessingOrder] = useState(false)
   const [viewTab, setViewTab] = useState<'orders' | 'prediction'>('orders')
@@ -108,10 +75,43 @@ export const PharmacyOrderSystem = () => {
   const supplierData = suppliersData?.body.data || []
 
   const handlePredictMedicines = async () => {
+    if (!selectedCategory) {
+      toast.error('Please select a medicine category')
+      return
+    }
+
     setIsLoadingPredictions(true)
     try {
-      const predictions = await predictMedicines()
-      setPredictedMedicines(predictions)
+      const response = await fetch(
+        `http://localhost:8000/predict?category=${encodeURIComponent(selectedCategory)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch predictions')
+      }
+
+      const predictionsData = await response.json()
+      const mappedPredictions: IMedicine[] = predictionsData.top_10_predictions.map(
+        (item: { medicine: string; predicted_quantity: number }, index: number) => ({
+          id: `med-${index + 1}`,
+          name: item.medicine,
+          quantity: item.predicted_quantity,
+          currentStock: 0,
+          price: 0,
+          category: predictionsData.category || selectedCategory,
+          isRecommended: true,
+          confidence: 0.8,
+        })
+      )
+
+      setPredictedMedicines(mappedPredictions)
+      toast.success(`Predicted medicines for ${selectedCategory} category`)
     } catch (error) {
       console.error('Error predicting medicines:', error)
       toast.error('Failed to predict medicines. Please try again.')
@@ -137,6 +137,11 @@ export const PharmacyOrderSystem = () => {
     )
   }
 
+  const handleCategoryChange = (category: MedicineCategory) => {
+    setSelectedCategory(category)
+    setPredictedMedicines([])
+  }
+
   const handleCreateOrderWithBlockchain = async () => {
     if (!selectedSupplier) {
       toast.error('Please select a supplier')
@@ -150,32 +155,27 @@ export const PharmacyOrderSystem = () => {
 
     setIsProcessingOrder(true)
     try {
-      // Connect wallet if not already connected
       const walletAddress = await web3Service.connectWallet()
       if (!walletAddress) {
         throw new Error('Wallet connection failed')
       }
 
-      // Check if the user has the pharmacy role
       const isPharmacy = await web3Service.isCurrentUserPharmacy()
       if (!isPharmacy) {
         throw new Error('Only users with pharmacy role can create orders')
       }
 
-      // Calculate total amount
       const totalAmount = predictedMedicines
         .filter((m) => m.isRecommended)
         .reduce((sum, med) => sum + med.price * med.quantity, 0)
 
-      // Create order on blockchain
       const receipt = await web3Service.createOrder(
         walletAddress,
-        userData?.body?.data?.walletAddress ?? '', // pharmacyOutletId
-        supplierWalletAddress ?? '', // vendorOrgId
-        totalAmount // amount
+        userData?.body?.data?.walletAddress ?? '',
+        supplierWalletAddress ?? '',
+        totalAmount
       )
 
-      // Save order to backend API
       const totalItems = predictedMedicines
         .filter((m) => m.isRecommended)
         .reduce((sum, med) => sum + med.quantity, 0)
@@ -188,10 +188,14 @@ export const PharmacyOrderSystem = () => {
         orderItems: predictedMedicines
           .filter((m) => m.isRecommended)
           .map((med) => ({
-            productId: med.id,
-            quantity: med.quantity,
-            price: med.price,
+            name: med.name,
+            quantity: Number(med.quantity),
+            category: med.category || selectedCategory,
           })),
+        medicines: predictedMedicines.map((med) => ({
+          name: med.name,
+          quantity: med.quantity,
+        })),
         blockchainTxHash:
           receipt.hash ?? '0x8f15cac06362f23711c5e17755c00afaddf4ad26dce3c16ae0296f13fa154c233',
         paymentMethod: 'UPI' as PaymentMethod,
@@ -213,7 +217,6 @@ export const PharmacyOrderSystem = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header and Tabs */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">Pharmacy Supply Chain</h2>
@@ -221,6 +224,64 @@ export const PharmacyOrderSystem = () => {
             Manage inventory and orders with blockchain verification
           </p>
         </div>
+        {viewTab === 'prediction' && (
+          <div className="relative flex items-center space-x-3">
+            <div className="flex items-center">
+              <FunnelIcon className="mr-2 h-5 w-5 text-gray-400" />
+              <select
+                id="category-select"
+                value={selectedCategory}
+                onChange={(e) => handleCategoryChange(e.target.value as MedicineCategory)}
+                className="appearance-none rounded-lg border border-gray-300 bg-white py-2 pr-8 pl-3 text-sm font-medium text-gray-700 shadow-sm transition-all duration-200 hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:bg-gray-100"
+                disabled={isLoadingPredictions}
+              >
+                {MEDICINE_CATEGORIES.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute right-10 flex items-center">
+                <svg
+                  className="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handlePredictMedicines}
+              disabled={isLoadingPredictions || !selectedCategory}
+              className={`inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 ${
+                isLoadingPredictions || !selectedCategory
+                  ? 'cursor-not-allowed bg-gray-400'
+                  : 'bg-blue-600 hover:bg-blue-700'
+              }`}
+            >
+              {isLoadingPredictions ? (
+                <>
+                  <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
+                  Predicting...
+                </>
+              ) : (
+                <>
+                  <ArrowPathIcon className="mr-2 h-4 w-4" />
+                  Predict
+                </>
+              )}
+            </motion.button>
+          </div>
+        )}
       </div>
 
       {/* Tabs */}
@@ -258,39 +319,29 @@ export const PharmacyOrderSystem = () => {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-medium text-gray-900">Medicine Prediction</h3>
-              <p className="text-sm text-gray-500">
-                AI-powered prediction of medicines needed for the next month
-              </p>
-            </div>
-            <div className="flex space-x-2">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handlePredictMedicines}
-                disabled={isLoadingPredictions}
-                className={`inline-flex items-center rounded-md px-4 py-2 text-sm font-medium text-white shadow-sm ${
-                  isLoadingPredictions
-                    ? 'cursor-not-allowed bg-blue-400'
-                    : 'bg-radial from-blue-900 to-blue-600'
-                }`}
-              >
-                {isLoadingPredictions ? (
-                  <>
-                    <ArrowPathIcon className="mr-2 -ml-1 h-4 w-4 animate-spin" />
-                    Predicting...
-                  </>
-                ) : (
-                  <>
-                    <ArrowPathIcon className="mr-2 -ml-1 h-4 w-4" />
-                    Predict Medicines
-                  </>
-                )}
-              </motion.button>
+              <p className="text-sm text-gray-500">AI-powered prediction of medicines</p>
             </div>
           </div>
 
+          {selectedCategory && (
+            <div className="text-sm text-gray-600">
+              Selected category:{' '}
+              <span className="font-medium text-blue-600">{selectedCategory}</span>
+            </div>
+          )}
+
           {predictedMedicines.length > 0 && (
             <div className="overflow-hidden bg-white shadow sm:rounded-md">
+              <div className="border-b border-gray-200 bg-gray-50 px-4 py-3">
+                <h4 className="text-sm font-medium text-gray-900">
+                  Predicted Medicines for {selectedCategory}
+                </h4>
+                <p className="mt-1 text-xs text-gray-500">
+                  {predictedMedicines.length} medicines predicted,{' '}
+                  {predictedMedicines.filter((m) => m.isRecommended).length} recommended
+                </p>
+              </div>
+
               <ul className="divide-y divide-gray-200">
                 <AnimatePresence>
                   {predictedMedicines.map((medicine) => (
@@ -338,11 +389,11 @@ export const PharmacyOrderSystem = () => {
           {predictedMedicines.length === 0 && !isLoadingPredictions && (
             <div className="py-12 text-center">
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 p-3">
-                <ArrowPathIcon className="h-6 w-6 text-blue-600" />
+                <FunnelIcon className="h-6 w-6 text-blue-600" />
               </div>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No predictions yet</h3>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">Ready to predict medicines</h3>
               <p className="mt-1 text-sm text-gray-500">
-                Click the Predict Medicines button to get started.
+                Select a category and click "Predict Medicines" to get AI-powered recommendations.
               </p>
             </div>
           )}

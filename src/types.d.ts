@@ -118,6 +118,7 @@ interface IOrder {
   pharmacyOutletId: string
   vendorOrgId: string
   orderDate: string
+  name: string
   orderStatus: OrderStatus
   paymentStatus: PaymentStatus
   paymentMethod: PaymentMethod
@@ -127,6 +128,7 @@ interface IOrder {
   orderItems?: IOrderItem[]
   pharmacy?: IPharmacyOutlet
   vendorOrg?: IVendorOrganization
+  pharmacyOutlet?: IPharmacyOutlet
   blockchainTxHash?: string
 }
 
@@ -134,6 +136,7 @@ interface IOrderItem {
   id: string
   orderId: string
   productId: string
+  name: string
   quantity: number
   price: number
   createdAt: string
@@ -154,9 +157,8 @@ interface IOrderFormData {
 }
 
 interface IOrderItemFormData {
-  productId: string
+  name: string
   quantity: number
-  price: number
 }
 
 // enum OrderStatus {
@@ -187,9 +189,9 @@ interface AuthState {
 }
 
 interface InventoryItem {
-  id: number
-  name: string
-  brand: string
+  id: string
+  medicineName: string
+  medicineBrand: string
   category: string
   image: string
   stock: number
@@ -313,18 +315,30 @@ export interface ProductFormValues {
   category: string
   image?: string
   unit: string
-  price: number
   vendorOrgId: string
 }
 
-export interface BulkProductFormValues {
-  products: ProductFormValues[]
+export interface BulkProductItem {
+  name: string
+  brand: string
+  category: string
+  unit: string
+  image: string
+  vendorOrgId: string
 }
 
+export type BulkProductInput = BulkProductItem[]
+
 interface OrderItem {
+  image: string
+  expiry: string
+  unit: string
+  category: string
+  brand: string
   id: string
   productId: string
   quantity: number
+  name: string
   price: number
   createdAt: string
   updatedAt: string
@@ -361,4 +375,38 @@ interface Order {
   pharmacyOutlet: Pharmacy
   vendorOrg: Vendor
   orderItems: OrderItem[]
+}
+
+export interface InventoryItem {
+  id: string
+  pharmacyOutletId: string
+  productId: string
+  orderId?: string
+  quantity: number
+  price: number
+  createdAt: string
+  updatedAt: string
+  Product?: Product // populated via include in Prisma
+}
+
+export interface InventoryItemFormData {
+  pharmacyOutletId: string
+  productId: string
+  quantity: number
+  price: number
+  orderId?: string
+}
+
+export interface ProductFormValues {
+  name: string
+  description?: string
+  brand: string
+  category: string
+  image?: string
+  unit: string
+  vendorOrgId: string
+}
+
+export interface BulkProductFormValues {
+  products: ProductFormValues[]
 }

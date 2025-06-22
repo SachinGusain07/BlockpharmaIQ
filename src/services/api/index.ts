@@ -5,6 +5,7 @@ import { supplierApiEndpoints } from './supplierApi'
 import { userApiEndpoints } from './userApi/endpoints'
 import { supplierInventoryApiEndpoints } from './ProductsApi/endpoints'
 import { OrderApiEndpoints } from './OrderApi'
+import { InventoryApiEndpoints } from './InventoryApi'
 
 export const {
   useMeQuery,
@@ -62,5 +63,12 @@ export const {
   useDeleteProductMutation,
 } = supplierInventoryApiEndpoints
 
-export const { useGetOrdersQuery, useCreateOrderMutation, useGetSupplierOrdersQuery, useUpdateOrderMutation } =
-  OrderApiEndpoints
+export const {
+  useGetOrdersQuery,
+  useCreateOrderMutation,
+  useGetSupplierOrdersQuery,
+  useUpdateOrderMutation,
+} = OrderApiEndpoints
+
+export const { useGetInventoryQuery, useCreateInventoryMutation, useUpdateInventoryMutation } =
+  InventoryApiEndpoints

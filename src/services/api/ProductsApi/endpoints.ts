@@ -1,5 +1,5 @@
 import { api } from '@/services/apiSlice'
-import { ApiResponse, BulkProductFormValues, Product, ProductFormValues } from '@/types'
+import { ApiResponse, BulkProductInput, Product, ProductFormValues } from '@/types'
 
 export const supplierInventoryApiEndpoints = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -7,7 +7,7 @@ export const supplierInventoryApiEndpoints = api.injectEndpoints({
       query: (vendorOrgId) => `/products/vendor/${vendorOrgId}`,
       providesTags: ['Products'],
     }),
-    createProduct: builder.mutation<Product, ProductFormValues>({
+    createProduct: builder.mutation<ApiResponse<Product>, ProductFormValues>({
       query: (body) => ({
         url: '/products',
         method: 'POST',
@@ -15,13 +15,13 @@ export const supplierInventoryApiEndpoints = api.injectEndpoints({
       }),
       invalidatesTags: ['Products'],
     }),
-    createBulkProducts: builder.mutation<Product[], BulkProductFormValues>({
-      query: (body) => ({
-        url: 'products/bulk',
+    createBulkProducts: builder.mutation<ApiResponse<Product[]>, BulkProductInput>({
+      query: (productsData) => ({
+        url: '/products/bulk',
         method: 'POST',
-        body,
+        body: productsData,
       }),
-      invalidatesTags: ['Products'],
+      invalidatesTags: ['Product'],
     }),
     updateProduct: builder.mutation<Product, { id: string; data: ProductFormValues }>({
       query: ({ id, data }) => ({

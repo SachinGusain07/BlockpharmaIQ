@@ -41,11 +41,6 @@ export const supplierNavItems = [
     icon: HomeIcon,
   },
   {
-    name: 'Products',
-    path: '/products',
-    icon: TruckIcon,
-  },
-  {
     name: 'Orders',
     path: '/pending-orders',
     icon: ClipboardDocumentListIcon,

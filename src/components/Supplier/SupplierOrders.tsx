@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import web3Service from '@/Contract/SupplyChainService'
-import { useGetSupplierOrdersQuery, useMeQuery, useUpdateOrderMutation } from '@/services/api'
+import {
+  useCreateInventoryMutation,
+  useCreateBulkProductsMutation,
+  useGetSupplierOrdersQuery,
+  useMeQuery,
+  useUpdateOrderMutation,
+} from '@/services/api'
 import { OrderItem, Pharmacy, Vendor } from '@/types'
 import { getStatusBadge, getStatusIcon, statusToNumber } from '@/utils/dashboardFunctions'
 import { motion } from 'framer-motion'
@@ -25,6 +31,29 @@ interface Order {
   orderItems: OrderItem[]
 }
 
+interface InventoryItem {
+  id: string
+  pharmacyOutletId: string
+  medicineName: string
+  medicineBrand: string
+  category: string
+  stock: number
+  unit: string
+  threshold: number
+  expiry: string
+  productId: string
+  image: string
+}
+
+interface BulkProductItem {
+  name: string
+  brand: string
+  category: string
+  unit: string
+  image: string
+  vendorOrgId: string
+}
+
 const SupplierOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([])
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
@@ -38,6 +67,8 @@ const SupplierOrdersPage: React.FC = () => {
     userData?.body?.data?.id || ''
   )
   const [updateOrder] = useUpdateOrderMutation()
+  const [createInventory] = useCreateInventoryMutation()
+  const [createBulkProducts] = useCreateBulkProductsMutation()
 
   useEffect(() => {
     if (supplierOrdersData?.body?.data) {
@@ -92,6 +123,67 @@ const SupplierOrdersPage: React.FC = () => {
     setFilteredOrders(result)
   }, [searchTerm, statusFilter, orders])
 
+  // Helper function to create products in bulk before adding to inventory
+  const createProductsFromOrderItems = async (order: Order) => {
+    try {
+      // Prepare bulk products data from order items
+      const bulkProductsData: BulkProductItem[] = order.orderItems.map((item) => ({
+        name: item.name,
+        brand: item.brand || 'Generic',
+        category: item.category || 'Medicine',
+        unit: item.unit || 'tablets',
+        image: item.image || 'https://cdn-icons-png.flaticon.com/512/2937/2937192.png',
+        vendorOrgId: order.vendorOrg.id,
+      }))
+
+      // Create products in bulk
+      const productsResponse = await createBulkProducts(bulkProductsData).unwrap()
+
+      if (productsResponse?.body?.data) {
+        toast.success(`${bulkProductsData.length} products created successfully`)
+        return productsResponse.body.data
+      } else {
+        throw new Error('Failed to create products')
+      }
+    } catch (error) {
+      console.error('Failed to create products:', error)
+      toast.error('Failed to create products')
+      throw error
+    }
+  }
+
+  // Helper function to add items to pharmacy inventory
+  const addItemsToInventory = async (order: Order, createdProducts?: any[]) => {
+    try {
+      const inventoryPromises = order.orderItems.map(async (item, index) => {
+        const productId = createdProducts?.[index]?.id || item.productId || item.id
+
+        const newInventoryItem: InventoryItem = {
+          id: `inv-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+          pharmacyOutletId: order.pharmacyOutlet.id,
+          medicineName: item.name,
+          medicineBrand: item.brand || 'Generic',
+          category: item.category || 'Medicine',
+          stock: item.quantity,
+          unit: item.unit || 'tablets',
+          threshold: Math.floor(item.quantity * 0.1) || 10,
+          expiry: item.expiry || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          productId: productId,
+          image: item.image || 'https://cdn-icons-png.flaticon.com/512/2937/2937192.png',
+        }
+
+        return await createInventory(newInventoryItem).unwrap()
+      })
+
+      await Promise.all(inventoryPromises)
+      toast.success(`${order.orderItems.length} items added to pharmacy inventory`)
+    } catch (error) {
+      console.error('Failed to add items to inventory:', error)
+      toast.error('Some items could not be added to inventory')
+      throw error
+    }
+  }
+
   // Update order status
   const updateOrderStatus = async (
     orderId: string,
@@ -101,23 +193,47 @@ const SupplierOrdersPage: React.FC = () => {
     setIsProcessing(true)
     try {
       const statusNumber = statusToNumber(newStatus)
+      const currentOrder = orders.find((order) => order.id === orderId)
 
-      // TODO: Implement the logic to update the order status in the blockchain
-      const reciept = await web3Service.updateOrderStatus(Number(blockchainOrderId), statusNumber)
+      if (!currentOrder) {
+        throw new Error('Order not found')
+      }
 
+      // Update blockchain first
+      const receipt = await web3Service.updateOrderStatus(Number(blockchainOrderId), statusNumber)
+
+      // Update order in database
       const response = await updateOrder({
         id: orderId,
         orderStatus: newStatus,
         blockchainTxHash:
-          reciept.hash || '0x8f15cac06362f23711c5e17755c00afaddf4ad26dce3216ae0296f13a154c2555',
+          receipt.hash || '0x8f15cac06362f23711c5e17755c00afaddf4ad26dce3216ae0296f13a154c2555',
       }).unwrap()
 
+      let createdProducts = null
+
+      // If status is DELIVERED, create products first then add items to pharmacy inventory
+      if (newStatus === 'DELIVERED') {
+        try {
+          // First create products in bulk
+          createdProducts = await createProductsFromOrderItems(currentOrder)
+
+          // Then add items to inventory
+          await addItemsToInventory(currentOrder, createdProducts)
+        } catch (error) {
+          // If product creation fails, still try to add to inventory with existing product IDs
+          console.warn('Product creation failed, proceeding with existing product IDs:', error)
+          await addItemsToInventory(currentOrder)
+        }
+      }
+
       if (response) {
-        toast.success('Order status updated successfully')
+        toast.success(`Order status updated to ${newStatus}`)
         refetch()
         setSelectedOrder(null)
       }
 
+      // Update local state
       setOrders(
         orders.map((order) => (order.id === orderId ? { ...order, orderStatus: newStatus } : order))
       )
@@ -213,12 +329,6 @@ const SupplierOrdersPage: React.FC = () => {
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
                 >
-                  Total
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
-                >
                   Transaction Hash
                 </th>
                 <th
@@ -276,9 +386,6 @@ const SupplierOrdersPage: React.FC = () => {
                         })}
                         {order.orderStatus}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
-                      ₹{order.amount.toFixed(2)}
                     </td>
                     <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
                       <a
@@ -375,25 +482,13 @@ const SupplierOrdersPage: React.FC = () => {
                           scope="col"
                           className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
                         >
-                          Product ID
+                          Product name
                         </th>
                         <th
                           scope="col"
-                          className="px-4 py-3 text-center text-xs font-medium tracking-wider text-gray-500 uppercase"
+                          className="px-4 py-3 text-end text-xs font-medium tracking-wider text-gray-500 uppercase"
                         >
                           Quantity
-                        </th>
-                        <th
-                          scope="col"
-                          className="py3 px-4 text-right text-xs font-medium tracking-wider text-gray-500 uppercase"
-                        >
-                          Price
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-4 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase"
-                        >
-                          Total
                         </th>
                       </tr>
                     </thead>
@@ -401,16 +496,10 @@ const SupplierOrdersPage: React.FC = () => {
                       {selectedOrder.orderItems.map((item) => (
                         <tr key={item.id} className="hover:bg-gray-50">
                           <td className="px-4 py-3 text-sm font-medium whitespace-nowrap text-gray-900">
-                            {item.productId}
+                            {item.name}
                           </td>
-                          <td className="px-4 py-3 text-center text-sm whitespace-nowrap text-gray-500">
+                          <td className="px-4 py-3 text-end text-sm whitespace-nowrap text-gray-500">
                             {item.quantity.toLocaleString()}
-                          </td>
-                          <td className="px-4 py-3 text-right text-sm whitespace-nowrap text-gray-500">
-                            ₹{item.price.toFixed(2)}
-                          </td>
-                          <td className="px-4 py-3 text-right text-sm font-medium whitespace-nowrap text-gray-900">
-                            ₹{(item.quantity * item.price).toFixed(2)}
                           </td>
                         </tr>
                       ))}
@@ -419,13 +508,15 @@ const SupplierOrdersPage: React.FC = () => {
                       <tr>
                         <th
                           scope="row"
-                          colSpan={3}
-                          className="px-4 py-3 text-right text-sm font-medium text-gray-900"
+                          colSpan={1}
+                          className="px-4 py-3 text-left text-sm font-medium text-gray-900"
                         >
-                          Total
+                          Total Items:
                         </th>
-                        <td className="px-4 py-3 text-right text-sm font-medium whitespace-nowrap text-gray-900">
-                          ₹{selectedOrder.amount.toFixed(2)}
+                        <td className="px-4 py-3 text-end text-sm font-medium whitespace-nowrap text-gray-900">
+                          {selectedOrder.orderItems
+                            .reduce((total, item) => total + item.quantity, 0)
+                            .toLocaleString()}
                         </td>
                       </tr>
                     </tfoot>
@@ -437,14 +528,6 @@ const SupplierOrdersPage: React.FC = () => {
             <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
               <div className="mb-2 text-sm font-medium text-gray-700">Transaction Details</div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className="text-sm text-gray-500">Payment Method</div>
-                  <div className="font-medium text-gray-900">{selectedOrder.paymentMethod}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-500">Payment Status</div>
-                  <div className="font-medium text-gray-900">{selectedOrder.paymentStatus}</div>
-                </div>
                 <div className="col-span-2">
                   <div className="text-sm text-gray-500">Blockchain Transaction Hash</div>
                   <a
@@ -461,23 +544,31 @@ const SupplierOrdersPage: React.FC = () => {
 
             <div className="mb-6">
               <div className="mb-2 text-sm font-medium text-gray-700">Update Order Status</div>
-              <select
-                className="block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-emerald-500 focus:ring-emerald-500 focus:outline-none"
-                value={selectedOrder.orderStatus}
-                onChange={(e) =>
-                  updateOrderStatus(
-                    selectedOrder.id,
-                    selectedOrder.blockchainOrderId,
-                    e.target.value as OrderStatus
-                  )
-                }
-                disabled={isProcessing}
-              >
-                <option value="PENDING">Pending</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="DELIVERED">Delivered</option>
-                <option value="CANCELLED">Cancelled</option>
-              </select>
+              <div className="mb-2">
+                <select
+                  className="block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-emerald-500 focus:ring-emerald-500 focus:outline-none"
+                  value={selectedOrder.orderStatus}
+                  onChange={(e) =>
+                    updateOrderStatus(
+                      selectedOrder.id,
+                      selectedOrder.blockchainOrderId,
+                      e.target.value as OrderStatus
+                    )
+                  }
+                  disabled={isProcessing}
+                >
+                  <option value="PENDING">Pending</option>
+                  <option value="IN_PROGRESS">In Progress</option>
+                  <option value="DELIVERED">Delivered</option>
+                  <option value="CANCELLED">Cancelled</option>
+                </select>
+              </div>
+              {selectedOrder.orderStatus !== 'DELIVERED' && (
+                <div className="text-xs text-gray-500">
+                  💡 Setting status to "Delivered" will automatically add all order items to the
+                  pharmacy's inventory
+                </div>
+              )}
             </div>
 
             <div className="mt-8 flex justify-end gap-3">

@@ -224,11 +224,6 @@ export const productSchema = yup.object().shape({
   category: yup.string().required('Category is required'),
   image: yup.string().url('Invalid URL'),
   unit: yup.string().required('Unit is required'),
-  price: yup
-    .number()
-    .typeError('Price must be a number')
-    .positive('Price must be positive')
-    .required('Price is required'),
   vendorOrgId: yup.string().required('Vendor organization is required'),
 })
 
@@ -241,7 +236,6 @@ export const bulkProductSchema = yup.object().shape({
         brand: yup.string().required('Brand is required'),
         category: yup.string().required('Category is required'),
         unit: yup.string().required('Unit is required'),
-        price: yup.number().required('Price is required').min(0, 'Price must be at least 0'),
         vendorOrgId: yup.string().required('Vendor Organization ID is required'),
         description: yup.string(),
         image: yup.string().url('Image must be a valid URL'),
@@ -249,6 +243,43 @@ export const bulkProductSchema = yup.object().shape({
     )
     .required('Products are required')
     .min(1, 'At least one product is required'),
+})
+
+export const medicineSchema = yup.object({
+  name: yup
+    .string()
+    .required('Medicine name is required')
+    .min(2, 'Medicine name must be at least 2 characters')
+    .max(100, 'Medicine name must not exceed 100 characters'),
+  brand: yup
+    .string()
+    .required('Brand is required')
+    .min(2, 'Brand must be at least 2 characters')
+    .max(50, 'Brand must not exceed 50 characters'),
+  category: yup.string().required('Category is required'),
+  quantity: yup
+    .number()
+    .required('Quantity is required')
+    .positive('Quantity must be positive')
+    .integer('Quantity must be a whole number')
+    .min(1, 'Quantity must be at least 1'),
+  price: yup
+    .number()
+    .required('Price is required')
+    .positive('Price must be positive')
+    .min(0.01, 'Price must be at least $0.01')
+    .max(9999.99, 'Price must not exceed $9999.99'),
+  threshold: yup
+    .number()
+    .required('Reorder threshold is required')
+    .positive('Threshold must be positive')
+    .integer('Threshold must be a whole number')
+    .min(1, 'Threshold must be at least 1'),
+  expiry: yup
+    .date()
+    .required('Expiry date is required')
+    .min(new Date(), 'Expiry date must be in the future'),
+  manufacturerId: yup.string().optional(),
 })
 
 export type PharmacyFormData = yup.InferType<typeof pharmacySchema>
