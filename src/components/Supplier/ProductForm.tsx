@@ -156,23 +156,6 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                     <p className="text-destructive mt-1 text-sm">{errors.unit.message}</p>
                   )}
                 </div>
-
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="price">Price*</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    {...register('price')}
-                    placeholder="0.00"
-                    defaultValue={defaultValues?.price}
-                    disabled={isLoading}
-                    className={cn(errors.price && 'border-destructive')}
-                  />
-                  {errors.price && (
-                    <p className="text-destructive mt-1 text-sm">{errors.price.message}</p>
-                  )}
-                </div>
               </div>
 
               <div className="flex flex-col gap-2">

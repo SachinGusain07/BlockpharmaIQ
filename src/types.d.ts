@@ -396,3 +396,17 @@ export interface InventoryItemFormData {
   price: number
   orderId?: string
 }
+
+export interface ProductFormValues {
+  name: string
+  description?: string
+  brand: string
+  category: string
+  image?: string
+  unit: string
+  vendorOrgId: string
+}
+
+export interface BulkProductFormValues {
+  products: ProductFormValues[]
+}

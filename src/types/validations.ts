@@ -224,11 +224,6 @@ export const productSchema = yup.object().shape({
   category: yup.string().required('Category is required'),
   image: yup.string().url('Invalid URL'),
   unit: yup.string().required('Unit is required'),
-  price: yup
-    .number()
-    .typeError('Price must be a number')
-    .positive('Price must be positive')
-    .required('Price is required'),
   vendorOrgId: yup.string().required('Vendor organization is required'),
 })
 
@@ -241,7 +236,6 @@ export const bulkProductSchema = yup.object().shape({
         brand: yup.string().required('Brand is required'),
         category: yup.string().required('Category is required'),
         unit: yup.string().required('Unit is required'),
-        price: yup.number().required('Price is required').min(0, 'Price must be at least 0'),
         vendorOrgId: yup.string().required('Vendor Organization ID is required'),
         description: yup.string(),
         image: yup.string().url('Image must be a valid URL'),
