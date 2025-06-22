@@ -83,7 +83,7 @@ export const PharmacyOrderSystem = () => {
     setIsLoadingPredictions(true)
     try {
       const response = await fetch(
-        `http://localhost:8000/predict?category=${encodeURIComponent(selectedCategory)}`,
+        `${import.meta.env.VITE_AI_API_URL}predict?category=${encodeURIComponent(selectedCategory)}`,
         {
           method: 'GET',
           headers: {
