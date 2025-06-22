@@ -16,7 +16,6 @@ export const AdminNavLinks = [
 
 export const SupplierNavLinks = [
   { name: 'Dashboard', path: '/supplier-dashboard' },
-  { name: 'Products', path: '/products' },
   { name: 'Pending Orders', path: '/pending-orders' },
   { name: 'Order History', path: '/order-history' },
   { name: 'Settings', path: '/setting' },
